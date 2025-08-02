@@ -24,6 +24,8 @@ bool BitFieldEditor(const char* label, ImGuiDataType dtype, T* field, T startBit
 void Viewer(const char* label, hh::needle::Texture& texture)
 {
 	ImGui::Image(GetTextureIDFromMIRAGETexture(&texture), ImVec2(256, 256));
+	ImGui::SameLine();
+	ImGui::Text(label);
 }
 
 bool Editor(const char* label, hh::needle::intrusive_ptr<hh::needle::Texture>& texture)
@@ -239,6 +241,7 @@ bool Editor(const char* label, hh::needle::PipelineInfo& pipelineInfo) {
 	}
 	return edited;
 }
+#endif
 
 template<typename T>
 bool SingleParamEditor(const char* label, uint32_t count, hh::needle::CNameIDObject** names, T* paramDatas) {
@@ -305,6 +308,7 @@ bool Editor(const char* label, hh::needle::ParameterValueObjectContainer& pvo) {
 	return edited;
 }
 
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 bool Editor(const char* label, hh::needle::RenderJob& job)
 {
 	bool edited{};

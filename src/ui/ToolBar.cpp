@@ -43,7 +43,7 @@
 #endif
 #include "operation-modes/modes/surfride-editor/SurfRideEditor.h"
 #ifndef DEVTOOLS_TARGET_SDK_wars
-#include "operation-modes/modes/dvscene-editor/DvSceneEditor.h"
+//#include "operation-modes/modes/dvscene-editor/DvSceneEditor.h"
 #endif
 
 using namespace hh::game;
@@ -131,10 +131,10 @@ void ToolBar::Render() {
 #endif
 			if (ImGui::MenuItem("SurfRide Editor"))
 				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::surfride_editor::SurfRideEditor>();
-#ifndef DEVTOOLS_TARGET_SDK_wars
-			if (ImGui::MenuItem("DvScene Editor"))
-				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::dvscene_editor::DvSceneEditor>();
-#endif
+//#ifndef DEVTOOLS_TARGET_SDK_wars
+//			if (ImGui::MenuItem("DvScene Editor"))
+//				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::dvscene_editor::DvSceneEditor>();
+//#endif
 			ImGui::EndMenu();
 		}
 

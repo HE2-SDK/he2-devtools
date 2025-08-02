@@ -4,6 +4,7 @@
 #include "renderables/GOCVisualDebugDraws.h"
 #include "renderables/OcclusionCapsules.h"
 #include "renderables/Paths.h"
+#include "renderables/Bones.h"
 
 namespace devtools::debug_rendering {
 	class DebugRenderingSystem : public CompatibleObject {
@@ -12,6 +13,7 @@ namespace devtools::debug_rendering {
 		renderables::GOCVisualDebugDraws gocVisualDebugDrawsRenderable{ GetAllocator() };
 		renderables::OcclusionCapsules occlusionCapsulesRenderable{};
 		renderables::Paths pathsRenderable{};
+		renderables::Bones bonesRenderable{};
 
 		static hh::fnd::Reference<DebugRenderingSystem> instance;
 

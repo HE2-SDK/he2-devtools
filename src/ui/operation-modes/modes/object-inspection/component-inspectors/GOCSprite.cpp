@@ -1,4 +1,4 @@
-#include "GOCTransform.h"
+#include "GOCSprite.h"
 #include <ui/common/editors/Basic.h>
 #include <ui/common/viewers/Basic.h>
 

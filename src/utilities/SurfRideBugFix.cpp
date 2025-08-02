@@ -42,7 +42,7 @@ void AddLayer(SurfRide::Layer* layer, csl::ut::String& path) {
 	else
 		AddFrag(layer->scene->sceneData->name, path);
 
-	AddFrag(layer->layerData->name, path);
+	AddFrag(layer->name.c_str(), path);
 }
 
 const char* ReadFrag(const char* path, csl::ut::String& frag) {
@@ -86,7 +86,7 @@ SurfRide::Cast* ResolveCast(SurfRide::Project* project, const char* path) {
 		path = ReadFrag(path, frag);
 		layer = static_cast<SurfRide::ReferenceCast*>(cast)->refLayer;
 
-		if (strcmp(layer->name, frag.c_str()) || path == nullptr)
+		if (strcmp(layer->name.c_str(), frag.c_str()) || path == nullptr)
 			return nullptr;
 
 		path = ReadFrag(path, frag);
@@ -121,7 +121,7 @@ SurfRide::Layer* ResolveLayer(SurfRide::Project* project, const char* path) {
 		path = ReadFrag(path, frag);
 		layer = static_cast<SurfRide::ReferenceCast*>(cast)->refLayer;
 
-		if (layer == nullptr || strcmp(layer->name, frag.c_str()))
+		if (layer == nullptr || strcmp(layer->name.c_str(), frag.c_str()))
 			return nullptr;
 	}
 

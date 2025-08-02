@@ -5,6 +5,9 @@
 
 namespace ui::operation_modes::modes::surfride_editor::texture_editor {
 	class Context : public CompatibleObject {
+		static hh::ui::ResSurfRideProject* GetResourceForComponent(hh::ui::GOCSprite* goc);
+		unsigned short GenerateUniqueId();
+		bool IsIdTaken(unsigned short id) const;
 	public:
 		using CompatibleObject::CompatibleObject;
 		hh::fnd::Reference<hh::ui::GOCSprite> gocSprite{};

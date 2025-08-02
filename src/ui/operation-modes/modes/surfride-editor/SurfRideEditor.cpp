@@ -98,6 +98,10 @@ namespace ui::operation_modes::modes::surfride_editor
 			ImGuiFileDialog::Instance()->OpenDialog("ResSurfRideProjectExportDialog", "Choose File", ".swif", cfg);
 			break;
 		}
+		case CriticalParametersChangedAction::id: {
+			GetContext().ReloadResource();
+			break;
+		}
 		}
 	}
 

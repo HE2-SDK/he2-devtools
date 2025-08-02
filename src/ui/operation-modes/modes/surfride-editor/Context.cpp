@@ -32,10 +32,118 @@ namespace ui::operation_modes::modes::surfride_editor {
 
 	void Context::ReloadResource() {
 		ReloadManager::instance->ReloadSync(projectResource);
+
+		if (!gocSprite)
+			return;
+
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+		if (auto* gocUICompo = gocSprite->owner->GetComponent<hh::ui::GOCUIComposition>()) {
+			class ReloadVisitor : public hh::ui::UIElementTraverser {
+			public:
+				Context& ctx;
+
+				ReloadVisitor(Context& ctx) : ctx{ ctx } {}
+
+				virtual void BeginElement(hh::ui::UIElement* element) override {
+					if (element->GetRuntimeTypeInfo() == (void*)0x143CE6880) {
+						auto* el = (hh::ui::UIListViewElement*)element;
+						auto* castHandle = *el->hCast;
+
+						csl::ut::MoveArray<hh::fnd::Reference<hh::ui::UIObject>> tmpElements{ hh::fnd::MemoryRouter::GetTempAllocator() };
+
+						for (auto& child : el->layout.panel->children)
+							tmpElements.push_back(child);
+						
+						el->Reset();
+						el->SetupLayout(castHandle->GetCast());
+						el->Deinitialize();
+						el->initialized = 0;
+						el->Initialize();
+						el->Reset();
+
+						size_t i{};
+						el->NUnkFunc1(-1, 0, 0);
+						for (auto& child : tmpElements) {
+							child->position = { 0, 0 };
+							el->AddItem((hh::ui::UIListViewItem*)&*child);
+							el->NUnkFunc1(i++, 0, 0);
+						}
+					}
+					//element->MarkUpdateRequired(true);
+				}
+			};
+
+			ReloadVisitor v{ *this };
+
+			for (auto* group : gocUICompo->elementGroups)
+				group->Traverse(&v);
+		}
+#endif
+		//for (auto* tou : textObjectUpdaters) {
+		//	if (tou->textObject == nullptr)
+		//		continue;
+
+		//	csl::ut::VariableString str{ hh::fnd::MemoryRouter::GetTempAllocator() };
+		//	hh::ui::TextStyleParameters styleParams{ hh::fnd::MemoryRouter::GetTempAllocator() };
+
+		//	if (tou->LoadTextParameters(str, styleParams)) {
+		//		hh::fnd::Reference<hh::ui::TextData> txtData{ tou->textObject->textData };
+		//		tou->Clear();
+		//		tou->SetTextData(txtData);
+		//		tou->SetStyleParameters(styleParams);
+		//		tou->textObject->SetTextData(txtData);
+		//		tou->Update();
+		//	}
+		//}
 		//project = gocSprite == nullptr ? nullptr : gocSprite->GetProject()->projectData;
 	}
 
-	SRS_CASTNODE* Context::CreateCast(SRS_LAYER& layer, int sibling)
+	unsigned short Context::GenerateUniqueId() {
+		unsigned short res{};
+
+		do { res = mt(); } while (IsIdTaken(res));
+
+		return res;
+	}
+
+	bool Context::IsIdTaken(unsigned short id) const {
+		auto& project = *gocSprite->GetProject()->projectData;
+
+		for (auto& textureList : std::span(project.textureLists, project.textureListCount))
+			for (auto& texture : std::span(textureList.textures, textureList.textureCount))
+				if (texture.id == id)
+					return true;
+
+		for (auto& scene : std::span(project.scenes, project.sceneCount)) {
+			if (scene.id == id)
+				return true;
+
+			for (auto& layer : std::span(scene.layers, scene.layerCount)) {
+				if (layer.id == id)
+					return true;
+
+				for (auto& cast : std::span(layer.casts, layer.castCount))
+					if (cast.id == id)
+						return true;
+
+				for (auto& animation : std::span(layer.animations, layer.animationCount))
+					if (animation.id == id)
+						return true;
+			}
+
+			for (auto& camera : std::span(scene.cameras, scene.cameraCount))
+				if (camera.id == id)
+					return true;
+		}
+		
+		for (auto& font : std::span(project.fonts, project.fontCount))
+			if (font.id == id)
+				return true;
+
+		return false;
+	}
+
+	SRS_CASTNODE* Context::CreateCast(SRS_LAYER& layer)
 	{
 		resources::ManagedCArray<SRS_CASTNODE, int> casts{ projectResource, layer.casts, layer.castCount };
 
@@ -43,14 +151,12 @@ namespace ui::operation_modes::modes::surfride_editor {
 
 		SRS_CASTNODE newNode{};
 		newNode.name = "newcast";
-		newNode.id = static_cast<int>(mt());
+		newNode.id = GenerateUniqueId();
 		newNode.flags = 0x750;
 		newNode.data.none = nullptr;
 		newNode.SetType(SRS_CASTNODE::Type::NORMAL);
 
 		casts.push_back(std::move(newNode));
-
-		FindLastSibling(layer, sibling).siblingIndex = static_cast<short>(prevSize);
 
 		resources::ManagedCArray<SRS_TRS3D, int> transforms{ projectResource, layer.transforms.transforms3d, prevSize };
 		transforms.emplace_back();
@@ -60,8 +166,8 @@ namespace ui::operation_modes::modes::surfride_editor {
 		return &casts[casts.size() - 1];
 	}
 
-	SRS_CASTNODE* Context::CreateImageCast(SRS_LAYER& layer, int sibling) {
-		auto* cast = CreateCast(layer, sibling);
+	SRS_CASTNODE* Context::CreateImageCast(SRS_LAYER& layer) {
+		auto* cast = CreateCast(layer);
 
 		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(projectResource);
 
@@ -80,8 +186,8 @@ namespace ui::operation_modes::modes::surfride_editor {
 		return cast;
 	}
 
-	SRS_CASTNODE* Context::CreateSliceCast(SRS_LAYER& layer, int sibling) {
-		auto* cast = CreateCast(layer, sibling);
+	SRS_CASTNODE* Context::CreateSliceCast(SRS_LAYER& layer) {
+		auto* cast = CreateCast(layer);
 
 		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(projectResource);
 
@@ -106,8 +212,8 @@ namespace ui::operation_modes::modes::surfride_editor {
 		return cast;
 	}
 
-	SRS_CASTNODE* Context::CreateReferenceCast(SRS_LAYER& layer, int sibling) {
-		auto* cast = CreateCast(layer, sibling);
+	SRS_CASTNODE* Context::CreateReferenceCast(SRS_LAYER& layer) {
+		auto* cast = CreateCast(layer);
 
 		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(projectResource);
 
@@ -151,25 +257,38 @@ namespace ui::operation_modes::modes::surfride_editor {
 		return goc == nullptr ? nullptr : goc->projectResource;
 #endif
 	}
+	
+	SRS_CASTNODE* Context::CreateCast(SRS_LAYER& layer, SRS_CASTNODE::Type type) {
+		switch (type) {
+		case SRS_CASTNODE::Type::NORMAL: return CreateCast(layer);
+		case SRS_CASTNODE::Type::IMAGE: return CreateImageCast(layer);
+		case SRS_CASTNODE::Type::SLICE: return CreateSliceCast(layer);
+		case SRS_CASTNODE::Type::REFERENCE: return CreateReferenceCast(layer);
+		}
+	}
 
 	void Context::AddCast(SRS_LAYER& layer, SRS_CASTNODE::Type type) {
-		switch (type) {
-		case SRS_CASTNODE::Type::NORMAL: CreateCast(layer, 0); break;
-		case SRS_CASTNODE::Type::IMAGE: CreateImageCast(layer, 0); break;
-		case SRS_CASTNODE::Type::SLICE: CreateSliceCast(layer, 0); break;
-		case SRS_CASTNODE::Type::REFERENCE: CreateReferenceCast(layer, 0); break;
-		}
+		auto* cast = CreateCast(layer, type);
+
+		if (layer.castCount > 1)
+			FindLastSibling(layer, 0).siblingIndex = static_cast<short>(cast - layer.casts);
 
 		ReloadResource();
 	}
 
 	void Context::AddCast(SRS_CASTNODE& parent, SRS_CASTNODE::Type type) {
-		switch (type) {
-		case SRS_CASTNODE::Type::NORMAL: CreateCast(*FindCastLayer(parent.id), parent.childIndex); break;
-		case SRS_CASTNODE::Type::IMAGE: CreateImageCast(*FindCastLayer(parent.id), parent.childIndex); break;
-		case SRS_CASTNODE::Type::SLICE: CreateSliceCast(*FindCastLayer(parent.id), parent.childIndex); break;
-		case SRS_CASTNODE::Type::REFERENCE: CreateReferenceCast(*FindCastLayer(parent.id), parent.childIndex); break;
-		}
+		SRS_LAYER& layer = *FindCastLayer(parent.id);
+		size_t parentIdx = &parent - layer.casts;
+
+		auto* cast = CreateCast(layer, type);
+
+		// Creating a cast might have reallocated the casts array, so need to look it up again.
+		auto& newParent = layer.casts[parentIdx];
+
+		if (newParent.childIndex == -1)
+			newParent.childIndex = static_cast<short>(cast - layer.casts);
+		else
+			FindLastSibling(layer, newParent.childIndex).siblingIndex = static_cast<short>(cast - layer.casts);
 
 		ReloadResource();
 	}

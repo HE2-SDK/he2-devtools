@@ -194,7 +194,7 @@ namespace ui::operation_modes::modes::surfride_editor {
 
 	void Timeline::RenderTrack(SRS_LAYER& layer, SRS_ANIMATION& animation, SRS_MOTION& motion, SRS_TRACK& track)
 	{
-		auto context = GetContext();
+		auto& context = GetContext();
 		ImGui::PushID(&track);
 		bool isOpen = ImTimeline::BeginTrack(TrackName(track));
 

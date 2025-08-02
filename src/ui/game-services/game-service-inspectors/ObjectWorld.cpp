@@ -38,7 +38,7 @@ void RenderGameServiceInspector(hh::game::ObjectWorld& objWorld) {
 					if (ImGui::TreeNode(&status, status.objectData->name)) {
 						CheckboxFlags("Enabled", status.flags, WorldObjectStatus::Flag::ENABLED);
 						CheckboxFlags("Is alive", status.flags, WorldObjectStatus::Flag::IS_ALIVE);
-						CheckboxFlags("Shutdown", status.flags, WorldObjectStatus::Flag::SHUTDOWN);
+						CheckboxFlags("Is shut down", status.flags, WorldObjectStatus::Flag::SHUTDOWN);
 						CheckboxFlags("No restart", status.flags, WorldObjectStatus::Flag::NO_RESTART);
 
 						if (ImGui::Button("Spawn"))
@@ -53,6 +53,14 @@ void RenderGameServiceInspector(hh::game::ObjectWorld& objWorld) {
 #ifndef DEVTOOLS_TARGET_SDK_wars
 						Editor("Spawn priority", status.spawnPriority);
 #endif
+
+						unsigned short state0 = status.GetObjectState(0);
+						if (Editor("State 0", state0))
+							status.SetObjectState(0, state0);
+
+						unsigned short state1 = status.GetObjectState(1);
+						if (Editor("State 1", state1))
+							status.SetObjectState(1, state1);
 
 						ImGui::SeparatorText("Object Data");
 						Editor("Object data", *status.objectData);

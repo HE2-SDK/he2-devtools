@@ -136,5 +136,5 @@ void AddDevToolsInputBindings(hh::hid::InputMapSettings* inputSettings) {
 	//inputSettings->BindAxisMapping("HHFreeCameraMoveHorizontal", 0x30005u, -1.0);
 	//inputSettings->BindAxisMapping("HHFreeCameraMoveHorizontal", 0x30006u, 1.0);
 
-	inputSettings->BindActionMapping("DevToolsPhotoMode", 0x1000eu);
+	inputSettings->BindActionMapping("DevToolsPhotoMode", 0x10011u);
 }

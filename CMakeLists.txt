@@ -19,7 +19,7 @@ set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:EditAn
 set(OGDF_DEBUG_MODE NONE)
 include(FetchContent)
 FetchContent_Declare(OGDF GIT_REPOSITORY https://github.com/ogdf/ogdf.git GIT_TAG 8a7b22712929f1cd48c4ed701c52b0c0a69c01c8 EXCLUDE_FROM_ALL FIND_PACKAGE_ARGS)
-FetchContent_Declare(rip GIT_REPOSITORY https://github.com/angryzor/rip.git GIT_TAG v1.0.32 EXCLUDE_FROM_ALL FIND_PACKAGE_ARGS 1.0.32)
+FetchContent_Declare(rip GIT_REPOSITORY https://github.com/angryzor/rip.git GIT_TAG v1.0.33 EXCLUDE_FROM_ALL FIND_PACKAGE_ARGS 1.0.33)
 FetchContent_Declare(dieventlib GIT_REPOSITORY https://github.com/Ashrindy/DiEventLibCPP.git)
 FetchContent_MakeAvailable(ogdf rip dieventlib)
 add_subdirectory(vendor EXCLUDE_FROM_ALL)

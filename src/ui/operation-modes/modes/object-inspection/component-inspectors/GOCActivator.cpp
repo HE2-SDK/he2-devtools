@@ -1,11 +1,12 @@
 #include "GOCActivator.h"
 #include <ui/common/editors/Basic.h>
+#include <ui/common/viewers/Basic.h>
 
 void RenderComponentInspector(hh::game::GOCActivator& component) {
-	Editor("range", component.range);
-	Editor("distance", component.distance);
+	Editor("Range", component.range);
+	Editor("Distance", component.distance);
 	Editor("unk101", component.unk101);
-	Editor("location", component.z);
-	Editor("unk103", component.unk103);
-	Editor("enabled", component.enabled);
+	Viewer("Position", component.position);
+	Viewer("Range + distance squared", component.rangePlusDistanceSquared);
+	Editor("Enabled", component.enabled);
 }

@@ -235,6 +235,9 @@ ImBrowser::Image ResourceBrowser::GetImage(hh::fnd::ManagedResource* resource)
 	auto* resTex = static_cast<hh::gfnd::ResTexture*>(resource);
 	auto* tex = resTex->GetTexture();
 
+	if (tex == nullptr)
+		return {};
+
 	return { GetTextureIDFromResTexture(resTex), { 0.0f, 0.0f }, { 1.0f, 1.0f }, { static_cast<float>(tex->format.width), static_cast<float>(tex->format.height) } };
 }
 

@@ -170,7 +170,7 @@ namespace ui::operation_modes::modes::surfride_editor {
 
 	SurfRide::Layer* ResolveRuntimeLayerPath(SurfRide::Project& project, const SurfRideElementPath& path) {
 		size_t i{};
-		if (path.size() < 3)
+		if (path.size() < 2)
 			return nullptr;
 
 		auto* scene = ResolveRuntimeScenePathFragment(project, path[i++]);

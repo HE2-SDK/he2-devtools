@@ -15,6 +15,7 @@ target_sources(${DEVTOOLS_TARGET}
         debug-rendering/renderables/GOCVisualDebugDraws.cpp
         debug-rendering/renderables/OcclusionCapsules.cpp
         debug-rendering/renderables/Paths.cpp
+        debug-rendering/renderables/Bones.cpp
         debug-rendering/visuals/AabbTree.cpp
         debug-rendering/visuals/Geometry.cpp
         debug-rendering/visuals/KdTree.cpp
@@ -32,6 +33,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/editors/Basic.cpp
         ui/common/editors/Reflection.cpp
         ui/common/editors/GraphicsContext.cpp
+        ui/common/editors/Effects.cpp
         ui/common/editors/${DEVTOOLS_TARGET_SDK}/LevelInfo.cpp
         ui/common/editors/Resources.cpp
         ui/common/editors/HsmBase.cpp
@@ -82,6 +84,7 @@ target_sources(${DEVTOOLS_TARGET}
         debug-rendering/renderables/GOCVisualDebugDraws.h
         debug-rendering/renderables/OcclusionCapsules.h
         debug-rendering/renderables/Paths.h
+        debug-rendering/renderables/Bones.h
         debug-rendering/visuals/AabbTree.h
         debug-rendering/visuals/Geometry.h
         debug-rendering/visuals/KdTree.h
@@ -104,6 +107,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/editors/Camera.h
         ui/common/editors/Reflection.h
         ui/common/editors/GraphicsContext.h
+        ui/common/editors/Effects.h
         ui/common/editors/LevelInfo.h
         ui/common/editors/Needle.h
         ui/common/editors/Resources.h
@@ -240,12 +244,18 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         GOCTransform
         GOCCollider
         GOCSprite
+        GOCUIComposition
+        GOCEffect
         GOCPlayerParameter
         GOCPlayerHsm
+        GOCPlayerVisual
+        GOCPlayerEffect
         GOCEvent
         GOCCamera
         GOCAnimator
         GOCVisual
+        GOCSound
+        GOCParticleLocator
         PathComponent
         GOCActivator
         GOCPlayerBlackboard
@@ -299,7 +309,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "miller")
     set(DEVTOOLS_FEATURE_PCMODEL_EDITOR OFF)
     set(DEVTOOLS_FEATURE_SURFRIDE_EDITOR ON)
     set(DEVTOOLS_FEATURE_ASM_EDITOR ON)
-    set(DEVTOOLS_FEATURE_DVSCENE_EDITOR ON)
+    set(DEVTOOLS_FEATURE_DVSCENE_EDITOR OFF)
     set(DEVTOOLS_FEATURE_LEGACY_NEEDLEFX_TESTER OFF)
     set(DEVTOOLS_FEATURE_NEEDLEFX_TESTER ON)
     set(DEVTOOLS_FEATURE_RENDERING_ENGINE_INSPECTORS OFF)
@@ -318,9 +328,16 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "miller")
         GOCTransform
         GOCCollider
         GOCSprite
+        GOCUIComposition
+        GOCEffect
         GOCPlayerParameter
         GOCPlayerHsm
+        GOCAnimation
         GOCAnimator
+        GOCVisual
+        GOCPhysicalAnimation
+        GOCSound
+        GOCParticleLocator
         GOCPlayerKinematicParams
     )
     set(DEVTOOLS_FEATURE_RESOURCE_INSPECTORS
