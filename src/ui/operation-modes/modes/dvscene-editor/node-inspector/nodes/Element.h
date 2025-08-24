@@ -26,19 +26,25 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderNodeInspector<hh::dv::DvNodeBase::NodeType::ELEMENT>(char* node) {
 		bool changed = false;
-        auto* data = reinterpret_cast<hh::dv::DvNodeElement::Data*>(node);
+
+        auto* data = reinterpret_cast<hh::dv::DvNodeElement::DescriptionBase*>(node);
+
         int type = static_cast<int>(data->elementId);
-		if(type >= 1000)
-			Viewer("Element ID", elementIDStrings[type - 1000 + hhElementCount]);
-		else
-			Viewer("Element ID", elementIDStrings[type]);
+		const char* elementIdName = GetElementName(type);
+		Viewer("Element ID", elementIdName);
+
 		changed |= ComboEnum("Play Type", data->playType, elemPlayTypes);
 		changed |= ComboEnum("Update Timing", data->updateTiming, elemUpdateTimings);
+
+		if (IsUnknownElement(type))
+			return changed;
+
         ElementFuncType render = GetElementInspectorRender(data->elementId);
-		if(render){
+		if (render) {
 			ImGui::SeparatorText("Element Properties");
-			changed |= render(&node[sizeof(hh::dv::DvNodeElement::Data)]);
+			changed |= render(reinterpret_cast<char*>(&data[1]));
 		}
+
 		return changed;
     }
 }

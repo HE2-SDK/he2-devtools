@@ -9,6 +9,8 @@
 #include <ui/common/inputs/Basic.h>
 #include <ui/common/viewers/Basic.h>
 #include <ui/common/editors/Basic.h>
+#include <ui/resources/editors/ResPhysicalSkeletonEditor.h>
+#include <ui/Desktop.h>
 
 void RenderPhysicalSkeletonBinding(hh::pba::PhysicalSkeletonBinding& binding) {
 	if (auto& skeleton = binding.targetSkeletonRes)
@@ -24,7 +26,9 @@ void RenderPhysicalSkeletonBinding(hh::pba::PhysicalSkeletonBinding& binding) {
 void RenderComponentInspector(hh::pba::GOCPhysicalAnimationBullet& component) {
 	Viewer("unk202", component.unk202);
 	Editor("Frames per physics step", component.framesPerPhysicsStep);
+#ifdef DEVTOOLS_TARGET_SDK_miller
 	Editor("Frame time", component.frameTime);
+#endif
 	Viewer("Is ragdoll", component.isRagdoll);
 	Viewer("Is enabled", component.enabled);
 	Viewer("Is active", component.isActive);
@@ -39,8 +43,11 @@ void RenderComponentInspector(hh::pba::GOCPhysicalAnimationBullet& component) {
 
 	Viewer("Transform", component.csl__math__transform160);
 
-	if (auto& skeleton = component.physSkelRes)
+	if (auto& skeleton = component.physSkelRes) {
 		Viewer("Skeleton resource", skeleton->GetName());
+		if (ImGui::Button("Edit Physical Skeleton"))
+			ResPhysicalSkeletonEditor::Create(Desktop::instance->GetAllocator(), skeleton, &component);
+	}
 
 	ImGui::SeparatorText("Physical skeleton binding");
 	if (component.physSkelBind)

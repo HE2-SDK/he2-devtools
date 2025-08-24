@@ -1,5 +1,6 @@
 /build*
 /out
 /CMakeUserPresets.json
+/.vs
 
 src/.vscode/settings.json

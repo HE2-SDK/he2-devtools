@@ -273,11 +273,11 @@ static bool ColorEditor(const char* label, T(&values)[3]) {
 		static_cast<float>(values[2]) / 255.0f
 	};
 
-	changed |= ImGui::ColorEdit4(label, color);
-
-	values[0] = static_cast<T>(color[0] * 255.0f);
-	values[1] = static_cast<T>(color[1] * 255.0f);
-	values[2] = static_cast<T>(color[2] * 255.0f);
+	if (changed |= ImGui::ColorEdit3(label, color)) {
+		values[0] = static_cast<T>(color[0] * 255.0f);
+		values[1] = static_cast<T>(color[1] * 255.0f);
+		values[2] = static_cast<T>(color[2] * 255.0f);
+	}
 
 	return changed;
 }
@@ -292,12 +292,12 @@ static bool ColorEditor(const char* label, T(&values)[4]) {
 		static_cast<float>(values[3]) / 255.0f
 	};
 
-	changed |= ImGui::ColorEdit4(label, color);
-
-	values[0] = static_cast<T>(color[0] * 255.0f);
-	values[1] = static_cast<T>(color[1] * 255.0f);
-	values[2] = static_cast<T>(color[2] * 255.0f);
-	values[3] = static_cast<T>(color[3] * 255.0f);
+	if (changed |= ImGui::ColorEdit4(label, color)) {
+		values[0] = static_cast<T>(color[0] * 255.0f);
+		values[1] = static_cast<T>(color[1] * 255.0f);
+		values[2] = static_cast<T>(color[2] * 255.0f);
+		values[3] = static_cast<T>(color[3] * 255.0f);
+	}
 
 	return changed;
 }

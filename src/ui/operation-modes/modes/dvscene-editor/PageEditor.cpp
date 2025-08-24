@@ -186,7 +186,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 		Viewer("Type", static_cast<int>(condition.type) == 1000 ? "QTE" : "Page End");
 		switch (condition.type) {
 		case dv::DvCondition::ConditionType::QTE:
-			auto* qteCond = reinterpret_cast<app::dv::DvPageConditionQTE::Data*>(condition.data);
+			auto* qteCond = reinterpret_cast<app::dv::DvPageConditionQTE::Description*>(condition.data);
 			changed |= Editor("Failed", qteCond->failed);
 			break;
 		}

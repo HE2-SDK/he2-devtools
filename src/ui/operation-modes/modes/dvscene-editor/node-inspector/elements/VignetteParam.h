@@ -18,22 +18,22 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::VIGNETTE_PARAM>(char* element) {
         bool changed = false;
-        auto* data = reinterpret_cast<app::dv::DvElementVignetteParam::Data*>(element);
+        auto* data = reinterpret_cast<app::dv::DvElementVignetteParam::Description*>(element);
 #ifdef DEVTOOLS_TARGET_SDK_rangers
-        changed |= CheckboxFlags("Depth Enabled", data->flags, app::dv::DvElementVignetteParam::Data::Flags::DEPTH_ENABLED);
+        changed |= CheckboxFlags("Depth Enabled", data->flags, app::dv::DvElementVignetteParam::Description::Flags::DEPTH_ENABLED);
 #endif
-        changed |= CheckboxFlags("Curve Enabled", data->flags, app::dv::DvElementVignetteParam::Data::Flags::CURVE_ENABLED);
+        changed |= CheckboxFlags("Curve Enabled", data->flags, app::dv::DvElementVignetteParam::Description::Flags::CURVE_ENABLED);
         changed |= ComboEnum("Gradation Type", data->gradationType, gradationTypeNames);
         changed |= ComboEnum("Blend Mode", data->blendMode, blendModeNames);
         changed |= Editor("Vignette Parameters", data->vignetteParams);
 #ifdef DEVTOOLS_TARGET_SDK_rangers
-        if(data->flags.test(app::dv::DvElementVignetteParam::Data::Flags::DEPTH_ENABLED))
+        if(data->flags.test(app::dv::DvElementVignetteParam::Description::Flags::DEPTH_ENABLED))
             changed |= Editor("Depth Parameters", data->depthParams);
 #endif
-        if (data->flags.test(app::dv::DvElementVignetteParam::Data::Flags::CURVE_ENABLED))
+        if (data->flags.test(app::dv::DvElementVignetteParam::Description::Flags::CURVE_ENABLED))
             changed |= Editor("Finish Vignette Parameters", data->finishVignetteParams);
 #ifdef DEVTOOLS_TARGET_SDK_rangers
-        if (data->flags.test(app::dv::DvElementVignetteParam::Data::Flags::CURVE_ENABLED) && data->flags.test(app::dv::DvElementVignetteParam::Data::Flags::DEPTH_ENABLED))
+        if (data->flags.test(app::dv::DvElementVignetteParam::Description::Flags::CURVE_ENABLED) && data->flags.test(app::dv::DvElementVignetteParam::Description::Flags::DEPTH_ENABLED))
             changed |= Editor("Finish Depth Parameters", data->finishDepthParams);
 #endif
         return changed;

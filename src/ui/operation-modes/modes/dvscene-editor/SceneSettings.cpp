@@ -29,7 +29,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 			if (ImGui::Button("Play Cutscene")) {
 				app::evt::EventSetupData setupData{};
 				setupData.Setup(context.cutsceneName.c_str());
-				evtPlayer->PlayEvent(&setupData);
+				evtPlayer->PlayEvent(setupData);
 			}
 		}
 

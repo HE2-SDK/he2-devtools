@@ -1,13 +1,14 @@
 #include <ui/Context.h>
 #include <ui/SettingsManager.h>
 #include "Input.h"
+#include <ui/Viewport.h>
 
 bool ShouldCaptureKeyboardInputs() {
 	return Context::imguiInited && Context::visible && ImGui::GetIO().WantCaptureKeyboard;
 }
 
 bool ShouldCaptureMouseInputs() {
-    return Context::imguiInited && Context::visible && ((!Context::passThroughMouse && !ImGui::IsMouseDragging(ImGuiMouseButton_Right)) || ImGui::GetIO().WantCaptureMouse);
+    return (Context::imguiInited && Context::visible && ((!Context::passThroughMouse && !ImGui::IsMouseDragging(ImGuiMouseButton_Right)) || ImGui::GetIO().WantCaptureMouse));
 }
 
 void AddDevToolsInputBindings(hh::hid::InputMapSettings* inputSettings) {

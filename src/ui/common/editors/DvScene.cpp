@@ -27,7 +27,7 @@ bool Editor(const char* label, char* guid, hh::dv::DvSceneNodeTree* nodeTree)
     return changed;
 }
 
-bool Editor(const char* label, hh::dv::DvElementCameraHedgehog::Data::Camera& cam) {
+bool Editor(const char* label, hh::dv::DvElementCameraHedgehog::Description::Camera& cam) {
     bool changed = false;
     if (ImGui::TreeNode(label)) {
         changed |= Editor("Unk0", cam.unk0);
@@ -43,7 +43,7 @@ bool Editor(const char* label, hh::dv::DvElementCameraHedgehog::Data::Camera& ca
     return changed;
 }
 
-bool Editor(const char* label, hh::dv::DvElementCameraParams::Data::Camera& data) {
+bool Editor(const char* label, hh::dv::DvElementCameraParams::Description::Camera& data) {
     bool changed = false;
     if (ImGui::TreeNode(label)) {
         changed |= Editor("Position", data.position);
@@ -55,23 +55,23 @@ bool Editor(const char* label, hh::dv::DvElementCameraParams::Data::Camera& data
     return changed;
 }
 
-bool Editor(const char* label, hh::dv::DvElementCameraParams::Data::Camera& data, csl::ut::Bitset<hh::dv::DvElementCameraParams::Data::Flags>& flags, bool finishParams) {
+bool Editor(const char* label, hh::dv::DvElementCameraParams::Description::Camera& data, csl::ut::Bitset<hh::dv::DvElementCameraParams::Description::Flags>& flags, bool finishParams) {
     bool changed = false;
     if (ImGui::TreeNode(label)) {
-        if(flags.test(finishParams ? hh::dv::DvElementCameraParams::Data::Flags::FINISH_POSITION : hh::dv::DvElementCameraParams::Data::Flags::POSITION))
+        if(flags.test(finishParams ? hh::dv::DvElementCameraParams::Description::Flags::FINISH_POSITION : hh::dv::DvElementCameraParams::Description::Flags::POSITION))
             changed |= Editor("Position", data.position);
-        if (flags.test(finishParams ? hh::dv::DvElementCameraParams::Data::Flags::FINISH_TARGET_POSITION : hh::dv::DvElementCameraParams::Data::Flags::TARGET_POSITION))
+        if (flags.test(finishParams ? hh::dv::DvElementCameraParams::Description::Flags::FINISH_TARGET_POSITION : hh::dv::DvElementCameraParams::Description::Flags::TARGET_POSITION))
             changed |= Editor("Target Position", data.targetPosition);
-        if (flags.test(finishParams ? hh::dv::DvElementCameraParams::Data::Flags::FINISH_FOV : hh::dv::DvElementCameraParams::Data::Flags::FOV))
+        if (flags.test(finishParams ? hh::dv::DvElementCameraParams::Description::Flags::FINISH_FOV : hh::dv::DvElementCameraParams::Description::Flags::FOV))
             changed |= Editor("FOV", data.fov);
-        if (flags.test(finishParams ? hh::dv::DvElementCameraParams::Data::Flags::FINISH_ROTATION : hh::dv::DvElementCameraParams::Data::Flags::ROTATION))
+        if (flags.test(finishParams ? hh::dv::DvElementCameraParams::Description::Flags::FINISH_ROTATION : hh::dv::DvElementCameraParams::Description::Flags::ROTATION))
             changed |= Editor("Rotation", data.direction);
         ImGui::TreePop();
     }
     return changed;
 }
 
-bool Editor(const char* label, hh::dv::DvElementPathInterpolation::Data::Interpolation& data) {
+bool Editor(const char* label, hh::dv::DvElementPathInterpolation::Description::Interpolation& data) {
     bool changed = false;
     if (ImGui::TreeNode(label)) {
         changed |= Editor("Position", data.position);
@@ -83,13 +83,13 @@ bool Editor(const char* label, hh::dv::DvElementPathInterpolation::Data::Interpo
 }
 
 #ifdef DEVTOOLS_TARGET_SDK_miller
-bool Editor(const char* label, hh::dv::DvElementPointLight::Data::Parameters& data) {
+bool Editor(const char* label, hh::dv::DvElementPointLight::Description::Parameters& data) {
     bool changed = false;
     if (ImGui::TreeNode(label)) {
-        changed |= Editor("Range", data.range);
+        changed |= Editor("Attenuation Range", data.attenuationRadius);
         changed |= Editor("Intensity", data.intensity);
-        changed |= Editor("Falloff", data.falloff);
-        changed |= Editor("Angle", data.angle);
+        changed |= Editor("Radius", data.radius);
+        changed |= Editor("Rotation Multiplier", data.rotationMultiplier);
         ImGui::TreePop();
     }
     return changed;
@@ -97,19 +97,23 @@ bool Editor(const char* label, hh::dv::DvElementPointLight::Data::Parameters& da
 #endif
 
 
-bool Editor(const char* label, app::dv::DvElementDOFParam::Data::DOFParam& param) {
+bool Editor(const char* label, app::dv::DvElementDOFParam::Description::DOFParam& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)) {
-        changed |= Editor("Focus", param.focus);
-        changed |= Editor("Focus Range", param.focusRange);
-        changed |= Editor("Near Distance", param.nearDist);
-        changed |= Editor("Far Distance", param.farDist);
+        if(ImGui::TreeNode("Foreground")) {
+            changed |= Editor("Bokeh Start Depth", param.foregroundBokehStartDepth);
+            changed |= Editor("Bokeh Max Depth", param.foregroundBokehMaxDepth);
+        }
+        if (ImGui::TreeNode("Background")) {
+            changed |= Editor("Bokeh Start Depth", param.backgroundBokehStartDepth);
+            changed |= Editor("Bokeh Max Depth", param.backgroundBokehMaxDepth);
+        }
         ImGui::TreePop();
     }
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementChromaticAberrationFilterParam::Data::ChromaticAberrationParam& param) {
+bool Editor(const char* label, app::dv::DvElementChromaticAberrationFilterParam::Description::ChromaticAberrationParam& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)) {
         changed |= Editor("Color Offset", param.colorOffset);
@@ -121,10 +125,17 @@ bool Editor(const char* label, app::dv::DvElementChromaticAberrationFilterParam:
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementLookAtIK::Data::Object& obj) {
+bool Editor(const char* label, app::dv::DvElementLookAtIK::Description::Object& obj) {
+    static const char* typeNames[]{
+        "OFFSET",
+        "OFFSET_GUID_TARGET",
+        "CAMERA",
+        "OFFSET_GUID_POSITION"
+    };
+
     bool changed = false;
     if(ImGui::TreeNode(label)){
-        changed |= Editor("Unk0", obj.unk1);
+        changed |= ComboEnum("Type", obj.type, typeNames);
         changed |= Editor("GUID", obj.guid);
         changed |= Editor("Offset", obj.offset);
         ImGui::TreePop();
@@ -132,7 +143,7 @@ bool Editor(const char* label, app::dv::DvElementLookAtIK::Data::Object& obj) {
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementAura::Data::AuraNode& node) {
+bool Editor(const char* label, app::dv::DvElementAura::Description::AuraNode& node) {
     bool changed = false;
     if(ImGui::TreeNode(label)){
         unsigned int color[4] = { node.color[1], node.color[2], node.color[3], node.color[0] };
@@ -147,19 +158,19 @@ bool Editor(const char* label, app::dv::DvElementAura::Data::AuraNode& node) {
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementVariablePointLight::Data::Parameters& data) {
+bool Editor(const char* label, app::dv::DvElementVariablePointLight::Description::Parameters& data) {
     bool changed = false;
     if (ImGui::TreeNode(label)) {
-        changed |= Editor("Range", data.range);
+        changed |= Editor("Attenuation Range", data.attenuationRadius);
         changed |= Editor("Intensity", data.intensity);
-        changed |= Editor("Falloff", data.falloff);
-        changed |= Editor("Angle", data.angle);
+        changed |= Editor("Radius", data.radius);
+        changed |= Editor("Rotation Multiplier", data.rotationMultiplier);
         ImGui::TreePop();
     }
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementBloomParam::Data::Parameters& data) {
+bool Editor(const char* label, app::dv::DvElementBloomParam::Description::Parameters& data) {
     bool changed = false;
     if (ImGui::TreeNode(label)) {
         changed |= Editor("Bloom", data.bloom);
@@ -172,7 +183,7 @@ bool Editor(const char* label, app::dv::DvElementBloomParam::Data::Parameters& d
 
 
 #ifdef DEVTOOLS_TARGET_SDK_miller
-bool Editor(const char* label, app::dv::DvElementVignetteParam::Data::ImageCircleParam& param) {
+bool Editor(const char* label, app::dv::DvElementVignetteParam::Description::ImageCircleParam& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)){
         changed |= Editor("Position", param.position);
@@ -183,7 +194,7 @@ bool Editor(const char* label, app::dv::DvElementVignetteParam::Data::ImageCircl
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementCameraBlurParam::Data::BlurParameter& param) {
+bool Editor(const char* label, app::dv::DvElementCameraBlurParam::Description::BlurParameter& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)){
         changed |= Editor("Blur Power", param.blurPower);
@@ -194,7 +205,7 @@ bool Editor(const char* label, app::dv::DvElementCameraBlurParam::Data::BlurPara
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementFog::Data::FogParameter::DistanceFogParameter& param) {
+bool Editor(const char* label, app::dv::DvElementFog::Description::FogParameter::DistanceFogParameter& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)){
         changed |= Editor("Near Dist", param.nearDist);
@@ -205,7 +216,7 @@ bool Editor(const char* label, app::dv::DvElementFog::Data::FogParameter::Distan
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementFog::Data::FogParameter::HeightFogParameter& param) {
+bool Editor(const char* label, app::dv::DvElementFog::Description::FogParameter::HeightFogParameter& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)){
         changed |= Editor("Min Height", param.minHeight);
@@ -218,7 +229,7 @@ bool Editor(const char* label, app::dv::DvElementFog::Data::FogParameter::Height
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementFog::Data::FogParameter& param) {
+bool Editor(const char* label, app::dv::DvElementFog::Description::FogParameter& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)){
         changed |= ImGui::ColorEdit3("Color", param.color);
@@ -232,7 +243,7 @@ bool Editor(const char* label, app::dv::DvElementFog::Data::FogParameter& param)
     return changed;
 }
 
-bool Editor(const char* label, app::dv::DvElementDOF::Data::DOFParam& param) {
+bool Editor(const char* label, app::dv::DvElementDOF::Description::DOFParam& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)){
         changed |= Editor("Focal Length (mm)", param.focalLengthInMilliMeters);
@@ -253,7 +264,7 @@ bool Editor(const char* label, app::dv::DvElementDOF::Data::DOFParam& param) {
 }
 #endif
 
-bool Editor(const char* label, app::dv::DvElementVignetteParam::Data::VignetteParam& param) {
+bool Editor(const char* label, app::dv::DvElementVignetteParam::Description::VignetteParam& param) {
     bool changed = false;
     if(ImGui::TreeNode(label)){
 #ifdef DEVTOOLS_TARGET_SDK_rangers
@@ -283,7 +294,7 @@ bool Editor(const char* label, app::dv::DvElementVignetteParam::Data::VignettePa
 }
 
 #ifdef DEVTOOLS_TARGET_SDK_rangers
-bool Editor(const char* label, app::dv::DvElementVignetteParam::Data::DepthParam& param) {
+bool Editor(const char* label, app::dv::DvElementVignetteParam::Description::DepthParam& param) {
     bool changed = false;
     if (ImGui::TreeNode(label)) {
         changed |= Editor("Min Penumbra Scale", param.minMaxPenumbraScale[0]);
@@ -301,7 +312,7 @@ bool Editor(const char* label, app::dv::DvElementVignetteParam::Data::DepthParam
 }
 #endif
 
-bool Editor(const char* label, app::dv::DvElementTime::Data::Time& param)
+bool Editor(const char* label, app::dv::DvElementTime::Description::Time& param)
 {
     bool changed = false;
     if (ImGui::TreeNode(label)) {

@@ -12,7 +12,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::MULTIPLE_ANIM>(char* element) {
         bool changed = false;
-        auto* data = reinterpret_cast<hh::dv::DvElementMultipleAnim::Data*>(element);
+        auto* data = reinterpret_cast<hh::dv::DvElementMultipleAnim::Description*>(element);
 		changed |= Editor("Unk0", data->unk0);
 		changed |= Editor("ASM State Name", data->stateName);
 		changed |= Editor("Unk1", data->unk1);
@@ -24,7 +24,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
                 if(ImGui::TreeNode(buffer)){
                     int curAnmType = static_cast<int>(x.animType)-1;
                     if (changed |= ImGui::Combo("Animation Type", &curAnmType, animationTypeNames, 4))
-                        x.animType = static_cast<hh::dv::DvElementMultipleAnim::Data::Animation::AnimationType>(curAnmType+1);
+                        x.animType = static_cast<hh::dv::DvElementMultipleAnim::Description::Animation::AnimationType>(curAnmType+1);
                     changed |= Editor("Filename", x.fileName);
                     ImGui::TreePop();
                 }

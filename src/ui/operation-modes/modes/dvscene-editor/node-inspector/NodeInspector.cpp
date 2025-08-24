@@ -12,7 +12,9 @@
 namespace ui::operation_modes::modes::dvscene_editor {
 	bool NodeInspector::NodeEditor(dv::DvNode* node){
 		auto& ctx = GetContext();
+
 		bool changed = false;
+
 		char guidBuffer[37];
 		unsigned char guid[16];
 		memcpy(guid, reinterpret_cast<void*>(&node->guid), 16);
@@ -23,15 +25,20 @@ namespace ui::operation_modes::modes::dvscene_editor {
 			guid[6], guid[7],
 			guid[8], guid[9],
 			guid[10], guid[11], guid[12], guid[13], guid[14], guid[15]);
+
 		ImGui::Text("GUID: {%s}", guidBuffer);
+
 		if (ImGui::BeginPopupContextItem("Options")) {
 			if (changed |= ImGui::Selectable("Generate GUID")) 
 				GetContext().GenerateGUID(reinterpret_cast<char*>(&node->guid));
 			ImGui::EndPopup();
 		}
+
 		changed |= Editor("Node Name", node->name);
+
 		auto type = static_cast<hh::dv::DvNodeBase::NodeType>(node->category);
-		Viewer("Node Type", nodeTypeNames[node->category]);
+		Viewer("Node Type", GetNodeName(static_cast<unsigned int>(type)));
+
 		if (type == hh::dv::DvNodeBase::NodeType::CHARACTER        ||
 			type == hh::dv::DvNodeBase::NodeType::MODEL			   ||
 			type == hh::dv::DvNodeBase::NodeType::CAMERA_MOTION    ||
@@ -73,11 +80,16 @@ namespace ui::operation_modes::modes::dvscene_editor {
 				}
 			}
 		}
+
+		if (IsUnknownNode(node->category))
+			return changed;
+
 		NodeFuncType render = GetNodeInspectorRender(static_cast<hh::dv::DvNodeBase::NodeType>(node->category));
-		if(render){
+		if (render){
 			ImGui::SeparatorText("Properties");
 			changed |= render(node->data);
 		}
+
 		return changed;
 	}
 

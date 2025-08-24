@@ -14,8 +14,8 @@ void RenderComponentInspector(GOCTransform& component) {
 		EnsureGOCTransformIsUpdating(component);
 	}
 
-	CheckboxFlags("Transform position", component.GetFrame().flags, hh::fnd::HFrame::Flag::TRANSFORM_POSITION);
-	CheckboxFlags("Transform rotation", component.GetFrame().flags, hh::fnd::HFrame::Flag::TRANSFORM_ROTATION);
+	//CheckboxFlags("Transform position", component.GetFrame().flags, hh::fnd::HFrame::Flag::TRANSFORM_POSITION);
+	//CheckboxFlags("Transform rotation", component.GetFrame().flags, hh::fnd::HFrame::Flag::TRANSFORM_ROTATION);
 
 	ImGui::SeparatorText("Main local transform (internal representation)");
 	Viewer("GOCTransformTransform", component.GetTransform());

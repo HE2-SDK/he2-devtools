@@ -10,7 +10,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
 	bool RenderNodeTimeline<NodeType::CAMERA_MOTION>(Timeline* timeline, char* node) {
         bool changed = false;
-		auto* data = reinterpret_cast<DvNodeCameraMotion::Data*>(node);
+		auto* data = reinterpret_cast<DvNodeCameraMotion::Description*>(node);
         int start = data->start / 100;
         int end = data->end / 100;
         if (changed |= timeline->RenderTimeline(start, end)) {
@@ -23,7 +23,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 	template<>
 	bool RenderNodeTimeline<NodeType::CHARACTER_MOTION>(Timeline* timeline, char* node) {
         bool changed = false;
-        auto* data = reinterpret_cast<DvNodeCharacterMotion::Data*>(node);
+        auto* data = reinterpret_cast<DvNodeCharacterMotion::Description*>(node);
         int start = data->start / 100;
         int end = data->end / 100;
         if (changed |= timeline->RenderTimeline(start, end)) {
@@ -36,7 +36,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 	template<>
 	bool RenderNodeTimeline<NodeType::MODEL_MOTION>(Timeline* timeline, char* node) {
         bool changed = false;
-		auto* data = reinterpret_cast<DvNodeModelMotion::Data*>(node);
+		auto* data = reinterpret_cast<DvNodeModelMotion::Description*>(node);
         int start = data->start / 100;
         int end = data->end / 100;
         if (changed |= timeline->RenderTimeline(start, end)) {
@@ -49,13 +49,13 @@ namespace ui::operation_modes::modes::dvscene_editor {
 	template<>
 	bool RenderNodeTimeline<NodeType::ELEMENT>(Timeline* timeline, char* node) {
         bool changed = false;
-		auto* data = reinterpret_cast<DvNodeElement::Data*>(node);
+		auto* data = reinterpret_cast<DvNodeElement::Description<hh::dv::DvElementBase>*>(node);
         int type = static_cast<int>(data->elementId);
         const std::pair<size_t, size_t> render = GetElementTimelineRender(data->elementId);
         
         if (render != std::pair<size_t, size_t>{})
         {
-            float* curveData = &reinterpret_cast<float*>(&node[sizeof(DvNodeElement::Data)])[render.first / sizeof(float)];
+            float* curveData = &reinterpret_cast<float*>(&data->elementDescription)[render.first / sizeof(float)];
             changed |= timeline->RenderTimeline(data->start, data->end, curveData, render.second/sizeof(float));
         }
         else

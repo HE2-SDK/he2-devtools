@@ -1,14 +1,14 @@
-#include "PointcloudModelEditor.h"
+#include "PointcloudEditor.h"
 #include "InstanceList.h"
 #include "InstanceInspector.h"
 #include "Behaviors.h"
 #include <debug-rendering/DebugRenderable.h>
 #include <span>
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	using namespace ucsl::resources::pointcloud::v2;
 
-	PointcloudModelEditor::PointcloudModelEditor(csl::fnd::IAllocator* allocator, OperationModeHost& host) : OperationMode{ allocator, host } {
+	PointcloudEditor::PointcloudEditor(csl::fnd::IAllocator* allocator, OperationModeHost& host, const hh::fnd::ResourceTypeInfo* typeInfo) : OperationMode{ allocator, host } {
 		AddPanel<InstanceList>();
 		AddPanel<InstanceInspector>();
 		AddBehavior<SelectionBehavior>();
@@ -22,9 +22,11 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 		AddBehavior<PlacementBehavior>();
 		AddBehavior<DeleteBehavior>();
 		AddBehavior<GroundContextMenuBehavior>();
+
+		GetContext().pcType = typeInfo;
 	}
 
-	void PointcloudModelEditor::ProcessAction(const ActionBase& action) {
+	void PointcloudEditor::ProcessAction(const ActionBase& action) {
 		OperationMode::ProcessAction(action);
 
 		switch (action.id) {
@@ -40,6 +42,6 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 		}
 	}
 
-	void PointcloudModelEditor::RenderScene() {
+	void PointcloudEditor::RenderScene() {
 	}
 }

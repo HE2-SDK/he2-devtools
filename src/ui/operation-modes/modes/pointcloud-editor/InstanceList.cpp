@@ -10,7 +10,7 @@
 #include <rip/binary/containers/binary-file/v2.h>
 #include <span>
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	using namespace ucsl::resources::pointcloud::v2;
 
 	void InstanceList::RenderPanel() {
@@ -18,10 +18,10 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 
 		if (ImGui::BeginCombo("Resources", context.resource == nullptr ? "<none>" : context.resource->GetName())) {
 #ifdef DEVTOOLS_TARGET_SDK_miller
-			for (auto* resource : hh::fnd::ResourceManager::GetInstance()->unpackedResourceContainer.GetResourcesByTypeInfo(app::gfx::ResPointcloudModel::GetTypeInfo())) {
+			for (auto* resource : hh::fnd::ResourceManager::GetInstance()->unpackedResourceContainer.GetResourcesByTypeInfo(context.pcType)) {
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_rangers
-			for (auto* resource : hh::fnd::ResourceManager::GetInstance()->GetResourcesByTypeInfo(app::gfx::ResPointcloudModel::GetTypeInfo())) {
+			for (auto* resource : hh::fnd::ResourceManager::GetInstance()->GetResourcesByTypeInfo(context.pcType)) {
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_wars
 			auto* packfileContainer = hh::fnd::ResourceManager::GetInstance()->GetResourceContainer(hh::fnd::Packfile::GetTypeInfo());
@@ -31,7 +31,7 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 			for (int i = 0; i < numPackfiles; i++) {
 				auto* packfile = (hh::fnd::Packfile*)packfileContainer->GetResourceByIndex(i);
 
-				auto* resContainer = packfile->GetResourceContainer(app::gfx::ResPointcloudModel::GetTypeInfo());
+				auto* resContainer = packfile->GetResourceContainer(context.pcType);
 
 				if (!resContainer)
 					continue;
@@ -67,13 +67,13 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 			cfg.path = GlobalSettings::defaultFileDialogDirectory;
 			cfg.flags = ImGuiFileDialogFlags_Modal | ImGuiFileDialogFlags_ConfirmOverwrite;
 			cfg.userDatas = &pointcloudData;
-			ImGuiFileDialog::Instance()->OpenDialog("ResPointcloudModelExportDialog", "Choose File", ".pointcloud", cfg);
+			ImGuiFileDialog::Instance()->OpenDialog("ResPointcloudExportDialog", "Choose File", ".pointcloud", cfg);
 		}
 
 		if (ImGui::Button("Reload"))
 			ReloadManager::instance->ReloadSync(context.resource);
 
-		if (ImGuiFileDialog::Instance()->Display("ResPointcloudModelExportDialog", ImGuiWindowFlags_NoCollapse, ImVec2(800, 500))) {
+		if (ImGuiFileDialog::Instance()->Display("ResPointcloudExportDialog", ImGuiWindowFlags_NoCollapse, ImVec2(800, 500))) {
 			if (ImGuiFileDialog::Instance()->IsOk()) {
 				auto* exportData = static_cast<ucsl::resources::pointcloud::v2::PointcloudData*>(ImGuiFileDialog::Instance()->GetUserDatas());
 

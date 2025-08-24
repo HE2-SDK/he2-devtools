@@ -3,9 +3,16 @@
 #include "editors/ResReflectionEditor.h"
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 #include "editors/ResEffectEditor.h"
+#include "editors/ResGismoConfigDesignEditor.h"
+#include "editors/ResGismoConfigPlanEditor.h"
+#include "editors/ResMirageLightEditor.h"
+#include "editors/ResVibrationEditor.h"
 #endif
 //#include "editors/ResObjectWorldEditor.h"
 #include "editors/ResMaterialEditor.h"
+#ifndef DEVTOOLS_TARGET_SDK_wars
+#include "editors/ResPhysicalSkeletonEditor.h"
+#endif
 #include <resources/ReloadManager.h>
 #include <ui/common/Textures.h>
 #include <ui/common/Icons.h>
@@ -39,14 +46,14 @@ IconId ResourceTypeToIconId(const ResourceTypeInfo* typeInfo) {
 	if (typeInfo == heur::resources::ResLevel::GetTypeInfo()) return IconId::RESOURCE_LEVEL;
 	if (typeInfo == heur::resources::ResMasterLevel::GetTypeInfo()) return IconId::RESOURCE_MASTER_LEVEL;
 	//if (typeInfo == Res::GetTypeInfo()) return IconId::RESOURCE_PACKFILE_LEVELS;
-	if (typeInfo == heur::resources::ResPhysicalSkeleton::GetTypeInfo()) return IconId::RESOURCE_PHYSICS_BONE;
+	if (typeInfo == hh::pba::ResPhysicalSkeleton::GetTypeInfo()) return IconId::RESOURCE_PHYSICS_BONE;
 	//if (typeInfo == heur::resources::ResSoftBody::GetTypeInfo()) return IconId::RESOURCE_SOFTBODY;
 	//if (typeInfo == heur::resources::ResHelperBone::GetTypeInfo()) return IconId::RESOURCE_HELPER_BONE;
 	//if (typeInfo == heur::resources::ResOrcaData::GetTypeInfo()) return IconId::RESOURCE_ORCA;
 	//if (typeInfo == Res::GetTypeInfo()) return IconId::RESOURCE_UI;
 	if (typeInfo == heur::resources::ResAnimation::GetTypeInfo()) return IconId::RESOURCE_ANIMATION;
 	if (typeInfo == heur::resources::ResSkeleton::GetTypeInfo()) return IconId::RESOURCE_SKELETON;
-	if (typeInfo == heur::resources::ResDvScene::GetTypeInfo()) return IconId::RESOURCE_DVSCENE;
+	if (typeInfo == hh::dv::ResDvScene::GetTypeInfo()) return IconId::RESOURCE_DVSCENE;
 #endif
 	return IconId::RESOURCE_MODEL;
 }
@@ -172,6 +179,8 @@ void ResourceBrowser::RenderContainerContents(const ResourceContainer* container
 }
 
 void ResourceBrowser::RenderResource(ManagedResource* resource) {
+	if (!resource)
+		return;
 	const ResourceTypeInfo* typeInfo = &resource->GetClass();
 	bool isSelected{};
 	bool isOpened{};
@@ -221,6 +230,18 @@ void ResourceBrowser::RenderResource(ManagedResource* resource) {
 #ifndef DEVTOOLS_TARGET_SDK_wars
 		else if (typeInfo == hh::gfx::ResMaterial::GetTypeInfo())
 			ResMaterialEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::gfx::ResMaterial*>(resource));
+		else if (typeInfo == hh::pba::ResPhysicalSkeleton::GetTypeInfo())
+			ResPhysicalSkeletonEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::pba::ResPhysicalSkeleton*>(resource));
+#endif
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+		else if (typeInfo == app::ResGismoConfigDesign::GetTypeInfo())
+			ResGismoConfigDesignEditor::Create(Desktop::instance->GetAllocator(), static_cast<app::ResGismoConfigDesign*>(resource));
+		else if (typeInfo == app::ResGismoConfigPlan::GetTypeInfo())
+			ResGismoConfigPlanEditor::Create(Desktop::instance->GetAllocator(), static_cast<app::ResGismoConfigPlan*>(resource));
+		else if (typeInfo == hh::gfx::ResMirageLight::GetTypeInfo())
+			ResMirageLightEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::gfx::ResMirageLight*>(resource));
+		else if (typeInfo == hh::hid::ResVibration::GetTypeInfo())
+			ResVibrationEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::hid::ResVibration*>(resource));
 #endif
 	}
 

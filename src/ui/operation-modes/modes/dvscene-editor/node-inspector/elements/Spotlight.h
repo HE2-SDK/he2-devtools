@@ -5,7 +5,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::SPOTLIGHT>(char* element) {
 		bool changed = false;
-        auto* data = reinterpret_cast<hh::dv::DvElementSpotlight::Data*>(element);
+        auto* data = reinterpret_cast<hh::dv::DvElementSpotlight::Description*>(element);
 		changed |= Editor("Curve Enabled", data->curveEnabled);
 		changed |= Editor("Position", data->position);
 		if(data->curveEnabled)

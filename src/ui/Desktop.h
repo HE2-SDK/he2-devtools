@@ -29,14 +29,22 @@ public:
     void RenderOverlayWindow();
     void OpenStandaloneWindow(StandaloneWindow* window);
     
-    template<typename T>
-    void SwitchToOperationMode() {
+    // TODO: Refactor this!
+    void SwitchToOperationMode(hh::fnd::Reference<OperationModeBase> mode) {
         if (operationMode != nullptr)
             operationMode->DeinitBehaviors();
 
-        operationMode = new (GetAllocator()) T{ GetAllocator(), *this };
+        operationMode = mode;
 
         operationMode->InitBehaviors();
+    }
+    template<typename T>
+    inline void SwitchToOperationMode() {
+        SwitchToOperationMode(new (GetAllocator()) T{ GetAllocator(), *this });
+    }
+    template<typename T>
+    inline void SwitchToOperationMode(const hh::fnd::ResourceTypeInfo* typeInfo) {
+        SwitchToOperationMode(new (GetAllocator()) T{ GetAllocator(), *this, typeInfo });
     }
     void Dispatch(const ActionBase& action);
 

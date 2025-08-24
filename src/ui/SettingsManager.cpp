@@ -33,6 +33,8 @@ bool SettingsManager::Settings::operator==(const SettingsManager::Settings& othe
 		&& debugRenderingRenderPaths == other.debugRenderingRenderPaths
 		&& debugRenderingRenderPathNormals == other.debugRenderingRenderPathNormals
 		&& debugRenderingRenderPathTangents == other.debugRenderingRenderPathTangents
+		&& debugRenderingRenderPhysicalAnimation == other.debugRenderingRenderPhysicalAnimation
+		&& debugRenderingRenderLight == other.debugRenderingRenderLight
 		&& debugRenderingGOCVisualDebugDrawOpacity == other.debugRenderingGOCVisualDebugDrawOpacity
 		&& debugRenderingLevelEditorDebugBoxScale == other.debugRenderingLevelEditorDebugBoxScale
 		&& debugRenderingLevelEditorDebugBoxRenderLimit == other.debugRenderingLevelEditorDebugBoxRenderLimit
@@ -228,6 +230,8 @@ void SettingsManager::Render() {
 							ImGui::Checkbox("Render path normals", &tempSettings.debugRenderingRenderPathNormals);
 							ImGui::Checkbox("Render path tangents", &tempSettings.debugRenderingRenderPathTangents);
 							ImGui::Unindent();
+							ImGui::Checkbox("Render physical animation", &tempSettings.debugRenderingRenderPhysicalAnimation);
+							ImGui::Checkbox("Render lights", &tempSettings.debugRenderingRenderLight);
 							ImGui::SliderScalar("GOCVisualDebugDraw opacity (requires stage restart)", ImGuiDataType_U8, &tempSettings.debugRenderingGOCVisualDebugDrawOpacity, &minAlpha, &maxAlpha);
 							ImGui::SeparatorText("Debug boxes");
 							ImGui::SetItemTooltip("Options for debug boxes (the purple boxes showing the position of invisible objects).");
@@ -378,6 +382,12 @@ void SettingsManager::ApplySettings() {
 	devtools::debug_rendering::DebugRenderingSystem::instance->pathsRenderable.enabled = settings.debugRenderingRenderPaths;
 	devtools::debug_rendering::DebugRenderingSystem::instance->pathsRenderable.normalsEnabled = settings.debugRenderingRenderPathNormals;
 	devtools::debug_rendering::DebugRenderingSystem::instance->pathsRenderable.tangentsEnabled = settings.debugRenderingRenderPathTangents;
+#ifndef DEVTOOLS_TARGET_SDK_wars
+	devtools::debug_rendering::DebugRenderingSystem::instance->physicalAnimationRenderable.enabled = settings.debugRenderingRenderPhysicalAnimation;
+#endif
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	devtools::debug_rendering::DebugRenderingSystem::instance->lightRenderable.enabled = settings.debugRenderingRenderLight;
+#endif
 	ObjectLocationVisual3DBehaviorBase::ApplySettings(
 		settings.debugRenderingLevelEditorDebugBoxScale,
 		settings.debugRenderingLevelEditorDebugBoxRenderLimit,
@@ -455,6 +465,8 @@ void SettingsManager::ReadLineFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	if (sscanf_s(line, "DebugRenderingRenderPaths=%u", &u) == 1) { settings.debugRenderingRenderPaths = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderPathNormals=%u", &u) == 1) { settings.debugRenderingRenderPathNormals = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderPathTangents=%u", &u) == 1) { settings.debugRenderingRenderPathTangents = u; return; }
+	if (sscanf_s(line, "DebugRenderingRenderPhysicalAnimation=%u", &u) == 1) { settings.debugRenderingRenderPhysicalAnimation = u; return; }
+	if (sscanf_s(line, "DebugRenderingRenderLight=%u", &u) == 1) { settings.debugRenderingRenderLight = u; return; }
 	if (sscanf_s(line, "DebugRenderingGOCVisualDebugDrawOpacity=%u", &u) == 1) { settings.debugRenderingGOCVisualDebugDrawOpacity = static_cast<uint8_t>(u); return; }
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxScale=%f", &f) == 1) { settings.debugRenderingLevelEditorDebugBoxScale = f; return; }
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxRenderLimit=%u", &u) == 1) { settings.debugRenderingLevelEditorDebugBoxRenderLimit = u; return; }
@@ -522,6 +534,8 @@ void SettingsManager::WriteAllFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	out_buf->appendf("DebugRenderingRenderPaths=%u\n", settings.debugRenderingRenderPaths);
 	out_buf->appendf("DebugRenderingRenderPathNormals=%u\n", settings.debugRenderingRenderPathNormals);
 	out_buf->appendf("DebugRenderingRenderPathTangents=%u\n", settings.debugRenderingRenderPathTangents);
+	out_buf->appendf("DebugRenderingRenderPhysicalAnimation=%u\n", settings.debugRenderingRenderPhysicalAnimation);
+	out_buf->appendf("DebugRenderingRenderLight=%u\n", settings.debugRenderingRenderLight);
 	out_buf->appendf("DebugRenderingGOCVisualDebugDrawOpacity=%u\n", settings.debugRenderingGOCVisualDebugDrawOpacity);
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxScale=%f\n", settings.debugRenderingLevelEditorDebugBoxScale);
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxRenderLimit=%u\n", settings.debugRenderingLevelEditorDebugBoxRenderLimit);

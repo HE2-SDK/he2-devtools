@@ -32,10 +32,10 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::SSAO_PARAM>(char* element) {
         bool changed = false;
-        auto* data = reinterpret_cast<app::dv::DvElementSSAOParam::Data*>(element);
-        changed |= CheckboxFlags("Enabled", data->flags, app::dv::DvElementSSAOParam::Data::Flags::ENABLED);
-        if(data->flags.test(app::dv::DvElementSSAOParam::Data::Flags::ENABLED)){
-            changed |= CheckboxFlags("Use Render Target Size", data->flags, app::dv::DvElementSSAOParam::Data::Flags::USE_RENDER_TARGET_SIZE);
+        auto* data = reinterpret_cast<app::dv::DvElementSSAOParam::Description*>(element);
+        changed |= CheckboxFlags("Enabled", data->flags, app::dv::DvElementSSAOParam::Description::Flags::ENABLED);
+        if(data->flags.test(app::dv::DvElementSSAOParam::Description::Flags::ENABLED)){
+            changed |= CheckboxFlags("Use Render Target Size", data->flags, app::dv::DvElementSSAOParam::Description::Flags::USE_RENDER_TARGET_SIZE);
             changed |= ComboEnum("SSAO Type", data->postType, ssaoTypeNames);
             changed |= ComboEnum("Render Target Size", data->renderTargetSize, renderTargetSizeNames);
             changed |= ComboEnum("Blur Type", data->blurStep, blurTypeNames);

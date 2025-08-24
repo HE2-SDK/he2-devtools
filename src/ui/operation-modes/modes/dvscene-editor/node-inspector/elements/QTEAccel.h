@@ -12,7 +12,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::QTE_ACCEL>(char* element) {
         bool changed = false;
-        auto* data = reinterpret_cast<app::dv::DvElementQTEAccel::Data*>(element);
+        auto* data = reinterpret_cast<app::dv::DvElementQTEAccel::Description*>(element);
         changed |= ComboEnum("Button", data->button, QTEAccelButtonNames);
 		changed |= Editor("Unk1", data->unk1);
 		changed |= Editor("Unk2", data->dword8);

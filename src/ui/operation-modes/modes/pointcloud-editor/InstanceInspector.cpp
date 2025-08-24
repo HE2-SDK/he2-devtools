@@ -1,25 +1,9 @@
 #include "InstanceInspector.h"
 #include "Behaviors.h"
 #include <ui/common/editors/Basic.h>
-#include <ui/common/inputs/Basic.h>
+#include <ui/common/editors/Pointcloud.h>
 
-using namespace ucsl::resources::pointcloud::v2;
-
-const char* rotationOrderNames[]{ "NONE", "XYZ", "YZX", "ZXY", "XZY", "YXZ", "ZYX" };
-
-bool Editor(const char* label, InstanceData& instance, hh::gfx::ResPointcloud* resource) {
-	bool edited{};
-	edited |= InputText("Name", instance.name, resource);
-	edited |= InputText("Resource name", instance.resourceName, resource);
-	edited |= Editor("Position", instance.position);
-	edited |= EulerEditor("Rotation", instance.rotation);
-	edited |= ComboEnum("Rotation order", instance.rotationOrder, rotationOrderNames);
-	edited |= Editor("Scale", instance.scale);
-	//edited |= Editor("Unk2", instance.unk2);
-	return edited;
-}
-
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	void InstanceInspector::RenderPanel()
 	{
 		auto& selection = GetBehavior<SelectionBehavior<Context>>()->GetSelection();

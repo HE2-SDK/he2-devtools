@@ -9,7 +9,7 @@
 #include <ui/operation-modes/behaviors/ForwardDeclarations.h>
 #include <span>
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	using namespace ucsl::resources::pointcloud::v2;
 
 	template<> struct MousePicking3DRecursiveRaycastBehaviorTraits<Context> : BehaviorTraitsImpl<Context> {
@@ -36,7 +36,7 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 
 #include <ui/operation-modes/behaviors/prefabs/MousePicking3DRecursiveRaycastWithPhysicsLocation.h>
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	template<> struct MousePicking3DBehaviorTraits<Context> : MousePicking3DRecursiveRaycastWithPhysicsLocationMousePicking3DBehaviorTraitsImpl<Context> {
 		using MousePicking3DRecursiveRaycastWithPhysicsLocationMousePicking3DBehaviorTraitsImpl::MousePicking3DRecursiveRaycastWithPhysicsLocationMousePicking3DBehaviorTraitsImpl;
 	};
@@ -44,7 +44,7 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 
 #include <ui/operation-modes/behaviors/prefabs/MousePicking3DCameraManagerCameraProvider.h>
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	template<> struct MousePicking3DCameraProvider<Context> : MousePicking3DCameraManagerCameraProvider<Context> {
 		using MousePicking3DCameraManagerCameraProvider::MousePicking3DCameraManagerCameraProvider;
 	};
@@ -52,13 +52,13 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 
 #include <ui/operation-modes/behaviors/prefabs/MousePicking3D.h>
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	template<> struct MousePickingBehaviorTraits<Context> : MousePicking3DMousePickingBehaviorTraitsImpl<Context> {
 		using MousePicking3DMousePickingBehaviorTraitsImpl::MousePicking3DMousePickingBehaviorTraitsImpl;
 	};
 }
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	using namespace ucsl::resources::pointcloud::v2;
 
 	template<> struct SelectionBehaviorTraits<Context> : BehaviorTraitsImpl<Context> {
@@ -91,10 +91,10 @@ namespace ui::operation_modes::modes::pcmodel_editor {
 	};
 }
 
-template<> struct ObjectLocationVisual3DBehaviorTraits<ui::operation_modes::modes::pcmodel_editor::Context> : BehaviorTraitsImpl<ui::operation_modes::modes::pcmodel_editor::Context> {
+template<> struct ObjectLocationVisual3DBehaviorTraits<ui::operation_modes::modes::pointcloud_editor::Context> : BehaviorTraitsImpl<ui::operation_modes::modes::pointcloud_editor::Context> {
 	using BehaviorTraitsImpl::BehaviorTraitsImpl;
 	static constexpr const char* dragDropCategory = nullptr;
-	Eigen::Affine3f GetWorldTransform(ucsl::resources::pointcloud::v2::InstanceData* object) const { return ui::operation_modes::modes::pcmodel_editor::GetInstanceTransform(*object); }
+	Eigen::Affine3f GetWorldTransform(ucsl::resources::pointcloud::v2::InstanceData* object) const { return ui::operation_modes::modes::pointcloud_editor::GetInstanceTransform(*object); }
 	const char* GetPrimaryTag(ucsl::resources::pointcloud::v2::InstanceData* object) const { return object->name; }
 	const char* GetSecondaryTag(ucsl::resources::pointcloud::v2::InstanceData* object) const { return object->resourceName; }
 	template<typename F> void ForInvisibleObjects(F f) const {
@@ -115,7 +115,7 @@ template<> struct ObjectLocationVisual3DBehaviorTraits<ui::operation_modes::mode
 	}
 };
 	
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	template<> struct GizmoBehaviorTraits<Context> : BehaviorTraitsImpl<Context> {
 		using BehaviorTraitsImpl::BehaviorTraitsImpl;
 		static constexpr bool allowTranslate = true;

@@ -139,7 +139,8 @@ void ReloadManager::PerformReload(void* buffer, size_t fileSize, hh::fnd::Manage
 
 	if (&resource->GetClass() == hh::gfx::ResTerrainModel::GetTypeInfo()
 		|| &resource->GetClass() == app::gfx::ResPointcloudModel::GetTypeInfo()
-		|| &resource->GetClass() == hh::gfx::ResMaterial::GetTypeInfo()) {
+		|| &resource->GetClass() == hh::gfx::ResMaterial::GetTypeInfo()
+		|| &resource->GetClass() == app::gfx::ResPointcloudLight::GetTypeInfo()) {
 		if (auto* resMan = gameManager->GetService<app::game::GameModeResourceManager>()) {
 			for (auto& module : resMan->modules) {
 				if (module->GetNameHash() == 0x74DA1FC3) {
@@ -149,6 +150,21 @@ void ReloadManager::PerformReload(void* buffer, size_t fileSize, hh::fnd::Manage
 			}
 		}
 	}
+
+	/*if (&resource->GetClass() == app::gfx::ResPointcloudLight::GetTypeInfo()) {
+		if (auto* trrMgr = gameManager->GetService<app::trr::TerrainManager>()) {
+			for (auto& trrWrld : trrMgr->terrains) {
+				if (auto* trrGrnd = static_cast<app::trr::TerrainGround*>(*trrWrld->objects[0])) {
+					for (auto& sector : trrGrnd->sectors)
+						sector.lightInstances.clear();
+					trrGrnd->gocPointLight->ClearLights();
+					char buffer[32];
+					snprintf(buffer, sizeof(buffer), "%s_trr_s00", trrWrld->terrainId);
+					trrGrnd->LoadLight(buffer);
+				}
+			}
+		}
+	}*/
 #endif
 }
 

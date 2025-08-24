@@ -33,7 +33,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::QTE>(char* element) {
         bool changed = false;
-        auto* data = reinterpret_cast<app::dv::DvElementQTE::Data*>(element);
+        auto* data = reinterpret_cast<app::dv::DvElementQTE::Description*>(element);
         changed |= ComboEnum("QTE Type", data->qteType, qteTypeNames);
         changed |= ComboEnum("QTE Button", data->qteButton, qteButtonNames);
         if(ImGui::TreeNode("Red Circle")){

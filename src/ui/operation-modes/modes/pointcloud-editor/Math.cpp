@@ -1,6 +1,6 @@
 #include "Math.h"
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
 	using namespace ucsl::resources::pointcloud::v2;
 
 	Eigen::Vector3f ToEuler(const Eigen::Matrix3f& rotation, RotationOrder rotationOrder) {

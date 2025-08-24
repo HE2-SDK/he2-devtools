@@ -29,8 +29,10 @@ namespace ui::operation_modes::modes::dvscene_editor {
 		}
 
 		void Delete(hh::dv::DvNodeBase* node){
-			if (node->nodeType == hh::dv::DvNodeBase::NodeType::ELEMENT)
+			if (node->nodeType == hh::dv::DvNodeBase::NodeType::ELEMENT) {
 				reinterpret_cast<hh::dv::DvNodeElement*>(node)->element->RemoveCallback();
+				ctx->DeallocateNode(node);
+			}
 			if(auto* y = node->parent){
 				y->childrenElements0.remove(y->childrenElements0.find(node));
 				y->childrenElements1.remove(y->childrenElements1.find(node));

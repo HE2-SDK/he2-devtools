@@ -23,7 +23,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::CAPTION>(char* element) {
         bool changed = false;
-        auto* data = reinterpret_cast<app::dv::DvElementCaption::Data*>(element);
+        auto* data = reinterpret_cast<app::dv::DvElementCaption::Description*>(element);
 #ifdef DEVTOOLS_TARGET_SDK_miller
         changed |= Editor("Caption Enabled", data->captionEnabled);
         changed |= Editor("Sound Enabled", data->soundEnabled);
@@ -42,7 +42,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 #endif
 		{
             changed |= true;
-            data->languageId = static_cast<app::dv::DvElementCaption::Data::LanguageID>(curLangId);
+            data->languageId = static_cast<app::dv::DvElementCaption::Description::LanguageID>(curLangId);
         }
         return changed;
     }

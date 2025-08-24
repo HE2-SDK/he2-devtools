@@ -5,7 +5,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderNodeInspector<hh::dv::DvNodeBase::NodeType::MODEL>(char* node) {
         bool changed = false;
-        auto* data = reinterpret_cast<hh::dv::DvNodeModel::Data*>(node);
+        auto* data = reinterpret_cast<hh::dv::DvNodeModel::Description*>(node);
 		changed |= Editor("Model Name", data->modelName);
 		changed |= Editor("Skeleton Name", data->skeletonName);
 		changed |= Editor("Use Internal Name", data->useName3);

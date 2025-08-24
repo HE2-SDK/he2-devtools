@@ -24,7 +24,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::BOSS_NAME>(char* element) {
         bool changed = false;
-        auto* data = reinterpret_cast<app::dv::DvElementBossName::Data*>(element);
+        auto* data = reinterpret_cast<app::dv::DvElementBossName::Description*>(element);
         return ComboEnum("Boss Name", data->bossId, bossNames);
     }
 }

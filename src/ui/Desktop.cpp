@@ -1,6 +1,7 @@
 #include "common/Icons.h"
 #include "Desktop.h"
 #include "ToolBar.h"
+#include "Viewport.h"
 #include "SettingsManager.h"
 #include "resources/ResourceBrowser.h"
 #include "operation-modes/modes/object-inspection/ObjectInspection.h"
@@ -12,6 +13,7 @@
 #include "common/editors/Basic.h"
 #include "common/inputs/Basic.h"
 #include <imtimeline.h>
+#include <ui/common/editors/Needle.h>
 
 using namespace hh::fnd;
 using namespace hh::game;
@@ -60,6 +62,7 @@ void Desktop::Render() {
 	ImGuizmo::BeginFrame();
 	RenderOverlayWindow();
 	RenderSceneWindow();
+	//Viewport::Render();
 
 	devtools::debug_rendering::DebugRenderer::instance->RenderImGuiVisuals();
 	operationMode->Render();

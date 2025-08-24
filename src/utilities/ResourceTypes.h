@@ -14,13 +14,11 @@ namespace heur::resources {
     class ResLevel { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
     class ResMasterLevel { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
     class ResEffect { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
-    class ResPhysicalSkeleton { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
                                       //class ResSoftBody { public: inline static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
                                       //class ResHelperBone { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
                                       //class ResOrcaData { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
     class ResAnimation { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
     class ResSkeleton { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
-    class ResDvScene { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
 }
 
 namespace app::gfx {
@@ -39,10 +37,10 @@ typedef std::tuple<
     heur::resources::ResLevel,
     heur::resources::ResMasterLevel,
     heur::resources::ResEffect,
-    heur::resources::ResPhysicalSkeleton,
+    hh::pba::ResPhysicalSkeleton,
     heur::resources::ResAnimation,
     heur::resources::ResSkeleton,
-    heur::resources::ResDvScene,
+    hh::dv::ResDvScene,
     app::gfx::ResPointcloudModel
 > KnownResourceTypes;
 

@@ -1,4 +1,5 @@
 #include <ui/input/Input.h>
+#include <ui/Viewport.h>
 
 HOOK(void, __fastcall, KeyboardUpdate, 0x140F22430, hh::hid::Keyboard* self, float unkParam)
 {

@@ -176,7 +176,7 @@ void Context::install_hooks()
 //	INSTALL_HOOK(GOCCamera_PushController);
 //#endif
 	//INSTALL_HOOK(CreateRenderingDeviceDX11);
-	//GOCVisualDebugDrawRenderer::InstallHooks();
+	devtools::debug_rendering::renderables::GOCVisualDebugDraws::InstallHooks();
 }
 
 void Context::init() {

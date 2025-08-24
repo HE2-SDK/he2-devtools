@@ -28,11 +28,4 @@ void RenderGameServiceInspector(app::evt::EventPlayer& service)
         Viewer("evtEnvsCount", service.evtEnvMgr->evtEnvs.size());
         ImGui::TreePop();
     }
-    if (service.IsntPlaying()) {
-        if (ImGui::Button("TestPlay")) {
-            app::evt::EventSetupData setupData{};
-            setupData.Setup("zev_rfl_shoot01");
-            service.PlayEvent(&setupData);
-        }
-    }
 }

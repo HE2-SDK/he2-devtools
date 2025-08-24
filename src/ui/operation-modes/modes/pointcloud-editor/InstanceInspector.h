@@ -2,7 +2,7 @@
 #include <ui/operation-modes/Panel.h>
 #include "Context.h"
 
-namespace ui::operation_modes::modes::pcmodel_editor {
+namespace ui::operation_modes::modes::pointcloud_editor {
     class InstanceInspector : public Panel<Context> {
     public:
         using Panel::Panel;

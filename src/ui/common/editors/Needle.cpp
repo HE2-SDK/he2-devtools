@@ -385,7 +385,7 @@ bool Editor(const char* label, hh::needle::WorldRenderingPipeline& pipeline)
 
 #ifdef DEVTOOLS_TARGET_SDK_miller
 bool Editor(const char* label, hh::needle::RenderingPipelineMiller& pipeline)
-#else
+#elif DEVTOOLS_TARGET_SDK_rangers
 bool Editor(const char* label, hh::needle::RenderingPipelineRangers& pipeline)
 #endif
 {

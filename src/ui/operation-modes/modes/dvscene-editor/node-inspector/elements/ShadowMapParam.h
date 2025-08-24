@@ -47,7 +47,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::SHADOW_MAP_PARAM>(char* element) {
         bool changed = false;
-        auto* data = reinterpret_cast<app::dv::DvElementShadowMapParam::Data*>(element);
+        auto* data = reinterpret_cast<app::dv::DvElementShadowMapParam::Description*>(element);
         changed |= ComboEnum("Shadow Filter", data->shadowFilter, shadowFilterNames);
         changed |= ComboEnum("Shadow Range Type", data->shadowRangeType, shadowRangeTypeNames);
         changed |= ComboEnum("Fit Projection", data->fitProjection, fitProjectionNames);
@@ -68,13 +68,13 @@ namespace ui::operation_modes::modes::dvscene_editor {
         changed |= Editor("Blur Size", data->blurSize);
         changed |= Editor("Fadeout Distance", data->fadeoutDistance);
         changed |= Editor("Cascade Transition Fade Distance", data->cascadeTransitionFadeDistance);
-        changed |= CheckboxFlags("Enable Back Face Shadow", data->flags, app::dv::DvElementShadowMapParam::Data::Flags::ENABLE_BACK_FACE_SHADOW);
-        changed |= CheckboxFlags("Enable Shadow Camera", data->flags, app::dv::DvElementShadowMapParam::Data::Flags::ENABLE_SHADOW_CAMERA);
-        changed |= CheckboxFlags("Enable Draw Scene AABB", data->flags, app::dv::DvElementShadowMapParam::Data::Flags::ENABLE_DRAW_SCENE_AABB);
-        changed |= CheckboxFlags("Enable Draw Shadow Frustrum", data->flags, app::dv::DvElementShadowMapParam::Data::Flags::ENABLE_DRAW_SHADOW_FRUSTRUM);
-        changed |= CheckboxFlags("Enable Draw Cascade", data->flags, app::dv::DvElementShadowMapParam::Data::Flags::ENABLE_DRAW_CASCADE);
-        changed |= CheckboxFlags("Enable Draw Camera", data->flags, app::dv::DvElementShadowMapParam::Data::Flags::ENABLE_DRAW_CAMERA_FRUSTRUM);
-        changed |= CheckboxFlags("Enable Pause Camera", data->flags, app::dv::DvElementShadowMapParam::Data::Flags::ENABLE_PAUSE_CAMERA);
+        changed |= CheckboxFlags("Enable Back Face Shadow", data->flags, app::dv::DvElementShadowMapParam::Description::Flags::ENABLE_BACK_FACE_SHADOW);
+        changed |= CheckboxFlags("Enable Shadow Camera", data->flags, app::dv::DvElementShadowMapParam::Description::Flags::ENABLE_SHADOW_CAMERA);
+        changed |= CheckboxFlags("Enable Draw Scene AABB", data->flags, app::dv::DvElementShadowMapParam::Description::Flags::ENABLE_DRAW_SCENE_AABB);
+        changed |= CheckboxFlags("Enable Draw Shadow Frustrum", data->flags, app::dv::DvElementShadowMapParam::Description::Flags::ENABLE_DRAW_SHADOW_FRUSTRUM);
+        changed |= CheckboxFlags("Enable Draw Cascade", data->flags, app::dv::DvElementShadowMapParam::Description::Flags::ENABLE_DRAW_CASCADE);
+        changed |= CheckboxFlags("Enable Draw Camera", data->flags, app::dv::DvElementShadowMapParam::Description::Flags::ENABLE_DRAW_CAMERA_FRUSTRUM);
+        changed |= CheckboxFlags("Enable Pause Camera", data->flags, app::dv::DvElementShadowMapParam::Description::Flags::ENABLE_PAUSE_CAMERA);
         return changed;
     }
 }

@@ -9,7 +9,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::CAMERA_CONTROL>(char* element) {
 #endif
         bool changed = false;
-        auto* data = reinterpret_cast<app::dv::DvElementCameraControlParam::Data*>(element);
+        auto* data = reinterpret_cast<app::dv::DvElementCameraControlParam::Description*>(element);
 		changed |= Editor("Exposure Value", data->exposureValue);
         return changed;
     }

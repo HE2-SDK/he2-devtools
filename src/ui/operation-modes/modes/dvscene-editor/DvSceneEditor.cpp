@@ -36,7 +36,13 @@ namespace ui::operation_modes::modes::dvscene_editor
 		auto& ctx = GetContext();
 		if (gameObject->objectClass == hh::dv::DvSceneControl::GetClass())
 			if (gameObject == ctx.goDVSC) {
+				ctx.DeallocateNode(ctx.goDVSC->nodeTree->mainNode);
+				ctx.addedNodes.clear();
+				delete ctx.parsedScene;
+				ctx.parsedScene = nullptr;
+				ctx.dvPages.clear();
 				ctx.goDVSC = nullptr;
+				ctx.evtScene = nullptr;
 				GetBehavior<SelectionBehavior<Context>>()->DeselectAll();
 			}
 	}

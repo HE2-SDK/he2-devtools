@@ -39,11 +39,13 @@
 #include "operation-modes/modes/fxcol-editor/FxColEditor.h"
 #include "operation-modes/modes/svcol-editor/SvColEditor.h"
 #ifdef DEVTOOLS_TARGET_SDK_rangers
-#include "operation-modes/modes/pcmodel-editor/PointcloudModelEditor.h"
+#include "operation-modes/modes/pointcloud-editor/PointcloudEditor.h"
 #endif
 #include "operation-modes/modes/surfride-editor/SurfRideEditor.h"
 #ifndef DEVTOOLS_TARGET_SDK_wars
-//#include "operation-modes/modes/dvscene-editor/DvSceneEditor.h"
+#include "operation-modes/modes/dvscene-editor/DvSceneEditor.h"
+#else
+#include "operation-modes/modes/scene-editor/SceneEditor.h"
 #endif
 
 using namespace hh::game;
@@ -127,14 +129,19 @@ void ToolBar::Render() {
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 			if (ImGui::MenuItem("PointcloudModel Editor"))
-				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::pcmodel_editor::PointcloudModelEditor>();
+				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::pointcloud_editor::PointcloudEditor>(app::gfx::ResPointcloudModel::GetTypeInfo());
+			if (ImGui::MenuItem("PointcloudLight Editor"))
+				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::pointcloud_editor::PointcloudEditor>(app::gfx::ResPointcloudLight::GetTypeInfo());
 #endif
 			if (ImGui::MenuItem("SurfRide Editor"))
 				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::surfride_editor::SurfRideEditor>();
-//#ifndef DEVTOOLS_TARGET_SDK_wars
-//			if (ImGui::MenuItem("DvScene Editor"))
-//				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::dvscene_editor::DvSceneEditor>();
-//#endif
+#ifndef DEVTOOLS_TARGET_SDK_wars
+			if (ImGui::MenuItem("DvScene Editor"))
+				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::dvscene_editor::DvSceneEditor>();
+#elif DEVTOOLS_TARGET_SDK_wars
+			if (ImGui::MenuItem("Scene Editor"))
+				Desktop::instance->SwitchToOperationMode<ui::operation_modes::modes::scene_editor::SceneEditor>();
+#endif
 			ImGui::EndMenu();
 		}
 
@@ -199,7 +206,7 @@ void ToolBar::Render() {
 	);
 	ImGui::SameLine();
 
-	if (ImGui::IsKeyPressed(ImGuiKey_F6))
+	if (ImGui::IsKeyPressed(ImGuiKey_F6, false))
 		debugCameraActive = !debugCameraActive;
 
 	if (debugCameraMgr->isActive != debugCameraActive) {

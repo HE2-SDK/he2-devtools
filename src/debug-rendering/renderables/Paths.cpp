@@ -32,8 +32,13 @@ namespace devtools::debug_rendering::renderables {
 
 						csl::math::Vector3 pos, nrm, tan;
 						pathEvaluator.GetPNT(time, &pos, &nrm, &tan);
+#ifdef DEVTOOLS_TARGET_SDK_wars
+						csl::math::Vector3 nrmEnd = pos + nrm * 5.0f;
+						csl::math::Vector3 tanEnd = pos + tan * 5.0f;
+#else
 						csl::math::Vector3 nrmEnd = pos + nrm * 0.50f;
 						csl::math::Vector3 tanEnd = pos + tan * 0.50f;
+#endif
 
 						segments[i * 2] = { pos.x(), pos.y(), pos.z(), 0xFF00FF00 };
 

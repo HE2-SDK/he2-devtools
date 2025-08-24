@@ -51,6 +51,9 @@ typedef std::tuple<
 #include "component-inspectors/GOCPlayerVisual.h"
 #include "component-inspectors/GOCPlayerCollider.h"
 #include "component-inspectors/GOCColliderQuery.h"
+#include "component-inspectors/GOCPhysicalAnimation.h"
+#include "component-inspectors/GOCPointLight.h"
+#include "component-inspectors/GOCVibration.h"
 
 typedef std::tuple<
 	hh::game::GOCTransform,
@@ -79,7 +82,10 @@ typedef std::tuple<
 	app::player::GOCPlayerCollider,
 	app::player::GOCPlayerEffect,
 	app::player::GOCPlayerVisual,
-	app::physics::GOCMoveSphereColliderQuery
+	app::physics::GOCMoveSphereColliderQuery,
+	hh::pba::GOCPhysicalAnimationBullet,
+	hh::gfx::GOCPointLight,
+	hh::game::GOCVibration
 > InspectableComponents;
 #endif
 
@@ -130,10 +136,14 @@ typedef std::tuple<> InspectableGameObjects;
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 #include "gameobject-inspectors/CameraFrame.h"
 #include "gameobject-inspectors/ObjCameraVolume.h"
+#include "gameobject-inspectors/ObjGismo.h"
+#include "gameobject-inspectors/BossGiant.h"
 
 typedef std::tuple<
 	app_cmn::camera::CameraFrame,
-	app::ObjCameraVolume
+	app::ObjCameraVolume,
+	app::ObjGismo,
+	app::BossGiant
 > InspectableGameObjects;
 #endif
 

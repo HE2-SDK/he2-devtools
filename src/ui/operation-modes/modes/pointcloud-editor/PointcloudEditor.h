@@ -3,10 +3,10 @@
 #include <ui/operation-modes/OperationMode.h>
 #include "Context.h"
 
-namespace ui::operation_modes::modes::pcmodel_editor {
-    class PointcloudModelEditor : public OperationMode<Context> {
+namespace ui::operation_modes::modes::pointcloud_editor {
+    class PointcloudEditor : public OperationMode<Context> {
     public:
-        PointcloudModelEditor(csl::fnd::IAllocator* allocator, OperationModeHost& host);
+        PointcloudEditor(csl::fnd::IAllocator* allocator, OperationModeHost& host, const hh::fnd::ResourceTypeInfo* typeInfo);
 
         virtual void ProcessAction(const ActionBase& action) override;
         virtual void RenderScene() override;

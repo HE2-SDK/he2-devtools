@@ -11,7 +11,7 @@ namespace ui::operation_modes::modes::dvscene_editor
 	public:
 		DvSceneEditor(csl::fnd::IAllocator* allocator, OperationModeHost& host);
 		~DvSceneEditor();
-		
+
 		bool listenerAdded = false;
 
 		virtual void GameObjectRemovedCallback(hh::game::GameManager* gameManager, hh::game::GameObject* gameObject) override;

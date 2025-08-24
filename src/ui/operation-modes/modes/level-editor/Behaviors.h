@@ -63,6 +63,7 @@ namespace ui::operation_modes::modes::level_editor {
 	};
 }
 
+#ifndef DEVTOOLS_TARGET_SDK_rangers
 namespace app::gfx {
 	class GOCVisualGeometryInstance : public hh::game::GOComponent {
 #ifdef DEVTOOLS_TARGET_SDK_wars
@@ -72,6 +73,7 @@ namespace app::gfx {
 #endif
 	};
 }
+#endif
 
 namespace ui::operation_modes::modes::level_editor {
 	using namespace hh::game;
