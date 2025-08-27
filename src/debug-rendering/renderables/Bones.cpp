@@ -58,35 +58,6 @@ namespace devtools::debug_rendering::renderables {
 		ctx.DrawPrimitive(hh::gfnd::PrimitiveType::LINE_LIST, &xs[0], &indices[0], totalBoneCount * 2);
 		ctx.DrawPrimitive(hh::gfnd::PrimitiveType::LINE_LIST, &ys[0], &indices[0], totalBoneCount * 2);
 		ctx.DrawPrimitive(hh::gfnd::PrimitiveType::LINE_LIST, &zs[0], &indices[0], totalBoneCount * 2);
-
-		
-		for (auto* gameObject : gameManager->objects) {
-			for (auto* goc : gameObject->components) {
-				if (goc->pStaticClass == hh::pba::GOCPhysicalAnimationBullet::GetClass()) {
-					if (goc->nameHash != csl::ut::HashString("Cape"))
-						continue;
-
-					auto* gocPBA = static_cast<hh::pba::GOCPhysicalAnimation*>(goc);
-
-					csl::ut::MoveArray<hh::fnd::WorldPosition> ps{ hh::fnd::MemoryRouter::GetTempAllocator() };
-					gocPBA->GetRigidBodyPositions(ps);
-
-					auto animTf = TransformToAffine3f(gocPBA->gocAnimationSingle->GetTransform());
-					for (size_t i = 0; i < gocPBA->physSkelRes->rigidbodies.size(); i++) {
-						auto& rb = gocPBA->physSkelRes->rigidbodies[i];
-						auto& p = ps[i];
-
-						csl::math::Matrix34 tf{};
-						tf.fromPositionOrientationScale(p.m_Position, p.m_Rotation, csl::math::Vector3{ 1.0f, 1.0f, 1.0f });
-
-						if (rb.shape == ucsl::resources::pba::v1::RigidBody::Shape::SPHERE)
-							ctx.DrawCapsule(animTf * tf, rb.shapeRadius, rb.shapeHeight, { 0, 255, 0, 255 });
-						else
-							ctx.DrawOBB(animTf * tf, { rb.shapeRadius, rb.shapeHeight, rb.shapeDepth }, { 0, 255, 0, 255 });
-					}
-				}
-			}
-		}
 #endif
 	}
 

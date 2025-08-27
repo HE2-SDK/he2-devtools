@@ -72,8 +72,9 @@ namespace ui::operation_modes::modes::dvscene_editor {
 						if ((context.evtScene->flags.bits & 0x80) != 0)
 							context.evtScene->SetMovie(play);
 						x->moviePlayer->SetPause(!play);
-						context.goDVSC->play = play;
 					}
+			if (changed)
+				context.goDVSC->play = play;
 		}
 		ImGui::EndChild();
 	}

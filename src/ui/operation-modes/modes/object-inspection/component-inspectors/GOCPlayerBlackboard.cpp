@@ -41,7 +41,8 @@ void RenderBlackboardBattleInspector(app::player::BlackboardBattle& blackboard) 
 	csl::ut::MoveArray<void*> debugArray2;
 	csl::ut::MoveArray<void*> unk4;
 	ImGui::DragScalar("Unk5", ImGuiDataType_U32, &blackboard.unk5);
-	ImGui::DragScalar("unk6", ImGuiDataType_U16, &blackboard.unk6);
+	ImGui::DragScalar("unk6a", ImGuiDataType_U8, &blackboard.unk6a);
+	ImGui::DragScalar("unk6b", ImGuiDataType_U8, &blackboard.unk6b);
 	ImGui::DragScalar("unk7", ImGuiDataType_U8, &blackboard.unk7);
 	ImGui::DragScalar("Combo count", ImGuiDataType_U32, &blackboard.comboCount);
 	ImGui::DragFloat("Phantom rush amount", &blackboard.phantomRushAmount);
@@ -53,7 +54,8 @@ void RenderBlackboardBattleInspector(app::player::BlackboardBattle& blackboard) 
 	ImGui::Text("%zx", blackboard.unk13);
 	ImGui::Text("%zx", blackboard.unk14);
 	ImGui::Text("Unk16: %s", blackboard.unk16.c_str());
-	ImGui::DragScalar("unk17", ImGuiDataType_U16, &blackboard.unk17);
+	ImGui::DragScalar("flags0", ImGuiDataType_U8, &blackboard.flags0);
+	ImGui::DragScalar("flags1", ImGuiDataType_U8, &blackboard.flags1);
 }
 
 const char* difficultyNames[]{ "EASY", "NORMAL", "HARD", "EXTREME" };
@@ -404,9 +406,24 @@ const char* worldFlagNames[128]{
 	nullptr,
 };
 
+const char* characterIdNames[] = {
+	"SONIC",
+	"AMY",
+	"KNUCKLES",
+	"TAILS",
+	"NONE"
+};
+
+const char* formStateNames[] = {
+	"NORMAL",
+	"SUPER",
+	"UNK0"
+};
+
 void RenderBlackboardStatusInspector(app::player::BlackboardStatus& blackboard) {
-	ImGui::DragScalar("word20", ImGuiDataType_U16, &blackboard.word20);
-	ImGui::DragScalar("dword24", ImGuiDataType_U32, &blackboard.dword24);
+	ImGui::DragScalar("byte20", ImGuiDataType_U8, &blackboard.byte20);
+	ComboEnum("characterId", blackboard.characterId, characterIdNames);
+	ComboEnum("formState", blackboard.formState, formStateNames);
 
 	if (ImGui::TreeNode("Combat flags")) {
 		for (size_t i = 0; i < 64; i++) {
@@ -453,13 +470,12 @@ void RenderBlackboardStatusInspector(app::player::BlackboardStatus& blackboard) 
 	ImGui::Text("Out of control time: %f", blackboard.outOfControlTime);
 	ImGui::Text("In control time: %f", blackboard.inControlTime);
 	ImGui::Text("%zx", blackboard.qword58);
-	ImGui::Text("%zx", blackboard.qword60);
+	ImGui::Text("%zx", blackboard.dword60);
+	ImGui::Text("%zx", blackboard.dword64);
 	//ut::PriorityList<bool, hh::fnd::Handle<hh::fnd::Messenger>> qword68;
 	//csl::ut::InplaceMoveArray<uint32_t, 4> qword90;
 	//csl::ut::InplaceMoveArray<uint32_t, 4> qwordC0;
 	//csl::ut::InplaceMoveArray<uint32_t, 4> qwordF0;
-	ImGui::Text("%zx", blackboard.qword120);
-	ImGui::DragScalar("dword128", ImGuiDataType_U32, &blackboard.dword128);
 	//ut::PriorityList<Dimension, hh::fnd::Handle<hh::fnd::Messenger>> qword130;
 	Editor("oword160", blackboard.oword160);
 	ImGui::DragScalar("dword170", ImGuiDataType_U32, &blackboard.dword170);
