@@ -223,13 +223,16 @@ namespace ui::operation_modes::modes::surfride_editor {
 		void ApplyReferenceCastChange(const ucsl::resources::swif::swif_version::SRS_CASTNODE& cast);
 		void ApplySliceCastChange(const ucsl::resources::swif::swif_version::SRS_CASTNODE& cast);
 		static Eigen::Translation3f GetPivotTranslation(const SurfRide::Cast* cast);
+		void ReloadResource();
 
 	private:
-		void ReloadResource();
-		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer, int sibling);
-		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateImageCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer, int sibling);
-		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateSliceCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer, int sibling);
-		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateReferenceCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer, int sibling);
+		unsigned short GenerateUniqueId();
+		bool IsIdTaken(unsigned short id) const;
+		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer);
+		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateImageCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer);
+		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateSliceCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer);
+		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateReferenceCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer);
+		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer, ucsl::resources::swif::swif_version::SRS_CASTNODE::Type type);
 		static ucsl::resources::swif::swif_version::ETrackDataType GetTrackDataTypeForCurveType(ucsl::resources::swif::swif_version::ECurveType curveType);
 		static Eigen::Translation3f GetPivotTranslation(ucsl::resources::swif::swif_version::EPivotType pivotType, const ucsl::resources::swif::swif_version::Vector2& customPivot, const ucsl::resources::swif::swif_version::Vector2& size);
 		static void UpdateAabb(const Eigen::Transform<float, 3, Eigen::Projective>& transform, ucsl::resources::swif::swif_version::EPivotType pivotType, const ucsl::resources::swif::swif_version::Vector2& customPivot, const ucsl::resources::swif::swif_version::Vector2& size, csl::geom::Aabb& aabb);

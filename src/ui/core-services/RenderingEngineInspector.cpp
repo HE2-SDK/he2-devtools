@@ -168,6 +168,38 @@ void RenderingEngineInspector::RenderContents()
 						Editor("unk25", sctx->implementation->unk25);
 						Editor("unk26", sctx->implementation->unk26);
 					}
+					if (ctx->GetNameHash() == *reinterpret_cast<unsigned int*>(0x1440D0CE0ull)) {
+						auto* sctx = static_cast<hh::needle::SCIBL*>(&*ctx);
+
+						if (sctx->implementation->probeBVH != nullptr) {
+							auto& probeBVH = sctx->implementation->probeBVH;
+
+							size_t i{};
+							for (auto& node : probeBVH->implementation->probeNodes) {
+								ImGui::PushID(i++);
+								if (ImGui::TreeNode("Node")) {
+									Viewer("Texture name", node->textureName);
+									Viewer("Resource name", node->resourceName);
+
+									if (node->texture1 != nullptr)
+										Editor("texture1", node->texture1);
+
+									if (node->texture2 != nullptr)
+										Editor("texture2", node->texture2);
+
+									ImGui::TreePop();
+								}
+								ImGui::PopID();
+							}
+
+							if (probeBVH->implementation->ggxSamplingTexture.implementation != nullptr) {
+								auto& ggxTexImpl = probeBVH->implementation->ggxSamplingTexture.implementation;
+								
+								if (ggxTexImpl->texture != nullptr)
+									Editor("Texture", ggxTexImpl->texture);
+							}
+						}
+					}
 					//if (ctx->GetNameHash() == *reinterpret_cast<unsigned int*>(0x1440C8B64ull)) {
 					//	auto* sctx = static_cast<hh::needle::SCAtmosphere*>(&*ctx);
 

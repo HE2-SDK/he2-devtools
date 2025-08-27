@@ -4,6 +4,7 @@
 #include "renderables/GOCVisualDebugDraws.h"
 #include "renderables/OcclusionCapsules.h"
 #include "renderables/Paths.h"
+#include "renderables/Bones.h"
 #ifndef DEVTOOLS_TARGET_SDK_wars
 #include "renderables/PhysicalAnimation.h"
 #endif
@@ -18,6 +19,7 @@ namespace devtools::debug_rendering {
 		renderables::GOCVisualDebugDraws gocVisualDebugDrawsRenderable{ GetAllocator() };
 		renderables::OcclusionCapsules occlusionCapsulesRenderable{};
 		renderables::Paths pathsRenderable{};
+		renderables::Bones bonesRenderable{};
 #ifndef DEVTOOLS_TARGET_SDK_wars
 		renderables::PhysicalAnimation physicalAnimationRenderable{};
 #endif

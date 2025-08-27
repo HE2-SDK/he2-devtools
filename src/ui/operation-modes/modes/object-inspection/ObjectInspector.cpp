@@ -2,6 +2,7 @@
 #include "Behaviors.h"
 #include <ui/common/viewers/Basic.h>
 #include <ui/common/editors/Basic.h>
+#include <ui/common/editors/Reflection.h>
 #include <ui/common/inputs/Basic.h>
 #include <ui/common/icons.h>
 #include <ui/tools/MemoryViewer.h>
@@ -32,9 +33,13 @@ typedef std::tuple<
 #include "component-inspectors/GOCTransform.h"
 #include "component-inspectors/GOCCollider.h"
 #include "component-inspectors/GOCSprite.h"
+#include "component-inspectors/GOCUIComposition.h"
+#include "component-inspectors/GOCEffect.h"
 #include "component-inspectors/GOCAnimator.h"
 #include "component-inspectors/GOCActivator.h"
 #include "component-inspectors/GOCVisual.h"
+#include "component-inspectors/GOCSound.h"
+#include "component-inspectors/GOCParticleLocator.h"
 #include "component-inspectors/PathComponent.h"
 #include "component-inspectors/GOCEvent.h"
 #include "component-inspectors/GOCPlayerBlackboard.h"
@@ -42,9 +47,11 @@ typedef std::tuple<
 #include "component-inspectors/GOCCamera.h"
 #include "component-inspectors/GOCPlayerParameter.h"
 #include "component-inspectors/GOCPlayerHsm.h"
+#include "component-inspectors/GOCPlayerEffect.h"
+#include "component-inspectors/GOCPlayerVisual.h"
 #include "component-inspectors/GOCPlayerCollider.h"
 #include "component-inspectors/GOCColliderQuery.h"
-#include "component-inspectors/GOCPhysicalAnimationBullet.h"
+#include "component-inspectors/GOCPhysicalAnimation.h"
 #include "component-inspectors/GOCPointLight.h"
 #include "component-inspectors/GOCVibration.h"
 
@@ -57,9 +64,13 @@ typedef std::tuple<
 	hh::physics::GOCCylinderCollider,
 	hh::physics::GOCMeshCollider,
 	hh::ui::GOCSprite,
+	hh::ui::GOCUIComposition,
+	hh::eff::GOCEffect,
 	hh::gfx::GOCVisual,
 	hh::gfx::GOCVisualTransformed,
 	hh::gfx::GOCVisualModel,
+	hh::snd::GOCSound,
+	hh::animeff::GOCParticleLocator,
 	hh::anim::GOCAnimator,
 	hh::path::PathComponent,
 	app_cmn::camera::GOCCamera,
@@ -69,6 +80,8 @@ typedef std::tuple<
 	app::player::GOCPlayerParameter,
 	app::player::GOCPlayerHsm,
 	app::player::GOCPlayerCollider,
+	app::player::GOCPlayerEffect,
+	app::player::GOCPlayerVisual,
 	app::physics::GOCMoveSphereColliderQuery,
 	hh::pba::GOCPhysicalAnimationBullet,
 	hh::gfx::GOCPointLight,
@@ -80,11 +93,17 @@ typedef std::tuple<
 #include "component-inspectors/GOCTransform.h"
 #include "component-inspectors/GOCCollider.h"
 #include "component-inspectors/GOCSprite.h"
+#include "component-inspectors/GOCUIComposition.h"
+#include "component-inspectors/GOCEffect.h"
+#include "component-inspectors/GOCAnimation.h"
 #include "component-inspectors/GOCAnimator.h"
+#include "component-inspectors/GOCVisual.h"
+#include "component-inspectors/GOCPhysicalAnimation.h"
+#include "component-inspectors/GOCSound.h"
+#include "component-inspectors/GOCParticleLocator.h"
 #include "component-inspectors/GOCPlayerParameter.h"
 #include "component-inspectors/GOCPlayerHsm.h"
 #include "component-inspectors/GOCPlayerKinematicParams.h"
-#include "component-inspectors/GOCPhysicalAnimationBullet.h"
 
 typedef std::tuple<
 	hh::game::GOCTransform,
@@ -94,9 +113,17 @@ typedef std::tuple<
 	hh::physics::GOCCylinderCollider,
 	hh::physics::GOCMeshCollider,
 	hh::ui::GOCSprite,
+	hh::ui::GOCUIComposition,
+	hh::eff::GOCEffect,
+	hh::gfx::GOCVisual,
+	hh::gfx::GOCVisualTransformed,
+	hh::gfx::GOCVisualModel,
+	hh::snd::GOCSound,
+	hh::animeff::GOCParticleLocator,
 	app::player::GOCPlayerParameter,
 	app::player::GOCPlayerHsm,
 	app::player::GOCPlayerKinematicParams,
+	hh::anim::GOCAnimationSimple,
 	hh::anim::GOCAnimator,
 	hh::pba::GOCPhysicalAnimationBullet
 > InspectableComponents;
@@ -210,6 +237,7 @@ namespace ui::operation_modes::modes::object_inspection {
 			if (ImGui::BeginTabBar("Inspector types")) {
 				if (ImGui::BeginTabItem("Properties")) {
 					if (ImGui::BeginChild("Content")) {
+						ImGui::SeparatorText("Components");
 						for (auto* component : focusedObject->components) {
 							ImGui::PushID(component);
 
@@ -236,6 +264,33 @@ namespace ui::operation_modes::modes::object_inspection {
 				if (ImGui::BeginTabItem("Details")) {
 					GameObjectIterator<>::Render(*focusedObject);
 					ImGui::EndTabItem();
+				}
+				if (auto* status = focusedObject->GetWorldObjectStatus()) {
+					if (ImGui::BeginTabItem("WorldObjectStatus")) {
+						CheckboxFlags("Enabled", status->flags, WorldObjectStatus::Flag::ENABLED);
+						CheckboxFlags("Is alive", status->flags, WorldObjectStatus::Flag::IS_ALIVE);
+						CheckboxFlags("Shutdown", status->flags, WorldObjectStatus::Flag::SHUTDOWN);
+						CheckboxFlags("No restart", status->flags, WorldObjectStatus::Flag::NO_RESTART);
+
+						if (ImGui::Button("Shutdown"))
+							status->Shutdown();
+						if (ImGui::Button("Restart"))
+							status->Restart();
+
+#ifndef DEVTOOLS_TARGET_SDK_wars
+						Editor("Spawn priority", status->spawnPriority);
+#endif
+
+						unsigned short state0 = status->GetObjectState(0);
+						if (Editor("State 0", state0))
+							status->SetObjectState(0, state0);
+
+						unsigned short state1 = status->GetObjectState(1);
+						if (Editor("State 1", state1))
+							status->SetObjectState(1, state1);
+
+						ImGui::EndTabItem();
+					}
 				}
 #ifndef DEVTOOLS_TARGET_SDK_wars
 				if (ImGui::BeginTabItem("Update configuration")) {
@@ -351,11 +406,9 @@ namespace ui::operation_modes::modes::object_inspection {
 			return GetIconGlyph(IconId::COMPONENT_COLLISION);
 		else if (component.pStaticClass == hh::ui::GOCSprite::GetClass())
 			return GetIconGlyph(IconId::COMPONENT_UI);
-#ifdef DEVTOOLS_TARGET_SDK_rangers
+#ifndef DEVTOOLS_TARGET_SDK_wars
 		else if (component.pStaticClass == hh::snd::GOCSound::GetClass())
 			return GetIconGlyph(IconId::COMPONENT_SOUND);
-#endif
-#ifndef DEVTOOLS_TARGET_SDK_wars
 		else if (component.pStaticClass == hh::anim::GOCAnimator::GetClass())
 			return GetIconGlyph(IconId::COMPONENT_ANIMATION);
 		else if (component.pStaticClass == app::GOCEnemy::GetClass())

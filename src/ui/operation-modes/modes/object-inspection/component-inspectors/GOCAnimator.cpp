@@ -4,6 +4,7 @@
 #include <ui/common/StandaloneOperationModeHost.h>
 #include <ui/operation-modes/modes/asm-editor/BlendTreeEditor.h>
 #include <ui/operation-modes/modes/asm-editor/ASMEditor.h>
+#include "GOCAnimation.h"
 
 void RenderBlendNode(hh::anim::BlendNodeBase* node) {
 	const char* type;
@@ -55,6 +56,8 @@ void RenderBlendNode(hh::anim::BlendNodeBase* node) {
 
 void RenderComponentInspector(hh::anim::GOCAnimator& component)
 {
+	RenderComponentInspector(static_cast<hh::anim::GOCAnimationSingle&>(component));
+
 	bool nope{ false };
 	if (ImGui::Button("ASM Editor")) {
 		auto* host = new (Desktop::instance->GetAllocator()) StandaloneOperationModeHost<ui::operation_modes::modes::asm_editor::ASMEditor>{ Desktop::instance->GetAllocator() };

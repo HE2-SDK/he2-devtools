@@ -127,10 +127,11 @@ namespace ui::operation_modes::modes::asm_editor {
 		Editor("Loop count", state.maxCycles);
 		CheckboxFlags("Loop", state.flags, StateData::Flag::LOOPS);
 		CheckboxFlags("Unknown 1", state.flags, StateData::Flag::UNK1);
-		CheckboxFlags("Disable PBA", state.flags, StateData::Flag::DISABLE_PBA);
-		CheckboxFlags("Use PBA blend factor", state.flags, StateData::Flag::USE_PBA_BLEND_FACTOR);
+		CheckboxFlags("Use PBA", state.flags, StateData::Flag::USE_PBA);
 
 #ifdef DEVTOOLS_TARGET_SDK_miller
+		CheckboxFlags("Use PBA blend factor", state.flags, StateData::Flag::USE_PBA_BLEND_FACTOR);
+
 		float zero = 0.0f;
 		float one = 1.0f;
 		if (state.flags.test(StateData::Flag::USE_PBA_BLEND_FACTOR))

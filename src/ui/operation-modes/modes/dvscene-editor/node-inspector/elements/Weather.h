@@ -12,7 +12,6 @@ namespace ui::operation_modes::modes::dvscene_editor {
     };
 #endif
     
-
     template<>
     bool RenderElementInspector<hh::dv::DvNodeElement::ElementID::WEATHER>(char* element) {
         bool changed = false;

@@ -22,15 +22,15 @@ bool ResVibrationEditor::Editor(VibrationKeyframe& value, unsigned int idx) {
 
 	ImGui::PushID(idx);
 
-	double time = value.position[0];
-	double intensity = value.position[1];
+	double time = value.time;
+	double intensity = value.intensity;
 	bool clicked;
 	bool hovered;
 	bool held;
 
 	if (changed |= ImPlot::DragPoint(idx, &time, &intensity, color, 4.0f, 0, &clicked, &hovered, &held)) {
-		value.position[0] = time;
-		value.position[1] = intensity;
+		value.time = time;
+		value.intensity = intensity;
 	}
 
 	if (clicked && !held)
@@ -78,8 +78,8 @@ bool ResVibrationEditor::Editor(VibrationMotor& value, unsigned int idx, Vibrati
 			float* intensity = static_cast<float*>(tempAllocator->Alloc(value.keyframeCount * sizeof(float), alignof(float)));
 			for (unsigned int l = 0; l < value.keyframeCount; l++) {
 				auto& keyframe = value.keyframes[l];
-				time[l] = keyframe.position[0];
-				intensity[l] = keyframe.position[1];
+				time[l] = keyframe.time;
+				intensity[l] = keyframe.intensity;
 			}
 			ImPlot::SetNextFillStyle(color, 0.3f);
 			ImPlot::PlotLine<float>("X", time, intensity, value.keyframeCount, ImPlotLineFlags_Shaded);

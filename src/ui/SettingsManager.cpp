@@ -29,6 +29,7 @@ bool SettingsManager::Settings::operator==(const SettingsManager::Settings& othe
 		&& debugRenderingRenderGOCVisualDebugDraw == other.debugRenderingRenderGOCVisualDebugDraw
 		&& debugRenderingRenderColliders == other.debugRenderingRenderColliders
 		&& debugRenderingRenderOcclusionCapsules == other.debugRenderingRenderOcclusionCapsules
+		&& debugRenderingRenderBones == other.debugRenderingRenderBones
 		&& debugRenderingRenderPaths == other.debugRenderingRenderPaths
 		&& debugRenderingRenderPathNormals == other.debugRenderingRenderPathNormals
 		&& debugRenderingRenderPathTangents == other.debugRenderingRenderPathTangents
@@ -223,6 +224,7 @@ void SettingsManager::Render() {
 							ImGui::Checkbox("Render GOCVisualDebugDraw visuals", &tempSettings.debugRenderingRenderGOCVisualDebugDraw);
 							ImGui::Checkbox("Render colliders", &tempSettings.debugRenderingRenderColliders);
 							ImGui::Checkbox("Render occlusion capsules", &tempSettings.debugRenderingRenderOcclusionCapsules);
+							ImGui::Checkbox("Render bones", &tempSettings.debugRenderingRenderBones);
 							ImGui::Checkbox("Render paths", &tempSettings.debugRenderingRenderPaths);
 							ImGui::Indent();
 							ImGui::Checkbox("Render path normals", &tempSettings.debugRenderingRenderPathNormals);
@@ -376,6 +378,7 @@ void SettingsManager::ApplySettings() {
 	devtools::debug_rendering::DebugRenderingSystem::instance->gocVisualDebugDrawsRenderable.opacity = settings.debugRenderingGOCVisualDebugDrawOpacity;
 	devtools::debug_rendering::DebugRenderingSystem::instance->collidersRenderable.enabled = settings.debugRenderingRenderColliders;
 	devtools::debug_rendering::DebugRenderingSystem::instance->occlusionCapsulesRenderable.enabled = settings.debugRenderingRenderOcclusionCapsules;
+	devtools::debug_rendering::DebugRenderingSystem::instance->bonesRenderable.enabled = settings.debugRenderingRenderBones;
 	devtools::debug_rendering::DebugRenderingSystem::instance->pathsRenderable.enabled = settings.debugRenderingRenderPaths;
 	devtools::debug_rendering::DebugRenderingSystem::instance->pathsRenderable.normalsEnabled = settings.debugRenderingRenderPathNormals;
 	devtools::debug_rendering::DebugRenderingSystem::instance->pathsRenderable.tangentsEnabled = settings.debugRenderingRenderPathTangents;
@@ -458,6 +461,7 @@ void SettingsManager::ReadLineFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	if (sscanf_s(line, "DebugRenderingRenderGOCVisualDebugDraw=%u", &u) == 1) { settings.debugRenderingRenderGOCVisualDebugDraw = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderColliders=%u", &u) == 1) { settings.debugRenderingRenderColliders = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderOcclusionCapsules=%u", &u) == 1) { settings.debugRenderingRenderOcclusionCapsules = u; return; }
+	if (sscanf_s(line, "DebugRenderingRenderBones=%u", &u) == 1) { settings.debugRenderingRenderBones = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderPaths=%u", &u) == 1) { settings.debugRenderingRenderPaths = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderPathNormals=%u", &u) == 1) { settings.debugRenderingRenderPathNormals = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderPathTangents=%u", &u) == 1) { settings.debugRenderingRenderPathTangents = u; return; }
@@ -526,6 +530,7 @@ void SettingsManager::WriteAllFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	out_buf->appendf("DebugRenderingRenderGOCVisualDebugDraw=%u\n", settings.debugRenderingRenderGOCVisualDebugDraw);
 	out_buf->appendf("DebugRenderingRenderColliders=%u\n", settings.debugRenderingRenderColliders);
 	out_buf->appendf("DebugRenderingRenderOcclusionCapsules=%u\n", settings.debugRenderingRenderOcclusionCapsules);
+	out_buf->appendf("DebugRenderingRenderBones=%u\n", settings.debugRenderingRenderBones);
 	out_buf->appendf("DebugRenderingRenderPaths=%u\n", settings.debugRenderingRenderPaths);
 	out_buf->appendf("DebugRenderingRenderPathNormals=%u\n", settings.debugRenderingRenderPathNormals);
 	out_buf->appendf("DebugRenderingRenderPathTangents=%u\n", settings.debugRenderingRenderPathTangents);

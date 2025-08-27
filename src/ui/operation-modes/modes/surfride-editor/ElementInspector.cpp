@@ -1,5 +1,6 @@
 #include "ElementInspector.h"
 #include "SurfRideElement.h"
+#include "Actions.h"
 #include "Behaviors.h"
 #include <resources/ManagedMemoryRegistry.h>
 #include <ui/common/editors/Basic.h>
@@ -57,8 +58,12 @@ namespace ui::operation_modes::modes::surfride_editor {
 		}
 
 		bool hides = scene.GetHideFlag();
-		if (Editor("Hide", hides))
+		if (Editor("Hide", hides)) {
 			scene.SetHideFlag(hides);
+
+			if (runtimeScene)
+				runtimeScene->SetHideFlag(hides);
+		}
 
 		ImGui::Separator();
 		Editor("User data", GetContext().projectResource, scene.userData);
@@ -92,6 +97,14 @@ namespace ui::operation_modes::modes::surfride_editor {
 			ImGui::EndCombo();
 		}
 
+		bool hides = layer.GetHideFlag();
+		if (Editor("Hide", hides)) {
+			layer.SetHideFlag(hides);
+
+			if (runtimeLayer)
+				runtimeLayer->SetHideFlag(hides);
+		}
+
 		ImGui::Separator();
 		Editor("User data", GetContext().projectResource, layer.userData);
 	}
@@ -109,7 +122,7 @@ namespace ui::operation_modes::modes::surfride_editor {
 
 	void ElementInspector::RenderBaseCastInspector(SRS_CASTNODE& cast, SurfRide::Cast* runtimeCast)
 	{
-		auto context = GetContext();
+		auto& context = GetContext();
 
 		Viewer("ID", cast.id);
 		InputText("Name", cast.name, context.projectResource);
@@ -117,7 +130,8 @@ namespace ui::operation_modes::modes::surfride_editor {
 		bool transformEdited{};
 		transformEdited |= Editor("Cast", cast);
 
-		Editor("User data", context.projectResource, cast.userData);
+		if (Editor("User data", context.projectResource, cast.userData))
+			Dispatch(CriticalParametersChangedAction{});
 
 		auto& layer = *context.FindCastLayer(cast.id);
 		size_t castIndex = &cast - layer.casts;

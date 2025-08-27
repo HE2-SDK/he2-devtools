@@ -25,14 +25,14 @@ bool ResPhysicalSkeletonEditor::Editor(Node& value, unsigned int idx, SoftBody& 
 
 	if (isOpen) {
 		changed |= ::Editor("Mass", value.mass);
-		changed |= ::Editor("Unk0", value.unk0);
+		changed |= ::Editor("Rigid body index", value.rigidBodyIndex);
 		changed |= ::Editor("Is Pinned", value.isPinned);
-		changed |= ::Editor("Child ID", value.childId);
-		changed |= ::Editor("Parent ID", value.parentId);
-		changed |= ::Editor("Unk1", value.unk1);
-		changed |= ::Editor("Unk2", value.unk2);
-		changed |= ::Editor("Sibling Left ID", value.siblingLeftId);
-		changed |= ::Editor("Sibling Right ID", value.siblingRightId);
+		changed |= ::Editor("+X sibling index", value.positiveXSiblingIndex);
+		changed |= ::Editor("-X sibling index", value.negativeXSiblingIndex);
+		changed |= ::Editor("+Y sibling index", value.positiveYSiblingIndex);
+		changed |= ::Editor("-Y sibling index", value.negativeYSiblingIndex);
+		changed |= ::Editor("+Z sibling index", value.positiveZSiblingIndex);
+		changed |= ::Editor("-Z sibling index", value.negativeZSiblingIndex);
 		ImGui::TreePop();
 	}
 	ImGui::PopID();
@@ -116,22 +116,22 @@ bool ResPhysicalSkeletonEditor::Editor(SoftBody& value, unsigned int idx, PbaDat
 
 	if (isOpen) {
 		changed |= InputText("Name", value.name, resource);
-		changed |= ::Editor("Scale", value.scale);
+		changed |= ::Editor("Margin", value.margin);
 		if (ImGui::TreeNode("Physics Settings")) {
 			changed |= ::Editor("Damping Coefficient", value.dampingCoeff);
 			changed |= ::Editor("Drag Coefficient", value.dragCoeff);
 			changed |= ::Editor("Lift Coefficient", value.liftCoeff);
 			changed |= ::Editor("Dynamic Friction Coefficient", value.dynamicFrictionCoeff);
 			changed |= ::Editor("Pose Matching Coefficient", value.poseMatchingCoeff);
-			changed |= ::Editor("Rigid Contact Coefficient", value.rigidContactCoeff);
+			changed |= ::Editor("Rigid Contacts Hardness", value.rigidContactsHardness);
 			changed |= ::Editor("Kinetic Contacts Hardness", value.kineticContactsHardness);
 			changed |= ::Editor("Soft Contacts Hardness", value.softContactsHardness);
 			changed |= ::Editor("Anchors Hardness", value.anchorsHardness);
-			changed |= ::Editor("Position Iteration Count", value.positionIterationCount);
+			changed |= ::Editor("Position Solver Iteration Count", value.positionSolverIterationCount);
 			ImGui::TreePop();
 		}
 		changed |= ::Editor("Unk0", value.unk0);
-		changed |= ::Editor("Unk1", value.unk1);
+		changed |= ::Editor("Group", value.group);
 
 		bool nodesOpen = ImGui::TreeNode("Nodes");
 
@@ -195,11 +195,11 @@ bool ResPhysicalSkeletonEditor::Editor(Constraint& value, unsigned int idx, PbaD
 
 	if (isOpen) {
 		changed |= InputText("Bone Name", value.boneName, resource);
-		changed |= ::Editor("Unk0", value.unk0);
+		changed |= ::Editor("Disable Collisions Between Linked Bodies", value.disableCollisionsBetweenLinkedBodies);
 		changed |= ::Editor("Unk1", value.unk1);
-		changed |= ::Editor("Iteration Count", value.iterationCount);
-		changed |= ::Editor("Local Parent Bone Index", value.localParentBoneIndex);
-		changed |= ::Editor("Local Bone Index", value.localBoneIndex);
+		changed |= ::Editor("Override Solver Iteration Count", value.overrideSolverIterationCount);
+		changed |= ::Editor("Parent Rigid Body Index", value.parentRigidBodyIndex);
+		changed |= ::Editor("Child Rigid Body Index", value.childRigidBodyIndex);
 		changed |= ::Editor("Skeleton Parent Bone Index", value.skeletonParentBoneIndex);
 		if (ImGui::TreeNode("Linear Limits")) {
 			for (auto x = 0; x < 3; x++) {
@@ -232,6 +232,9 @@ bool ResPhysicalSkeletonEditor::Editor(Constraint& value, unsigned int idx, PbaD
 	return changed;
 }
 
+static const char* typeNames[]{ "Dynamic", "Static" };
+static const char* shapeNames[]{ "Sphere", "Box" };
+
 bool ResPhysicalSkeletonEditor::Editor(RigidBody& value, unsigned int idx, PbaData& parent)
 {
 	bool changed = false;
@@ -254,14 +257,14 @@ bool ResPhysicalSkeletonEditor::Editor(RigidBody& value, unsigned int idx, PbaDa
 	if (isOpen) {
 		changed |= InputText("Bone Name", value.boneName, resource);
 		if (ImGui::TreeNode("Shape Settings")) {
-			changed |= ::Editor("Is Box", value.isShapeBox);
+			changed |= ::ComboEnum("Shape", value.shape, shapeNames);
 			changed |= ::Editor("Radius", value.shapeRadius);
 			changed |= ::Editor("Height", value.shapeHeight);
 			changed |= ::Editor("Depth", value.shapeDepth);
 			ImGui::TreePop();
 		}
 		if (ImGui::TreeNode("Physics Settings")) {
-			changed |= ::Editor("Is Static Object", value.isStaticObject);
+			changed |= ::ComboEnum("Type", value.type, typeNames);
 			changed |= ::Editor("Mass", value.mass);
 			changed |= ::Editor("Friction", value.friction);
 			changed |= ::Editor("Restitution", value.restitution);
@@ -381,8 +384,8 @@ void ResPhysicalSkeletonEditor::RenderContents()
 	if (Editor(*static_cast<PbaData*>(resource->unpackedBinaryData))) {
 		resource->Reload(resource->unpackedBinaryData, resource->GetSize());
 		if (gocPhys) {
-			gocPhys->UnkFunc17();
-			gocPhys->UnkFunc16(gocPhys->gocAnimator0);
+			gocPhys->Deinitialize();
+			gocPhys->Initialize((hh::anim::GOCAnimator*)gocPhys->gocAnimationSingle);
 		}
 	}
 }

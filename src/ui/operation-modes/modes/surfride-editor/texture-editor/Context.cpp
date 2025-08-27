@@ -1,15 +1,86 @@
 #include "Context.h"
 #include <resources/ManagedMemoryRegistry.h>
 #include <resources/managed-memory/ManagedCArray.h>
+#include <span>
 
 using namespace ucsl::resources::swif::swif_version;
 
 namespace ui::operation_modes::modes::surfride_editor::texture_editor {
+	unsigned short Context::GenerateUniqueId() {
+		unsigned short res{};
+
+		do { res = mt(); } while (IsIdTaken(res));
+
+		return res;
+	}
+
+	bool Context::IsIdTaken(unsigned short id) const {
+		auto& project = *gocSprite->GetProject()->projectData;
+
+		for (auto& textureList : std::span(project.textureLists, project.textureListCount))
+			for (auto& texture : std::span(textureList.textures, textureList.textureCount))
+				if (texture.id == id)
+					return true;
+
+		for (auto& scene : std::span(project.scenes, project.sceneCount)) {
+			if (scene.id == id)
+				return true;
+
+			for (auto& layer : std::span(scene.layers, scene.layerCount)) {
+				if (layer.id == id)
+					return true;
+
+				for (auto& cast : std::span(layer.casts, layer.castCount))
+					if (cast.id == id)
+						return true;
+
+				for (auto& animation : std::span(layer.animations, layer.animationCount))
+					if (animation.id == id)
+						return true;
+			}
+
+			for (auto& camera : std::span(scene.cameras, scene.cameraCount))
+				if (camera.id == id)
+					return true;
+		}
+		
+		for (auto& font : std::span(project.fonts, project.fontCount))
+			if (font.id == id)
+				return true;
+
+		return false;
+	}
+
+	hh::ui::ResSurfRideProject* Context::GetResourceForComponent(hh::ui::GOCSprite* goc) {
+#ifdef DEVTOOLS_TARGET_SDK_wars
+		if (!goc || goc->projectContexts.size() == 0)
+			return nullptr;
+
+		auto* resourceManager = hh::fnd::ResourceManager::GetInstance();
+
+		if (auto* res = resourceManager->GetResource<hh::ui::ResSurfRideProject>(goc->projectContexts[0].name.c_str()))
+			return res;
+
+		auto* packFileContainer = resourceManager->GetResourceContainer(hh::fnd::Packfile::GetTypeInfo());
+			
+		auto packFileCount = packFileContainer->GetNumResources();
+			
+		for (int i = 0; i < packFileCount; i++)
+			if (auto* packFileRes = static_cast<hh::fnd::Packfile*>(packFileContainer->GetResourceByIndex(i))->GetResourceByName<hh::ui::ResSurfRideProject>(goc->projectContexts[0].name.c_str()))
+				return packFileRes;
+
+		return nullptr;
+#else
+		return goc == nullptr ? nullptr : goc->projectResource;
+#endif
+	}
+
 	void Context::AddTexture(const TextureListRef& textureListRef, hh::gfnd::ResTexture* textureResource) {
-		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(gocSprite->projectResource);
+		auto* projectResource = GetResourceForComponent(gocSprite);
+		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(projectResource);
 
 		auto* textureList = textureListRef.GetTextureListInstance();
-		auto* resourceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*gocSprite->projectResource->textureDatas[textureListRef.textureListIndex]);
+		auto* resourceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*projectResource->textureDatas[textureListRef.textureListIndex]);
 		auto* instanceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*textureList->textureData);
 
 #ifndef DEVTOOLS_TARGET_SDK_wars
@@ -23,13 +94,13 @@ namespace ui::operation_modes::modes::surfride_editor::texture_editor {
 		SRS_TEXTURE srsTexture{};
 		srsTexture.width = static_cast<unsigned short>(textureResource->GetTexture()->format.width);
 		srsTexture.height = static_cast<unsigned short>(textureResource->GetTexture()->format.height);
-		srsTexture.id = mt();
+		srsTexture.id = GenerateUniqueId();
 #ifndef DEVTOOLS_TARGET_SDK_wars
 		srsTexture.name = name;
 #endif
 		srsTexture.filename = filename;
 
-		resources::ManagedCArray textures{ gocSprite->projectResource, textureList->textureListData->textures, textureList->textureListData->textureCount };
+		resources::ManagedCArray textures{ projectResource, textureList->textureListData->textures, textureList->textureListData->textureCount };
 
 		textures.push_back(srsTexture);
 		resourceTextureData->textures.push_back(textureResource->GetTexture());
@@ -37,11 +108,12 @@ namespace ui::operation_modes::modes::surfride_editor::texture_editor {
 	}
 
 	void Context::ReplaceTexture(const TextureRef& textureRef, hh::gfnd::ResTexture* textureResource) {
-		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(gocSprite->projectResource);
+		auto* projectResource = GetResourceForComponent(gocSprite);
+		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(projectResource);
 
 		auto* textureList = textureRef.GetTextureListInstance();
 		auto& texture = textureRef.GetTexture();
-		auto* resourceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*gocSprite->projectResource->textureDatas[textureRef.textureListIndex]);
+		auto* resourceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*projectResource->textureDatas[textureRef.textureListIndex]);
 		auto* instanceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*textureList->textureData);
 
 		managedAllocator.Free(const_cast<char*>(texture.filename));
@@ -57,11 +129,12 @@ namespace ui::operation_modes::modes::surfride_editor::texture_editor {
 	}
 
 	void Context::RemoveTexture(const TextureRef& textureRef) {
-		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(gocSprite->projectResource);
+		auto* projectResource = GetResourceForComponent(gocSprite);
+		auto managedAllocator = resources::ManagedMemoryRegistry::instance->GetManagedAllocator(projectResource);
 
 		auto* textureList = textureRef.GetTextureListInstance();
 		auto& texture = textureRef.GetTexture();
-		auto* resourceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*gocSprite->projectResource->textureDatas[textureRef.textureListIndex]);
+		auto* resourceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*projectResource->textureDatas[textureRef.textureListIndex]);
 		auto* instanceTextureData = static_cast<hh::ui::surfride::SurfRideTextureDataMIRAGE*>(&*textureList->textureData);
 
 #ifndef DEVTOOLS_TARGET_SDK_wars

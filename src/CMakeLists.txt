@@ -15,6 +15,7 @@ target_sources(${DEVTOOLS_TARGET}
         debug-rendering/renderables/GOCVisualDebugDraws.cpp
         debug-rendering/renderables/OcclusionCapsules.cpp
         debug-rendering/renderables/Paths.cpp
+        debug-rendering/renderables/Bones.cpp
         debug-rendering/renderables/PhysicalAnimation.cpp
         debug-rendering/renderables/Light.cpp
         debug-rendering/visuals/AabbTree.cpp
@@ -34,6 +35,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/editors/Basic.cpp
         ui/common/editors/Reflection.cpp
         ui/common/editors/GraphicsContext.cpp
+        ui/common/editors/Effects.cpp
         ui/common/editors/${DEVTOOLS_TARGET_SDK}/LevelInfo.cpp
         ui/common/editors/Pointcloud.cpp
         ui/common/editors/Resources.cpp
@@ -86,6 +88,7 @@ target_sources(${DEVTOOLS_TARGET}
         debug-rendering/renderables/GOCVisualDebugDraws.h
         debug-rendering/renderables/OcclusionCapsules.h
         debug-rendering/renderables/Paths.h
+        debug-rendering/renderables/Bones.h
         debug-rendering/renderables/PhysicalAnimation.h
         debug-rendering/renderables/Light.h
         debug-rendering/visuals/AabbTree.h
@@ -110,6 +113,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/editors/Camera.h
         ui/common/editors/Reflection.h
         ui/common/editors/GraphicsContext.h
+        ui/common/editors/Effects.h
         ui/common/editors/LevelInfo.h
         ui/common/editors/Needle.h
         ui/common/editors/Pointcloud.h
@@ -254,19 +258,26 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         GOCTransform
         GOCCollider
         GOCSprite
+        GOCUIComposition
+        GOCEffect
         GOCPlayerParameter
         GOCPlayerHsm
+        GOCPlayerVisual
+        GOCPlayerEffect
         GOCEvent
         GOCCamera
+        GOCAnimation
         GOCAnimator
         GOCVisual
+        GOCPhysicalAnimation
+        GOCSound
+        GOCParticleLocator
         PathComponent
         GOCActivator
         GOCPlayerBlackboard
         GOCPlayerKinematicParams
         GOCColliderQuery
         GOCPlayerCollider
-        GOCPhysicalAnimationBullet
         GOCPointLight
         GOCVibration
     )
@@ -342,11 +353,17 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "miller")
         GOCTransform
         GOCCollider
         GOCSprite
+        GOCUIComposition
+        GOCEffect
         GOCPlayerParameter
         GOCPlayerHsm
+        GOCAnimation
         GOCAnimator
+        GOCVisual
+        GOCPhysicalAnimation
+        GOCSound
+        GOCParticleLocator
         GOCPlayerKinematicParams
-        GOCPhysicalAnimationBullet
     )
     set(DEVTOOLS_FEATURE_RESOURCE_INSPECTORS
         ResObjectWorldEditor

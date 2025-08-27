@@ -1,3 +1,26 @@
+# v0.2.3
+* Added ResGismoConfig editor.
+* Added ResGismoDesign editor.
+* Added ResLuaData editor.
+* Added ResMirageLight editor.
+* Added ResPhysicalSkeleton editor.
+* Added ResVibration editor.
+* Added ResPointCloud editor.
+* Added GOCPhysicalAnimation inspector.
+* Added GOCPointLight inspector.
+* Added GOCVibration inspector.
+* Added debug rendering for skeletons.
+* Added debug rendering for physical skeletons.
+* Added debug rendering for point lights.
+* Fixed various memory corruption issues in the DvScene editor.
+* Improved GOCTransform inspector.
+* Improved GOCActivator inspector.
+* Fixed GOCVisualDebugDraw visuals not rendering
+
+## Sonic Forces
+* Added experimental ResScene editor.
+
+
 # v0.2.2
 * Level Editor: Added context menu item to enable/disable layers.
 

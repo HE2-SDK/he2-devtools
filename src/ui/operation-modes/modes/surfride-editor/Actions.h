@@ -17,6 +17,10 @@ namespace ui::operation_modes::modes::surfride_editor {
 	using FocusedSceneChangedAction = Action<ActionId::SURFRIDE_EDITOR_FOCUSED_SCENE_CHANGED>;
 	using AddCastToLayerAction = Action<ActionId::SURFRIDE_EDITOR_ADD_CAST_TO_LAYER, AddCastToLayerPayload>;
 	using AddCastToCastAction = Action<ActionId::SURFRIDE_EDITOR_ADD_CAST_TO_CAST, AddCastToCastPayload>;
+	using AddSceneAction = Action<ActionId::SURFRIDE_EDITOR_ADD_SCENE>;
 	using RemoveCastAction = Action<ActionId::SURFRIDE_EDITOR_REMOVE_CAST, ucsl::resources::swif::swif_version::SRS_CASTNODE&>;
+	using RemoveLayerAction = Action<ActionId::SURFRIDE_EDITOR_REMOVE_LAYER, ucsl::resources::swif::swif_version::SRS_LAYER&>;
+	using RemoveSceneAction = Action<ActionId::SURFRIDE_EDITOR_REMOVE_SCENE, ucsl::resources::swif::swif_version::SRS_SCENE&>;
 	using OpenTextureEditorAction = Action<ActionId::SURFRIDE_EDITOR_OPEN_TEXTURE_EDITOR>;
+	using CriticalParametersChangedAction = Action<ActionId::SURFRIDE_EDITOR_CRITICAL_PARAMETERS_CHANGED>;
 }
