@@ -1,3 +1,10 @@
+# v0.2.4
+* Fixed bone debug rendering.
+
+# Sonic Frontiers
+* Added UIMapParam Editor tool.
+
+
 # v0.2.3
 * Added ResGismoConfig editor.
 * Added ResGismoDesign editor.

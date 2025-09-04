@@ -26,6 +26,7 @@
 #include "core-services/CameraManagerInspector.h"
 #include "tools/rangers/NeedleFxSceneDataTester.h"
 #include "tools/rangers/NeedleFxSceneDataTesterV2.h"
+#include "tools/rangers/UIMapParamEditor.h"
 #endif
 
 #ifdef DEVTOOLS_TARGET_SDK_miller
@@ -94,6 +95,8 @@ void ToolBar::Render() {
 
 		if (ImGui::BeginMenu("Tools")) {
 #ifdef DEVTOOLS_TARGET_SDK_rangers
+			if (ImGui::MenuItem("UIMapParam Editor"))
+				new (Desktop::instance->GetAllocator()) UIMapParamEditor(Desktop::instance->GetAllocator());
 			if (ImGui::MenuItem("NeedleFxSceneData Tester") && ImGui::FindWindowByName("NeedleFxSceneData testing tool") == nullptr)
 				new (Desktop::instance->GetAllocator()) NeedleFxSceneDataTester(Desktop::instance->GetAllocator());
 #endif
