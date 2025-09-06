@@ -1,7 +1,7 @@
-# Sonic Frontiers DevTools
+# HE2 DevTools
 
-This is an in-engine modding toolkit for the SEGA game Sonic Frontiers.
-Releases can be found on [GitHub](https://github.com/angryzor/sonic-frontiers-devtools/releases)
+This is an in-engine modding toolkit for the Sonic Team Engine Hedgehog Engine 2.
+Releases can be found on [GitHub](https://github.com/HE2-SDK/he2-devtools/releases)
 or on [the project's GameBanana page](https://gamebanana.com/tools/15218).
 A HMM update server is also available.
 
@@ -10,34 +10,37 @@ A HMM update server is also available.
 ## Setting up the development environment
 
 ### Using Visual Studio 2022's CMake integration
+
 You will need to have the following prerequisites installed:
 
-* Visual Studio 2022
+- Visual Studio 2022
 
 Check out the project and make sure to also check out its submodules:
 
 ```sh
-git clone --recurse-submodules https://github.com/angryzor/sonic-frontiers-devtools.git
+git clone --recurse-submodules https://github.com/HE2-SDK/he2-devtools.git
 ```
 
 Simply open the project folder in Visual Studio 2022 (File > Open > CMake...) and it should automatically detect the CMakeLists.txt file.
 
 The following presets are available:
-* x64 Debug: Debug build.
-* x64 Debug ImGui Demo: Debug build with ImGui demo window enabled (for editing themes etc.).
-* x64 Release: Release build.
-* x64 RelWithDebInfo: Release build with debug information.
+
+- x64 Debug: Debug build.
+- x64 Debug ImGui Demo: Debug build with ImGui demo window enabled (for editing themes etc.).
+- x64 Release: Release build.
+- x64 RelWithDebInfo: Release build with debug information.
 
 ### Using CMake with the Visual Studio 2022 generator
+
 You will need to have the following prerequisites installed:
 
-* Visual Studio 2022
-* CMake 3.28 or higher
+- Visual Studio 2022
+- CMake 3.28 or higher
 
 Check out the project and make sure to also check out its submodules:
 
 ```sh
-git clone --recurse-submodules https://github.com/angryzor/sonic-frontiers-devtools.git
+git clone --recurse-submodules https://github.com/HE2-SDK/he2-devtools.git
 ```
 
 Now let CMake do its thing:
@@ -46,7 +49,7 @@ Now let CMake do its thing:
 cmake -B build
 ```
 
-If you have Sonic Frontiers installed in a non-standard location, you can specify that location
+If you have your target game installed in a non-standard location, you can specify that location
 with the `DEVTOOLS_GAME_FOLDER` variable:
 
 ```sh

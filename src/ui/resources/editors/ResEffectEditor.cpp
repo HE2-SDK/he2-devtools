@@ -1,6 +1,6 @@
 #include "ResEffectEditor.h"
 
-bool Editor(const char* label, ucsl::resources::cemt::v100000::Texture& texture);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::TextureParam& texture);
 bool Editor(const char* label, ucsl::resources::cemt::v100000::ChildEffect& effect);
 bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::GravityVectorSettings& settings);
 bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::GravityOtherSettings& settings);
@@ -31,7 +31,7 @@ const char* modifierNames[] = {
 	"FLUCTUATION",
 };
 
-bool Editor(const char* label, Texture& texture) {
+bool Editor(const char* label, TextureParam& texture) {
 	bool edited{};
 	ImGui::PushID(label);
 	edited |= Editor("name", texture.name);

@@ -44,6 +44,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/viewers/RflDiff.cpp
         ui/common/inputs/Basic.cpp
         ui/common/overlays/Tag.cpp
+        ui/common/previewer/Previewer.cpp
         ui/common/icons.cpp
         ui/common/StandaloneWindow.cpp
         ui/common/stb_image.cpp
@@ -124,6 +125,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/inputs/Basic.h
         ui/common/inputs/Needle.h
         ui/common/overlays/Tag.h
+        ui/common/previewer/Previewer.h
         ui/common/icons.h
         ui/common/NodeEditor.h
         ui/common/StandaloneWindow.h
@@ -294,6 +296,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         ResGismoConfigPlanEditor
         ResMirageLightEditor
         ResVibrationEditor
+        ResModelEditor
     )
     set(DEVTOOLS_FEATURE_CORE_SERVICE_INSPECTORS
         MemoryInspector
