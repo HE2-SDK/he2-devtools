@@ -1,5 +1,4 @@
 #include "Theme.h"
-#include <ImViewGuizmo.h>
 
 void Theme_SonicFrontiers() {
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -106,8 +105,6 @@ void Theme_SonicFrontiers() {
 	style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.70f, 0.70f, 0.70f, 0.70f);
 	style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.20f);
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
-
-	ImViewGuizmo::GetStyle().scale = 0.65f;
 }
 
 void Theme_SonicForces() {
@@ -216,8 +213,6 @@ void Theme_SonicForces() {
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.70f, 0.70f, 0.70f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.09f, 0.09f, 0.09f, 0.20f);
 	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.09f, 0.09f, 0.09f, 0.35f);
-
-	ImViewGuizmo::GetStyle().scale = 0.65f;
 }
 
 void Theme_Gindows() {
@@ -324,8 +319,6 @@ void Theme_Gindows() {
 	style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 	style.Colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-
-	ImViewGuizmo::GetStyle().scale = 0.65f;
 }
 
 void Theme_Sonadow_Generations() {
@@ -434,8 +427,6 @@ void Theme_Sonadow_Generations() {
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.70f, 0.70f, 0.70f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.20f);
 	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
-
-	ImViewGuizmo::GetStyle().scale = 0.65f;
 }
 
 void Theme_ImGui() {
@@ -489,8 +480,6 @@ void Theme_ImGui() {
 	style.CircleTessellationMaxError = 0.30f;
 
 	ImGui::StyleColorsDark(&style);
-
-	ImViewGuizmo::GetStyle().scale = 0.65f;
 }
 
 void Theme_ContrastImGui() {
@@ -599,8 +588,6 @@ void Theme_ContrastImGui() {
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
 	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
-
-	ImViewGuizmo::GetStyle().scale = 0.65f;
 }
 
 void Theme_ModernContrastImGui() {
@@ -680,9 +667,7 @@ void Theme_ModernContrastImGui() {
 	colors[ImGuiCol_NavHighlight] = ImVec4(0.00f, 0.46f, 1.00f, 1.00f);
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 1.00f, 1.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f); 
-
-	ImViewGuizmo::GetStyle().scale = 0.65f;
+	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.35f);
 }
 
 Theme Theme::themes[themeCount] = {

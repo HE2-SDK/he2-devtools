@@ -73,7 +73,6 @@ target_sources(${DEVTOOLS_TARGET}
         utilities/math/EulerTransform.cpp
         utilities/math/Frustum.cpp
         utilities/math/MathUtils.cpp
-        utilities/math/GLMUtils.cpp
         utilities/ObjectDataUtils.cpp
         utilities/GameObjectUtils.cpp
         utilities/ResourceTypes.cpp
@@ -169,7 +168,6 @@ target_sources(${DEVTOOLS_TARGET}
         utilities/Helpers.h
         utilities/math/EulerTransform.h
         utilities/math/MathUtils.h
-        utilities/math/GLMUtils.h
         utilities/math/Frustum.h
         utilities/math/Ray.h
         utilities/ObjectDataUtils.h
