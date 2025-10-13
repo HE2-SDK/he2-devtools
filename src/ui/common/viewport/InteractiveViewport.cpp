@@ -53,6 +53,6 @@ void InteractiveViewport::UpdateMatrix(const csl::math::Vector3& position, const
 	auto& viewMatrix = viewportData.viewMatrix;
 	viewMatrix.linear() = rotation.toRotationMatrix();
 	viewMatrix.translation() = position;
-	viewportData.inverseViewMatrix = viewMatrix.inverse();
-	UpdateViewportData();
+	SetViewMatrix(viewMatrix);
+	UpdateViewMatrix();
 }

@@ -3,6 +3,7 @@
 
 using namespace hh::gfx;
 using namespace hh::needle;
+using namespace hh::gfnd;
 
 Viewport::~Viewport() {
 	if (renderTexture) {
@@ -58,7 +59,25 @@ void Viewport::Setup(const Description& desc) {
 	};
 	renderTexture = reinterpret_cast<RenderTextureHandle*>(renderEngine->CreateRenderTextureHandle(rtCreateInfo, pAllocator));
 
+	auto* resMgr = hh::fnd::ResourceManager::GetInstance();
+	auto* shLightField = resMgr->GetResource<ResSHLightField>("test_lf");
+	SupportFX::LightFieldDescription supportFxLfDesc{};
+	supportFxLfDesc.binaryData = shLightField->binaryData;
+	supportFxLfDesc.textures = &shLightField->textures;
+	supportFx->SetupLightField(supportFxLfDesc, name.c_str());
+
+	auto* renderingEngine = renderMgr->implementation->renderingEngine;
+	auto* iblComponent = (IBLComponent*)renderingEngine->GetComponentByHash(csl::ut::HashString("IBLComponent"));
+
+	auto* iblTexture = resMgr->GetResource<ResTexture>("defaultibl_test");
+	auto* texture = iblTexture->GetTexture();
+	iblComponent->SetIBLTexture(&texture, name.c_str());
+
 	viewportData.Reset();
+
+	viewportData.viewMatrix = csl::math::Matrix34::Identity();
+	viewportData.inverseViewMatrix = viewportData.viewMatrix.inverse();
+
 	SetCameraPositionAndTarget({}, {});
 
 	float resF[2] = {desc.resolution[0], desc.resolution[1]};
@@ -206,3 +225,22 @@ void Viewport::AddModel(hh::gfx::ResModel* resModel, bool setToAabb) {
 
 	AddModel(modelInstance, setToAabb);
 }
+
+void Viewport::RemoveModel(hh::needle::PBRModelInstance* modelInstance)
+{
+	size_t modelIdx = models.find(modelInstance);
+	if (modelIdx == -1) return;
+
+	models.remove(modelIdx);
+	auto* world{ renderTexture->GetWorldByIdx(0) };
+	world->Remove(modelInstance);
+}
+
+void Viewport::ClearModels() {
+	auto* world{ renderTexture->GetWorldByIdx(0) };
+	for (auto* model : models)
+		world->Remove(model);
+
+	models.clear();
+}
+

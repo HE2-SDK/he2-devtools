@@ -41,6 +41,10 @@ public:
 	void AddModel(hh::needle::PBRModelInstance* modelInstance, bool setToAabb = false);
 	void AddModel(hh::gfx::ResModel* resModel, bool setToAabb = false);
 
+	void RemoveModel(hh::needle::PBRModelInstance* modelInstance);
+
+	void ClearModels();
+
 protected:
 	hh::needle::Texture* GetTexture() const;
 	ImTextureID GetTextureID() const;
