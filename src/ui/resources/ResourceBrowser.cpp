@@ -7,8 +7,6 @@
 #include "editors/ResGismoConfigPlanEditor.h"
 #include "editors/ResMirageLightEditor.h"
 #include "editors/ResVibrationEditor.h"
-#include "editors/ResModelEditor.h"
-#include "editors/ResAnimTexSrtEditor.h"
 #endif
 //#include "editors/ResObjectWorldEditor.h"
 #include "editors/ResMaterialEditor.h"
@@ -247,10 +245,6 @@ void ResourceBrowser::RenderResource(ManagedResource* resource) {
 			ResMirageLightEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::gfx::ResMirageLight*>(resource));
 		else if (typeInfo == hh::hid::ResVibration::GetTypeInfo())
 			ResVibrationEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::hid::ResVibration*>(resource));
-		else if (typeInfo == hh::gfx::ResModel::GetTypeInfo())
-			ResModelEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::gfx::ResModel*>(resource));
-		/*else if (typeInfo == hh::gfx::ResAnimTexSrt::GetTypeInfo())
-			ResAnimTexSrtEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::gfx::ResAnimTexSrt*>(resource));*/
 #endif
 	}
 
