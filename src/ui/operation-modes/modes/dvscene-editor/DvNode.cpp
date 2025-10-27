@@ -83,6 +83,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 			return node->nodeType == hh::dv::DvNodeBase::NodeType::PATH;
 	}
 
+	//TODO: Fix parent transforms
 	Eigen::Affine3f DvNode::GetTransform() const 
 	{
 		if(CanTransform())

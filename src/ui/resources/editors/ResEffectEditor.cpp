@@ -1,10 +1,16 @@
 #include "ResEffectEditor.h"
 
-bool Editor(const char* label, ucsl::resources::cemt::v100000::Texture& texture);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::TextureParam& texture);
 bool Editor(const char* label, ucsl::resources::cemt::v100000::ChildEffect& effect);
-bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::GravityVectorSettings& settings);
-bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::GravityOtherSettings& settings);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::GravitySettings& settings);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::SpeedSettings& settings);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::MagnetSettings& settings);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::NewtonSettings& settings);
 bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::VortexSettings& settings);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::SpinSettings& settings);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::Spin2Settings& settings);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::RandomSettings& settings);
+bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::TailSettings& settings);
 bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam::FluctuationSettings& settings);
 bool Editor(const char* label, ucsl::resources::cemt::v100000::ModifierParam& modifier);
 bool Editor(const char* label, ucsl::resources::cemt::v100000::Table::Unk1& v);
@@ -19,19 +25,47 @@ bool Editor(const char* label, ucsl::resources::cemt::v100000::EmitterParam& emi
 using namespace ucsl::resources::cemt::v100000;
 
 const char* modifierNames[] = {
-	"GRAVITY_VECTOR",
-	"GRAVITY_OTHER",
-	"UNK0",
-	"UNK1",
+	"GRAVITY",
+	"SPEED",
+	"MAGNET",
+	"NEWTON",
 	"VORTEX",
-	"UNK2",
-	"UNK3",
-	"UNK4",
-	"UNK5",
+	"SPIN",
+	"SPIN2",
+	"RANDOM",
+	"TAIL",
 	"FLUCTUATION",
+	"UNK0"
 };
 
-bool Editor(const char* label, Texture& texture) {
+const char* shapeNames[] = {
+	"POINT",
+	"SPHERE",
+	"DISC",
+	"CYLINDER",
+	"LINE",
+	"TORUS",
+	"CUBE",
+	"null",
+	"FIXED"
+};
+
+const char* originNames[] = {
+	"WORLD",
+	"EMISSION",
+	"INHERIT",
+	"UNK0"
+};
+
+const char* waveformNames[] = {
+	"TRIANGLE",
+	"INVERSE_TRIANGLE",
+	"SAW",
+	"STEP",
+	"SINE"
+};
+
+bool Editor(const char* label, TextureParam& texture) {
 	bool edited{};
 	ImGui::PushID(label);
 	edited |= Editor("name", texture.name);
@@ -43,24 +77,45 @@ bool Editor(const char* label, ChildEffect& effect) {
 	bool edited{};
 	ImGui::PushID(label);
 	edited |= Editor("flags", effect.flags);
+	edited |= Editor("unkType", effect.unkType);
 	edited |= Editor("name", effect.name);
 	ImGui::PopID();
 	return edited;
 }
 
-bool Editor(const char* label, ModifierParam::GravityVectorSettings& settings) {
+bool Editor(const char* label, ModifierParam::GravitySettings& settings) {
 	bool edited{};
 	ImGui::PushID(label);
 	edited |= Editor("scale", settings.scale);
-	edited |= Editor("value", settings.value);
+	edited |= Editor("rotation", settings.rotation);
+	edited |= Editor("usesDirection", settings.usesDirection);
 	ImGui::PopID();
 	return edited;
 }
 
-bool Editor(const char* label, ModifierParam::GravityOtherSettings& settings) {
+bool Editor(const char* label, ModifierParam::SpeedSettings& settings) {
 	bool edited{};
 	ImGui::PushID(label);
-	edited |= Editor("value", settings.value);
+	edited |= Editor("scale", settings.scale);
+	ImGui::PopID();
+	return edited;
+}
+
+bool Editor(const char* label, ModifierParam::MagnetSettings& settings) {
+	bool edited{};
+	ImGui::PushID(label);
+	edited |= Editor("magnetPoint", settings.magnetPoint);
+	edited |= Editor("scale", settings.scale);
+	ImGui::PopID();
+	return edited;
+}
+
+bool Editor(const char* label, ModifierParam::NewtonSettings& settings) {
+	bool edited{};
+	ImGui::PushID(label);
+	edited |= Editor("targetPoint", settings.targetPoint);
+	edited |= Editor("scale", settings.scale);
+	edited |= Editor("maxDistance", settings.maxDistance);
 	ImGui::PopID();
 	return edited;
 }
@@ -68,9 +123,58 @@ bool Editor(const char* label, ModifierParam::GravityOtherSettings& settings) {
 bool Editor(const char* label, ModifierParam::VortexSettings& settings) {
 	bool edited{};
 	ImGui::PushID(label);
-	edited |= Editor("unk1", settings.unk1);
-	edited |= Editor("unk2", settings.unk2);
-	edited |= Editor("unk3", settings.unk3);
+	edited |= Editor("max", settings.max);
+	edited |= Editor("min", settings.min);
+	edited |= Editor("radius", settings.radius);
+	edited |= Editor("rotation", settings.rotation);
+	edited |= Editor("usesDirection", settings.usesDirection);
+	ImGui::PopID();
+	return edited;
+}
+
+bool Editor(const char* label, ModifierParam::SpinSettings& settings) {
+	bool edited{};
+	ImGui::PushID(label);
+	edited |= Editor("scale", settings.scale);
+	edited |= Editor("rotation", settings.rotation);
+	edited |= Editor("usesDirection", settings.usesDirection);
+	ImGui::PopID();
+	return edited;
+}
+
+bool Editor(const char* label, ModifierParam::Spin2Settings& settings) {
+	bool edited{};
+	ImGui::PushID(label);
+	edited |= Editor("baseStrength", settings.baseStrength);
+	edited |= Editor("spinStrength", settings.spinStrength);
+	edited |= Editor("rotationAngle", settings.rotationAngle);
+	edited |= Editor("axisFalloff", settings.axisFalloff);
+	edited |= Editor("axisVector", settings.axisVector);
+	edited |= Editor("useEulerRotation", settings.useEulerRotation);
+	ImGui::PopID();
+	return edited;
+}
+
+bool Editor(const char* label, ModifierParam::RandomSettings& settings) {
+	bool edited{};
+	ImGui::PushID(label);
+	edited |= Editor("scale", settings.scale);
+	edited |= Editor("spreadScale", settings.spreadScale);
+	edited |= Editor("updateInterval", settings.updateInterval);
+	edited |= CheckboxFlags("RANDOMIZED_SCALE", settings.flags, ModifierParam::RandomSettings::Flags::RANDOMIZED_SCALE);
+	edited |= CheckboxFlags("X", settings.flags, ModifierParam::RandomSettings::Flags::X);
+	edited |= CheckboxFlags("Y", settings.flags, ModifierParam::RandomSettings::Flags::Y);
+	edited |= CheckboxFlags("Z", settings.flags, ModifierParam::RandomSettings::Flags::Z);
+	edited |= Editor("normalizedSpreadVector", settings.normalizedSpreadVector);
+	edited |= Editor("randomPerAxis", settings.randomPerAxis);
+	ImGui::PopID();
+	return edited;
+}
+
+bool Editor(const char* label, ModifierParam::TailSettings& settings) {
+	bool edited{};
+	ImGui::PushID(label);
+	edited |= Editor("multiplier", settings.multiplier);
 	ImGui::PopID();
 	return edited;
 }
@@ -78,14 +182,9 @@ bool Editor(const char* label, ModifierParam::VortexSettings& settings) {
 bool Editor(const char* label, ModifierParam::FluctuationSettings& settings) {
 	bool edited{};
 	ImGui::PushID(label);
-	edited |= Editor("unk0", settings.unk0);
-	edited |= Editor("unk1", settings.unk1);
-	edited |= Editor("unk2", settings.unk2);
-	edited |= Editor("unk3", settings.unk3);
-	edited |= Editor("unk4", settings.unk4);
-	edited |= Editor("unk5", settings.unk5);
-	edited |= Editor("unk6", settings.unk6);
-	edited |= Editor("unk7", settings.unk7);
+	edited |= ComboEnum("waveformType", settings.waveformType, waveformNames);
+	edited |= Editor("baseOffset", settings.baseOffset);
+	edited |= Editor("axisFlags", settings.axisFlags);
 	ImGui::PopID();
 	return edited;
 }
@@ -94,15 +193,22 @@ bool Editor(const char* label, ModifierParam& modifier) {
 	bool edited{};
 	ImGui::PushID(label);
 
+	ImGui::Separator();
 	edited |= Editor("enabled", modifier.enabled);
 	edited |= ComboEnum("type", modifier.type, modifierNames);
-	edited |= Editor("option1", modifier.option1);
+	edited |= ComboEnum("origin", modifier.origin, originNames);
 	edited |= Editor("option2", modifier.option2);
 	
 	switch (modifier.type) {
-	case ModifierParam::Type::GRAVITY_VECTOR: edited |= Editor("settings", modifier.settings.gravityVector); break;
-	case ModifierParam::Type::GRAVITY_OTHER: edited |= Editor("settings", modifier.settings.gravityOther); break;
+	case ModifierParam::Type::GRAVITY: edited |= Editor("settings", modifier.settings.gravity); break;
+	case ModifierParam::Type::SPEED: edited |= Editor("settings", modifier.settings.speed); break;
+	case ModifierParam::Type::MAGNET: edited |= Editor("settings", modifier.settings.magnet); break;
+	case ModifierParam::Type::NEWTON: edited |= Editor("settings", modifier.settings.newton); break;
 	case ModifierParam::Type::VORTEX: edited |= Editor("settings", modifier.settings.vortex); break;
+	case ModifierParam::Type::SPIN: edited |= Editor("settings", modifier.settings.spin); break;
+	case ModifierParam::Type::SPIN2: edited |= Editor("settings", modifier.settings.spin2); break;
+	case ModifierParam::Type::RANDOM: edited |= Editor("settings", modifier.settings.random); break;
+	case ModifierParam::Type::TAIL: edited |= Editor("settings", modifier.settings.tail); break;
 	case ModifierParam::Type::FLUCTUATION: edited |= Editor("settings", modifier.settings.fluctuation); break;
 	default: ImGui::Text("not yet implemented"); break;
 	}
@@ -163,17 +269,23 @@ bool Editor(const char* label, ElementParam& element) {
 	edited |= Editor("unk18a0", element.unk18a0);
 	edited |= Editor("angularVelocity", element.angularVelocity);
 	edited |= Editor("unk18a01", element.unk18a01);
-	edited |= Editor("emitSpeed2", element.emitSpeed2);
-	edited |= Editor("unk18a02", element.unk18a02);
-	edited |= Editor("unkCount2", element.unkCount2);
-	edited |= Editor("unkCount3", element.unkCount3);
+	edited |= Editor("sizeX", element.sizeX);
+	edited |= Editor("sizeXJitter", element.sizeXJitter);
+	edited |= Editor("sizeY", element.sizeY);
+	edited |= Editor("sizeYJitter", element.sizeYJitter);
+	edited |= Editor("sizeZ", element.sizeZ);
+	edited |= Editor("sizeZJitter", element.sizeZJitter);
+	edited |= Editor("sizeFlags", element.sizeFlags);
+	edited |= Editor("scaleX", element.scaleX);
+	edited |= Editor("scaleXJitter", element.scaleXJitter);
+	edited |= Editor("scaleY", element.scaleY);
+	edited |= Editor("scaleYJitter", element.scaleYJitter);
+	edited |= Editor("scaleZ", element.scaleZ);
+	edited |= Editor("scaleZJitter", element.scaleZJitter);
+	edited |= Editor("scaleFlags", element.scaleFlags);
 	edited |= Editor("tables", element.tables);
 	edited |= Editor("fps", element.fps);
-	edited |= Editor("unk19a23", element.unk19a23);
-	edited |= Editor("unk18a6", element.unk18a6);
-	edited |= Editor("unk18a8", element.unk18a8);
-	edited |= Editor("unk18a1", element.unk18a1);
-	edited |= Editor("unk18a2", element.unk18a2);
+	edited |= Editor("fpsJitter", element.fpsJitter);
 	edited |= Editor("unk18a", element.unk18a);
 	edited |= Editor("modelName", element.modelName);
 	edited |= Editor("particleTypeOrSomething", element.particleTypeOrSomething);
@@ -202,10 +314,43 @@ bool Editor(const char* label, ElementParam& element) {
 bool Editor(const char* label, EmitterParam& emitter) {
 	bool edited{};
 	ImGui::PushID(label);
-	edited |= Editor("emitspeed", emitter.emitSpeed);
+	edited |= Editor("position", emitter.position);
+	edited |= Editor("rotation", emitter.rotation);
+	edited |= Editor("scale", emitter.scale);
+	edited |= ComboEnum("shape", emitter.shape, shapeNames);
+	edited |= Editor("spread", emitter.spread);
+	edited |= Editor("startAngle", emitter.startAngle);
+	edited |= Editor("endAngle", emitter.endAngle);
+	edited |= Editor("useRadialDistribution", emitter.useRadialDistribution);
+	edited |= Editor("consistentAngle", emitter.consistentAngle);
+	edited |= Editor("useAngularSubdivisions", emitter.useAngularSubdivisions);
+	edited |= Editor("numSubDivisions", emitter.numSubDivisions);
+	edited |= Editor("disabled", emitter.disabled);
+	edited |= Editor("frequency", emitter.frequency);
+	edited |= Editor("frequencyJitter", emitter.frequencyJitter);
+	edited |= Editor("emitterCount", emitter.emitterCount);
+	edited |= Editor("emitterCountJitter", emitter.emitterCountJitter);
+	edited |= Editor("duration", emitter.duration);
+	edited |= Editor("startDelay", emitter.startDelay);
+	edited |= Editor("fadeSpeed", emitter.fadeSpeed);
+	edited |= Editor("lifeEndTime", emitter.lifeEndTime);
+	edited |= Editor("accelarationMultiplier", emitter.accelarationMultiplier);
+	edited |= Editor("accelarationNormalMultiplier", emitter.accelarationNormalMultiplier);
+	edited |= Editor("initialSpeed", emitter.initialSpeed);
+	edited |= Editor("velocityMultiplier", emitter.velocityMultiplier);
+	edited |= Editor("shapeRadius", emitter.shapeRadius);
+	edited |= Editor("velocityScale", emitter.velocityScale);
+	edited |= Editor("emitSize", emitter.emitSize);
+	edited |= Editor("useEmitVector", emitter.useEmitVector);
 	edited |= Editor("emitVector", emitter.emitVector);
-	edited |= Editor("emitVectorUnk", emitter.emitVectorUnk);
+	edited |= Editor("emitVectorJitter", emitter.emitVectorJitter);
+	edited |= Editor("directionJitter", emitter.directionJitter);
+	edited |= Editor("inheritRatio", emitter.inheritRatio);
 	edited |= Editor("randomSeed", emitter.randomSeed);
+	edited |= Editor("unkFloat0", emitter.unkFloat0);
+	edited |= Editor("unkFloat0Jitter", emitter.unkFloat0Jitter);
+	edited |= Editor("unkFloat1", emitter.unkFloat1);
+	edited |= Editor("unkFloat1Jitter", emitter.unkFloat1Jitter);
 	edited |= Editor("element", emitter.elementParam);
 	ImGui::PopID();
 	return edited;

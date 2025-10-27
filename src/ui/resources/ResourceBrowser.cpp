@@ -12,6 +12,7 @@
 #include "editors/ResMaterialEditor.h"
 #ifndef DEVTOOLS_TARGET_SDK_wars
 #include "editors/ResPhysicalSkeletonEditor.h"
+#include "editors/ResParticleLocationEditor.h"
 #endif
 #include <resources/ReloadManager.h>
 #include <ui/common/Textures.h>
@@ -232,6 +233,8 @@ void ResourceBrowser::RenderResource(ManagedResource* resource) {
 			ResMaterialEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::gfx::ResMaterial*>(resource));
 		else if (typeInfo == hh::pba::ResPhysicalSkeleton::GetTypeInfo())
 			ResPhysicalSkeletonEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::pba::ResPhysicalSkeleton*>(resource));
+		else if (typeInfo == hh::animeff::ResParticleLocation::GetTypeInfo())
+			ResParticleLocationEditor::Create(Desktop::instance->GetAllocator(), static_cast<hh::animeff::ResParticleLocation*>(resource));
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 		else if (typeInfo == app::ResGismoConfigDesign::GetTypeInfo())

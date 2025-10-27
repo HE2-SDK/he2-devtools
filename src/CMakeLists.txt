@@ -40,6 +40,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/editors/Pointcloud.cpp
         ui/common/editors/Resources.cpp
         ui/common/editors/HsmBase.cpp
+        ui/common/editors/ParticleLocation.cpp
         ui/common/viewers/Basic.cpp
         ui/common/viewers/RflDiff.cpp
         ui/common/inputs/Basic.cpp
@@ -119,6 +120,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/editors/Pointcloud.h
         ui/common/editors/Resources.h
         ui/common/editors/HsmBase.h
+        ui/common/editors/ParticleLocation.h
         ui/common/viewers/Basic.h
         ui/common/viewers/RflDiff.h
         ui/common/inputs/Basic.h
@@ -294,6 +296,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         ResGismoConfigPlanEditor
         ResMirageLightEditor
         ResVibrationEditor
+        ResParticleLocationEditor
     )
     set(DEVTOOLS_FEATURE_CORE_SERVICE_INSPECTORS
         MemoryInspector

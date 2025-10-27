@@ -20,8 +20,10 @@ void RenderComponentInspector(app::player::GOCPlayerKinematicParams& component)
 	ImGui::Text("Unk7");
 	Viewer("Unk7", component.unk7);
 
+#ifdef DEVTOOLS_TARGET_SDK_miller
 	Editor("Unk9.unk1", component.unk9.unk1);
 	Editor("Unk9.unk2", component.unk9.unk2);
+#endif
 	Editor("Unk11.unk3", component.unk11.unk3);
 	Editor("Unk14.unk1", component.unk14.unk1);
 	Editor("Unk14.unk2", component.unk14.unk2);
