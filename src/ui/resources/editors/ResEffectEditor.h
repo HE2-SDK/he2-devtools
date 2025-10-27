@@ -1,10 +1,6 @@
 #pragma once
 #include <ui/common/StandaloneWindow.h>
 
-namespace heur::resources {
-	class ResEffect;
-}
-
 class ResEffectEditor : public StandaloneWindow {
 	hh::fnd::Reference<hh::eff::ResEffect> resource;
 public:

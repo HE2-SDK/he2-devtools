@@ -14,7 +14,7 @@ void RenderGameServiceInspector(app::evt::EventPlayer& service)
         }
         if (ImGui::TreeNode("Event Scenes")) {
             for (auto* x : service.evtSceneMgr->evtScenes) {
-                if (ImGui::TreeNode(x->setupData.cutsceneName)) {
+                if (ImGui::TreeNode(x->setupData.playInfo.cutsceneName)) {
                     Editor("unk2", x->unk2);
                     Editor("unk3", x->unk3);
                     ImGui::TreePop();

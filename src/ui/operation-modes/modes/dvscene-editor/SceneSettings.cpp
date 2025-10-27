@@ -49,7 +49,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 						GetBehavior<SelectionBehavior<Context>>()->DeselectAll();
 						context.goDVSC = dvsc;
 						for (auto* evtScn : hh::game::GameManager::GetInstance()->GetService<app::evt::EventPlayer>()->evtSceneMgr->evtScenes)
-							if (strcmp(evtScn->setupData.cutsceneName, dvsc->cutsceneName.c_str()) == 0)
+							if (strcmp(evtScn->setupData.playInfo.cutsceneName, dvsc->cutsceneName.c_str()) == 0)
 								context.evtScene = evtScn;
 						context.parsedScene = new dv::DvScene;
 						context.parsedScene->read(static_cast<char*>(dvsc->resource->binaryData), dvsc->resource->size);

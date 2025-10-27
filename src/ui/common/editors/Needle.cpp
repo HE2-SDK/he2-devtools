@@ -393,6 +393,8 @@ bool Editor(const char* label, hh::needle::RenderingPipelineRangers& pipeline)
 	if (ImGui::TreeNode(label)) {
 		edited |= Editor("WorldRenderingPipeline", static_cast<hh::needle::WorldRenderingPipeline&>(pipeline));
 		Viewer("name", pipeline.name);
+		edited |= Editor("qword138", pipeline.qword138);
+		edited |= Editor("qword150", pipeline.qword150);
 		ImGui::TreePop();
 	}
 	return edited;

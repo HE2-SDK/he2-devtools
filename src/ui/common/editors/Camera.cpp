@@ -3,23 +3,36 @@
 
 using namespace app_cmn::camera;
 
-bool Editor(const char* label, CameraParameter::Target& target) {
+bool Editor(const char* label, CameraParameter::Orientation::Target& target) {
     bool edited{};
     ImGui::PushID(label);
     
-	edited |= Editor("Position", target.position);
-	edited |= Editor("Offset", target.offset);
-	edited |= Editor("Unk3", target.unk3);
+	edited |= Editor("Up Vector", target.upVector);
+	edited |= Editor("Unk8b", target.unk8b);
 
     ImGui::PopID();
     return edited;
 }
 
-bool Editor(const char* label, CameraParameter::Offset& offset) {
+bool Editor(const char* label, CameraParameter::Orientation::Offset& offset) {
     bool edited{};
     ImGui::PushID(label);
     
 	edited |= Editor("Offset", reinterpret_cast<csl::math::Vector3&>(offset));
+    edited |= Editor("Target Position", offset.targetPosition);
+    edited |= Editor("Use Position", offset.usePosition);
+
+    ImGui::PopID();
+    return edited;
+}
+
+bool Editor(const char* label, CameraParameter::Positioning& positioning) {
+    bool edited{};
+    ImGui::PushID(label);
+
+    edited |= Editor("Position", positioning.position);
+    edited |= Editor("Offset", positioning.offset);
+    edited |= Editor("Unk3", positioning.unk3);
 
     ImGui::PopID();
     return edited;
@@ -29,10 +42,8 @@ bool Editor(const char* label, CameraParameter::Orientation& orientation) {
     bool edited{};
     ImGui::PushID(label);
     
-	edited |= Editor("Unk7", orientation.unk7);
-	edited |= Editor("Unk8", orientation.unk8);
-	edited |= Editor("Unk9", orientation.unk9);
-	edited |= Editor("Unk8b", orientation.unk8b);
+	edited |= Editor("Offset", orientation.offset);
+	edited |= Editor("Target", orientation.target);
 
     ImGui::PopID();
     return edited;
@@ -42,8 +53,7 @@ bool Editor(const char* label, CameraParameter& parameter) {
     bool edited{};
     ImGui::PushID(label);
 
-	edited |= Editor("Target", parameter.target);
-	edited |= Editor("Offset", parameter.offset);
+	edited |= Editor("Positioning", parameter.positioning);
 	edited |= Editor("Orientation", parameter.orientation);
 
     ImGui::PopID();
