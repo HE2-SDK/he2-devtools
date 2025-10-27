@@ -24,5 +24,6 @@ namespace devtools::debug_rendering::renderables {
 		virtual void RenderIngameDebugVisuals(hh::gfnd::DrawContext& ctx) override;
 
 		static void InstallHooks();
+		static void RegisterClasses();
 	};
 }
