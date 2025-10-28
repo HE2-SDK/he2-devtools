@@ -376,6 +376,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "miller")
         ResReflectionEditor
         ResMaterialEditor
         ResPhysicalSkeletonEditor
+        ResParticleLocationEditor
     )
     set(DEVTOOLS_FEATURE_CORE_SERVICE_INSPECTORS
         GraphicsContextInspector
