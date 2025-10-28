@@ -6,6 +6,7 @@
 #include <ui/input/Input.h>
 #include <debug-rendering/DebugRenderingSystem.h>
 #include <ui/operation-modes/behaviors/ObjectLocationVisual3D.h>
+#include <ui/operation-modes/modes/level-editor/Context.h>
 #include <ui/GlobalSettings.h>
 #include <modules/PhotoMode.h>
 
@@ -41,6 +42,7 @@ bool SettingsManager::Settings::operator==(const SettingsManager::Settings& othe
 		&& debugRenderingLevelEditorDebugBoxRenderDistance == other.debugRenderingLevelEditorDebugBoxRenderDistance
 		&& debugRenderingLevelEditorDebugBoxRenderPrimaryTags == other.debugRenderingLevelEditorDebugBoxRenderPrimaryTags
 		&& debugRenderingLevelEditorDebugBoxRenderSecondaryTags == other.debugRenderingLevelEditorDebugBoxRenderSecondaryTags
+		&& levelEditorSetEditorStatus == other.levelEditorSetEditorStatus
 		&& enablePhotoMode == other.enablePhotoMode
 		&& enableApi == other.enableApi
 		&& !strcmp(apiHost, other.apiHost)
@@ -233,14 +235,6 @@ void SettingsManager::Render() {
 							ImGui::Checkbox("Render physical animation", &tempSettings.debugRenderingRenderPhysicalAnimation);
 							ImGui::Checkbox("Render lights", &tempSettings.debugRenderingRenderLight);
 							ImGui::SliderScalar("GOCVisualDebugDraw opacity (requires stage restart)", ImGuiDataType_U8, &tempSettings.debugRenderingGOCVisualDebugDrawOpacity, &minAlpha, &maxAlpha);
-							ImGui::SeparatorText("Debug boxes");
-							ImGui::SetItemTooltip("Options for debug boxes (the purple boxes showing the position of invisible objects).");
-							ImGui::DragFloat("Level editor debug box scale", &tempSettings.debugRenderingLevelEditorDebugBoxScale, 0.05f);
-							ImGui::SetItemTooltip("Size of the debug boxes.");
-							ImGui::DragScalar("Level editor debug box render limit", ImGuiDataType_U32, &tempSettings.debugRenderingLevelEditorDebugBoxRenderLimit);
-							ImGui::SetItemTooltip("Max amount of debug boxes that can be rendered.");
-							ImGui::DragFloat("Level editor debug box render distance", &tempSettings.debugRenderingLevelEditorDebugBoxRenderDistance, 0.05f);
-							ImGui::SetItemTooltip("Culls any debug boxes beyond this distance.");
 							ImGui::Checkbox("Render primary tags", &tempSettings.debugRenderingLevelEditorDebugBoxRenderPrimaryTags);
 							ImGui::SetItemTooltip("Whether the primary text tag should be rendered (usually object name).");
 							ImGui::Checkbox("Render secondary tags", &tempSettings.debugRenderingLevelEditorDebugBoxRenderSecondaryTags);
@@ -277,6 +271,29 @@ void SettingsManager::Render() {
 								}
 								ImGui::EndTable();
 							}
+							ImGui::EndTabItem();
+						}
+						ImGui::EndTabBar();
+					}
+					ImGui::EndTabItem();
+				}
+
+				if (ImGui::BeginTabItem("Editors")) {
+					if (ImGui::BeginTabBar("EditorTabs")) {
+						if (ImGui::BeginTabItem("Level Editor")) {
+							ImGui::SeparatorText("General");
+							ImGui::Checkbox("Switch selected chunk to editor mode", &tempSettings.levelEditorSetEditorStatus);
+							ImGui::SetItemTooltip("Reloads the chunk in editor mode when it is selected. Editor mode is a built in game setting that makes objects behave slightly differently, in a way that is more suitable for stage editing.");
+
+							ImGui::SeparatorText("Debug boxes");
+							ImGui::SetItemTooltip("Options for debug boxes (the purple boxes showing the position of invisible objects).");
+							ImGui::DragFloat("Level editor debug box scale", &tempSettings.debugRenderingLevelEditorDebugBoxScale, 0.05f);
+							ImGui::SetItemTooltip("Size of the debug boxes.");
+							ImGui::DragScalar("Level editor debug box render limit", ImGuiDataType_U32, &tempSettings.debugRenderingLevelEditorDebugBoxRenderLimit);
+							ImGui::SetItemTooltip("Max amount of debug boxes that can be rendered.");
+							ImGui::DragFloat("Level editor debug box render distance", &tempSettings.debugRenderingLevelEditorDebugBoxRenderDistance, 0.05f);
+							ImGui::SetItemTooltip("Culls any debug boxes beyond this distance.");
+
 							ImGui::EndTabItem();
 						}
 						ImGui::EndTabBar();
@@ -395,6 +412,7 @@ void SettingsManager::ApplySettings() {
 		settings.debugRenderingLevelEditorDebugBoxRenderPrimaryTags,
 		settings.debugRenderingLevelEditorDebugBoxRenderSecondaryTags
 	);
+	ui::operation_modes::modes::level_editor::Context::setEditorStatus = settings.levelEditorSetEditorStatus;
 	PhotoMode::enabled = settings.enablePhotoMode;
 	strcpy_s(GlobalSettings::defaultFileDialogDirectory, settings.defaultFileDialogDir);
 
@@ -473,6 +491,7 @@ void SettingsManager::ReadLineFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxRenderDistance=%f", &f) == 1) { settings.debugRenderingLevelEditorDebugBoxRenderDistance = f; return; }
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxRenderPrimaryTags=%u", &u) == 1) { settings.debugRenderingLevelEditorDebugBoxRenderPrimaryTags = static_cast<bool>(u); return; }
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxRenderSecondaryTags=%u", &u) == 1) { settings.debugRenderingLevelEditorDebugBoxRenderSecondaryTags = static_cast<bool>(u); return; }
+	if (sscanf_s(line, "LevelEditorSetEditorStatus=%u", &u) == 1) { settings.levelEditorSetEditorStatus = static_cast<bool>(u); return; }
 	if (sscanf_s(line, "EnableAPI=%u", &u) == 1) { settings.enableApi = static_cast<bool>(u); return; }
 	if (sscanf_s(line, "APIHost=%127[^\r\n]", s, 128) == 1) { strcpy_s(settings.apiHost, s); return; }
 	if (sscanf_s(line, "APIPort=%u", &u) == 1) { settings.apiPort = static_cast<unsigned short>(u); return; }
@@ -542,6 +561,7 @@ void SettingsManager::WriteAllFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxRenderDistance=%f\n", settings.debugRenderingLevelEditorDebugBoxRenderDistance);
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxRenderPrimaryTags=%f\n", settings.debugRenderingLevelEditorDebugBoxRenderPrimaryTags);
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxRenderSecondaryTags=%f\n", settings.debugRenderingLevelEditorDebugBoxRenderSecondaryTags);
+	out_buf->appendf("LevelEditorSetEditorStatus=%u\n", settings.levelEditorSetEditorStatus);
 	out_buf->appendf("EnableAPI=%u\n", settings.enableApi);
 	out_buf->appendf("APIHost=%s\n", settings.apiHost);
 	out_buf->appendf("APIPort=%u\n", settings.apiPort);

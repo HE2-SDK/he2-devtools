@@ -18,6 +18,8 @@ namespace ui::operation_modes::modes::level_editor {
 		hh::game::ObjectWorldChunkLayer* placementTargetLayer{};
 		const hh::game::GameObjectClass* objectClassToPlace{};
 
+		static bool setEditorStatus;
+
 		using CompatibleObject::CompatibleObject;
 
 		~Context();
