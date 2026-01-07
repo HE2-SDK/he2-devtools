@@ -5,7 +5,7 @@
 #include <ui/common/editors/Reflection.h>
 
 void RenderGameObjectInspector(app::BossGiant& object) {
-    auto* ctx = object.context;
+    auto& ctx = object.context;
     Viewer("qword60 size", ctx->qword60.size());
     Viewer("qword80 size", ctx->qword80.size());
     Viewer("qwordA0 size", ctx->qwordA0.size());
@@ -32,7 +32,6 @@ void RenderGameObjectInspector(app::BossGiant& object) {
     Editor("qword220", ctx->csl__math__vector4220);
     Editor("relatedToLastHit", ctx->relatedToLastHit);
     Editor("qword240", ctx->qword240);
-    Editor("qword250", ctx->qword250);
     Viewer("Current Camera name", ctx->currentCamera->cameraFrame->name.c_str());
     if (ImGui::TreeNode("qword268")) {
         for (auto& x : ctx->qword268)

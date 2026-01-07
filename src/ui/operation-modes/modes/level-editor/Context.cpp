@@ -310,12 +310,34 @@ namespace ui::operation_modes::modes::level_editor {
 
 	void Context::SetObjectParent(hh::game::ObjectData* child, hh::game::ObjectData* parent)
 	{
-		auto parentAbsoluteTransform = ObjectTransformDataToAffine3f(parent->transform);
-		auto childAbsoluteTransform = ObjectTransformDataToAffine3f(child->transform);
+		if (parent) {
+			auto parentAbsoluteTransform = ObjectTransformDataToAffine3f(parent->transform);
+			auto childAbsoluteTransform = ObjectTransformDataToAffine3f(child->transform);
 
-		child->localTransform = Affine3fToObjectTransformData(parentAbsoluteTransform.inverse() * childAbsoluteTransform);
-		child->parentID = parent->id;
+			child->localTransform = Affine3fToObjectTransformData(parentAbsoluteTransform.inverse() * childAbsoluteTransform);
+			child->parentID = parent->id;
+		}
+		else {
+			hh::game::ObjectData* currentParent{ nullptr };
 
+			for (auto* layer : focusedChunk->GetLayers()) {
+				for (auto* object : layer->GetResource()->GetObjects()) {
+					if (child->parentID == object->id) {
+						currentParent = object;
+						break;
+					}
+				}
+			}
+
+			if (currentParent) {
+				auto parentAbsoluteTransform = ObjectTransformDataToAffine3f(currentParent->transform);
+				auto childAbsoluteTransform = ObjectTransformDataToAffine3f(child->transform);
+
+				child->localTransform = Affine3fToObjectTransformData(parentAbsoluteTransform * childAbsoluteTransform);
+			}
+			
+			child->parentID = {};
+		}
 		focusedChunk->Despawn(child);
 		focusedChunk->Restart(focusedChunk->GetObjectIndexByObjectData(child), true);
 	}

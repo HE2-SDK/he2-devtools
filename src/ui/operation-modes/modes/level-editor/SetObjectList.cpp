@@ -88,7 +88,15 @@ namespace ui::operation_modes::modes::level_editor {
 					ObjectData* parent = object.object;
 					ObjectData* child = *static_cast<ObjectData**>(payload->Data);
 
-					if (parent != child) {
+					// Unparent an object
+					if (child->parentID.IsNonNull() 
+						&& child->parentID == parent->id) 
+					{
+						list.GetContext().SetObjectParent(child, nullptr);
+						list.InvalidateTree();
+					}
+					// Parent an object
+					else if (parent != child) {
 						list.GetContext().SetObjectParent(child, parent);
 						list.InvalidateTree();
 					}
