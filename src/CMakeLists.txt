@@ -284,6 +284,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         GOCPlayerCollider
         GOCPointLight
         GOCVibration
+        GOCHsm2
     )
     set(DEVTOOLS_FEATURE_RESOURCE_INSPECTORS
         ResObjectWorldEditor
