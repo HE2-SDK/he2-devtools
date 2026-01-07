@@ -1,3 +1,15 @@
+# v0.2.5
+* Level Editor: Added a setting to choose whether selecting a chunk reloads it in editor mode (#28 & #37).
+
+## Sonic Frontiers & Shadow Generations
+* Added ResParticleLocation (.effdb) editor.
+* Improved WIP CEMT editor.
+
+## Sonic Forces
+* RFL editor now properly renders object ID arrays (#38).
+* GOCVisualDebugDraw rendering now works properly instead of crashing (#39).
+
+
 # v0.2.4
 * Fixed bone debug rendering.
 

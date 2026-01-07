@@ -44,7 +44,7 @@ namespace devtools::debug_rendering::renderables {
 			GOCVisualDebugDraw::OnGOCEvent(event, ownerGameObject, data);
 		}
 
-		static void InstallHooks();
+		static void RegisterClasses();
 
 		GOCOMPONENT_CLASS_DECLARATION(GOCMyVisualDebugDraw)
 	};
@@ -71,9 +71,38 @@ HOOK(bool, __fastcall, VisualDebugDrawSetup, gocVisualDebugDrawSetupAddr, devtoo
 	return ret;
 }
 
+#ifdef DEVTOOLS_TARGET_SDK_wars
+thread_local hh::fnd::Geometry* tmpDebugGeometry{};
+HOOK(void, __fastcall, DebugSetGeometry, 0x140682D20, void* ignore, hh::fnd::Geometry* geom) {
+	if (tmpDebugGeometry == nullptr) {
+		auto* allocator = hh::fnd::MemoryRouter::GetModuleAllocator();
+
+		tmpDebugGeometry = new (std::align_val_t(alignof(hh::fnd::Geometry)), allocator) hh::fnd::Geometry{ allocator };
+	}
+
+	tmpDebugGeometry->vertices.clear();
+	tmpDebugGeometry->triangles.clear();
+
+	if (geom == nullptr)
+		return;
+
+	tmpDebugGeometry->vertices.reserve(geom->vertices.size());
+	tmpDebugGeometry->triangles.reserve(geom->triangles.size());
+	
+	for (auto& v : geom->vertices)
+		tmpDebugGeometry->vertices.push_back(v);
+
+	for (auto& v : geom->triangles)
+		tmpDebugGeometry->triangles.push_back(v);
+}
+HOOK(hh::fnd::Geometry*, __fastcall, DebugGetGeometry, 0x140682D30, void* ignore) {
+	return tmpDebugGeometry;
+}
+#endif
+
 namespace devtools::debug_rendering::renderables {
-	void GOCMyVisualDebugDraw::InstallHooks() {
-		reinterpret_cast<hh::game::GOComponentClass*>(reinterpret_cast<size_t>(hh::gfx::GOCVisualDebugDraw::GetClass()))->instantiator = &GOCMyVisualDebugDraw::Create;
+	void GOCMyVisualDebugDraw::RegisterClasses() {
+		const_cast<hh::game::GOComponentClass*>(hh::gfx::GOCVisualDebugDraw::GetClass())->instantiator = &GOCMyVisualDebugDraw::Create;
 	}
 
 	hh::game::GOComponent* GOCMyVisualDebugDraw::Create(csl::fnd::IAllocator* allocator) {
@@ -107,6 +136,13 @@ namespace devtools::debug_rendering::renderables {
 
 	void GOCVisualDebugDraws::InstallHooks() {
 		INSTALL_HOOK(VisualDebugDrawSetup);
-		GOCMyVisualDebugDraw::InstallHooks();
+#ifdef DEVTOOLS_TARGET_SDK_wars
+		INSTALL_HOOK(DebugSetGeometry);
+		INSTALL_HOOK(DebugGetGeometry);
+#endif
+	}
+
+	void GOCVisualDebugDraws::RegisterClasses() {
+		GOCMyVisualDebugDraw::RegisterClasses();
 	}
 }

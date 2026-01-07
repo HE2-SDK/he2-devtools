@@ -25,6 +25,7 @@ namespace devtools::debug_rendering::renderables {
 				if (goc->pStaticClass == hh::anim::GOCAnimator::GetClass() || goc->pStaticClass == hh::anim::GOCAnimationSimple::GetClass()) {
 					auto* gocAnim = static_cast<hh::anim::GOCAnimationSingle*>(goc);
 					auto* pose = static_cast<hh::anim::PosePxd*>(gocAnim->GetPose());
+					auto animTf = TransformToAffine3f(gocAnim->GetTransform());
 
 					if (!pose)
 						continue;
@@ -32,7 +33,7 @@ namespace devtools::debug_rendering::renderables {
 					totalBoneCount += pose->unk1.transforms.size();
 
 					for (auto& tf : pose->unk1.transforms) {
-						auto affine = TransformToAffine3f(gocAnim->GetTransform()) * TransformToAffine3f(tf);
+						auto affine = animTf * TransformToAffine3f(tf);
 						auto pos = affine * csl::math::Vector3::Zero();
 						auto x = affine * (0.15 * csl::math::Vector3::UnitX());
 						auto y = affine * (0.15 * csl::math::Vector3::UnitY());

@@ -16,6 +16,8 @@ namespace ui::operation_modes::modes::level_editor {
 	using namespace hh::fnd;
 	using namespace hh::game;
 
+	bool Context::setEditorStatus{ true };
+
 	Context::~Context() {
 		SetFocusedChunk(nullptr);
 	}
@@ -277,7 +279,7 @@ namespace ui::operation_modes::modes::level_editor {
 		}
 		focusedChunk = chunk;
 		if (focusedChunk) {
-			focusedChunk->SetEditorStatus(true);
+			focusedChunk->SetEditorStatus(setEditorStatus);
 			focusedChunk->DespawnAll();
 			focusedChunk->ShutdownPendingObjects();
 			focusedChunk->Restart(true);

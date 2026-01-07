@@ -188,6 +188,7 @@ class SettingsManager
         float debugRenderingLevelEditorDebugBoxRenderDistance{ 500.0f };
         bool debugRenderingLevelEditorDebugBoxRenderPrimaryTags{ false };
         bool debugRenderingLevelEditorDebugBoxRenderSecondaryTags{ false };
+        bool levelEditorSetEditorStatus{ true };
         bool enablePhotoMode{ true };
         bool enableApi{ false };
         char apiHost[128]{ "127.0.0.1" };

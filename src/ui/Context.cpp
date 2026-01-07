@@ -182,7 +182,8 @@ void Context::install_hooks()
 void Context::init() {
 	if (inited)
 		return;
-
+	
+	devtools::debug_rendering::renderables::GOCVisualDebugDraws::RegisterClasses();
 	init_modules();
 	init_imgui();
 
