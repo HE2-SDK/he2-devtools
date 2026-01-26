@@ -106,6 +106,7 @@ typedef std::tuple<
 #include "component-inspectors/GOCPlayerParameter.h"
 #include "component-inspectors/GOCPlayerHsm.h"
 #include "component-inspectors/GOCPlayerKinematicParams.h"
+#include "component-inspectors/GOCPlayerBlackboard.h"
 
 typedef std::tuple<
 	hh::game::GOCTransform,
@@ -127,7 +128,8 @@ typedef std::tuple<
 	app::player::GOCPlayerKinematicParams,
 	hh::anim::GOCAnimationSimple,
 	hh::anim::GOCAnimator,
-	hh::pba::GOCPhysicalAnimationBullet
+	hh::pba::GOCPhysicalAnimationBullet,
+	app::player::GOCPlayerBlackboard
 > InspectableComponents;
 #endif
 

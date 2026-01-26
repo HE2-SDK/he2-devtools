@@ -371,6 +371,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "miller")
         GOCSound
         GOCParticleLocator
         GOCPlayerKinematicParams
+        GOCPlayerBlackboard
     )
     set(DEVTOOLS_FEATURE_RESOURCE_INSPECTORS
         ResObjectWorldEditor
