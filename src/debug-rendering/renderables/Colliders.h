@@ -8,6 +8,9 @@ namespace devtools::debug_rendering::renderables {
 		bool enabled{};
 		bool colliderFilters[32][32];
 		//ColliderFilterList colliderFilterList;
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+		bool meshEnabled{};
+#endif
 
 		virtual void RenderIngameDebugVisuals(hh::gfnd::DrawContext& ctx) override;
 	};

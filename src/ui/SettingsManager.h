@@ -175,6 +175,7 @@ class SettingsManager
 #endif
         bool debugRenderingRenderGOCVisualDebugDraw{ true };
         bool debugRenderingRenderColliders{ true };
+        bool debugRenderingRenderMeshColliders{ true };
         bool debugRenderingRenderOcclusionCapsules{ true };
         bool debugRenderingRenderBones{ true };
         bool debugRenderingRenderPaths{ true };
