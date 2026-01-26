@@ -8,7 +8,6 @@ void RenderGameObjectInspector(app::BossGiant& object) {
     auto& ctx = object.context;
     Viewer("qword60 size", ctx->qword60.size());
     Viewer("qword80 size", ctx->qword80.size());
-    Viewer("qwordA0 size", ctx->qwordA0.size());
     Viewer("qwordC0 size", ctx->qwordC0.size());
     Viewer("qwordE0 size", ctx->qwordE0.size());
     Viewer("qword100 size", ctx->qword100.size());
