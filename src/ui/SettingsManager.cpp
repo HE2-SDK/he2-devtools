@@ -39,6 +39,9 @@ bool SettingsManager::Settings::operator==(const SettingsManager::Settings& othe
 		&& debugRenderingRenderPathTangents == other.debugRenderingRenderPathTangents
 		&& debugRenderingRenderPhysicalAnimation == other.debugRenderingRenderPhysicalAnimation
 		&& debugRenderingRenderLight == other.debugRenderingRenderLight
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+		&& debugRenderingRenderNavMesh == other.debugRenderingRenderNavMesh
+#endif
 		&& debugRenderingGOCVisualDebugDrawOpacity == other.debugRenderingGOCVisualDebugDrawOpacity
 		&& debugRenderingLevelEditorDebugBoxScale == other.debugRenderingLevelEditorDebugBoxScale
 		&& debugRenderingLevelEditorDebugBoxRenderLimit == other.debugRenderingLevelEditorDebugBoxRenderLimit
@@ -242,6 +245,9 @@ void SettingsManager::Render() {
 							ImGui::Unindent();
 							ImGui::Checkbox("Render physical animation", &tempSettings.debugRenderingRenderPhysicalAnimation);
 							ImGui::Checkbox("Render lights", &tempSettings.debugRenderingRenderLight);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+							ImGui::Checkbox("Render navmesh", &tempSettings.debugRenderingRenderNavMesh);
+#endif
 							ImGui::SliderScalar("GOCVisualDebugDraw opacity (requires stage restart)", ImGuiDataType_U8, &tempSettings.debugRenderingGOCVisualDebugDrawOpacity, &minAlpha, &maxAlpha);
 							ImGui::Checkbox("Render primary tags", &tempSettings.debugRenderingLevelEditorDebugBoxRenderPrimaryTags);
 							ImGui::SetItemTooltip("Whether the primary text tag should be rendered (usually object name).");
@@ -415,6 +421,7 @@ void SettingsManager::ApplySettings() {
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 	devtools::debug_rendering::DebugRenderingSystem::instance->lightRenderable.enabled = settings.debugRenderingRenderLight;
+	devtools::debug_rendering::DebugRenderingSystem::instance->navMeshRenderable.enabled = settings.debugRenderingRenderNavMesh;
 #endif
 	ObjectLocationVisual3DBehaviorBase::ApplySettings(
 		settings.debugRenderingLevelEditorDebugBoxScale,
@@ -499,6 +506,9 @@ void SettingsManager::ReadLineFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	if (sscanf_s(line, "DebugRenderingRenderPathTangents=%u", &u) == 1) { settings.debugRenderingRenderPathTangents = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderPhysicalAnimation=%u", &u) == 1) { settings.debugRenderingRenderPhysicalAnimation = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderLight=%u", &u) == 1) { settings.debugRenderingRenderLight = u; return; }
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	if (sscanf_s(line, "DebugRenderingRenderNavMesh=%u", &u) == 1) { settings.debugRenderingRenderNavMesh = u; return; }
+#endif
 	if (sscanf_s(line, "DebugRenderingGOCVisualDebugDrawOpacity=%u", &u) == 1) { settings.debugRenderingGOCVisualDebugDrawOpacity = static_cast<uint8_t>(u); return; }
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxScale=%f", &f) == 1) { settings.debugRenderingLevelEditorDebugBoxScale = f; return; }
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxRenderLimit=%u", &u) == 1) { settings.debugRenderingLevelEditorDebugBoxRenderLimit = u; return; }
@@ -572,6 +582,9 @@ void SettingsManager::WriteAllFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	out_buf->appendf("DebugRenderingRenderPathTangents=%u\n", settings.debugRenderingRenderPathTangents);
 	out_buf->appendf("DebugRenderingRenderPhysicalAnimation=%u\n", settings.debugRenderingRenderPhysicalAnimation);
 	out_buf->appendf("DebugRenderingRenderLight=%u\n", settings.debugRenderingRenderLight);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	out_buf->appendf("DebugRenderingRenderNavMesh=%u\n", settings.debugRenderingRenderNavMesh);
+#endif
 	out_buf->appendf("DebugRenderingGOCVisualDebugDrawOpacity=%u\n", settings.debugRenderingGOCVisualDebugDrawOpacity);
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxScale=%f\n", settings.debugRenderingLevelEditorDebugBoxScale);
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxRenderLimit=%u\n", settings.debugRenderingLevelEditorDebugBoxRenderLimit);

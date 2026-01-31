@@ -18,6 +18,7 @@ target_sources(${DEVTOOLS_TARGET}
         debug-rendering/renderables/Bones.cpp
         debug-rendering/renderables/PhysicalAnimation.cpp
         debug-rendering/renderables/Light.cpp
+        debug-rendering/renderables/NavMesh.cpp
         debug-rendering/visuals/AabbTree.cpp
         debug-rendering/visuals/Geometry.cpp
         debug-rendering/visuals/KdTree.cpp
@@ -92,6 +93,7 @@ target_sources(${DEVTOOLS_TARGET}
         debug-rendering/renderables/Bones.h
         debug-rendering/renderables/PhysicalAnimation.h
         debug-rendering/renderables/Light.h
+        debug-rendering/renderables/NavMesh.h
         debug-rendering/visuals/AabbTree.h
         debug-rendering/visuals/Geometry.h
         debug-rendering/visuals/KdTree.h
