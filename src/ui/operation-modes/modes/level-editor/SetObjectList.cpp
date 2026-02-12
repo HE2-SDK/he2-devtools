@@ -177,6 +177,22 @@ namespace ui::operation_modes::modes::level_editor {
 			ImGui::EndCombo();
 		}
 
+		if (!focusedChunk) ImGui::BeginDisabled();
+
+		if (ImGui::Button("Export All")) {
+			auto& layers = focusedChunk->GetLayers();
+
+			csl::ut::MoveArray<hh::fnd::ManagedResource*> resources{ layers.size(), hh::fnd::GetTempAllocator() };
+
+			for (auto* layer : layers) resources.push_back(layer->GetResource());
+
+			ResourceBrowser::ShowExportResourceDialog(resources.begin(), resources.size());
+
+			resources.clear();
+		}
+
+		if (!focusedChunk) ImGui::EndDisabled();
+
 		if (dirty)
 			RebuildTree();
 

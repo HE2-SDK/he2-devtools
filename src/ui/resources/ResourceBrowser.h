@@ -49,6 +49,7 @@ public:
     static void ExportResource(const wchar_t* filePath, hh::fnd::ManagedResource* resource);
     static void ShowLoadResourceDialog(hh::fnd::ManagedResource* resource);
     static void ShowExportResourceDialog(hh::fnd::ManagedResource* resource);
+    static void ShowExportResourceDialog(hh::fnd::ManagedResource** resources, size_t count);
     void RenderLoadNewResourceDialog();
     static void RenderLoadDialog();
     static void RenderExportDialog();
