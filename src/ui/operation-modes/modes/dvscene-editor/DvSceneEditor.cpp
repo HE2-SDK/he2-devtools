@@ -6,7 +6,6 @@
 #include "PageEditor.h"
 
 #include "Behaviors.h"
-#include <ui/common/editors/Reflection.h>
 
 namespace ui::operation_modes::modes::dvscene_editor
 {
@@ -20,6 +19,7 @@ namespace ui::operation_modes::modes::dvscene_editor
 		AddBehavior<SelectionBehavior>();
 		AddBehavior<SelectionAabbBehavior>();
 		AddBehavior<SelectionTransformationBehavior>();
+		AddBehavior<SelectionVisual3DBehavior>();
 		AddBehavior<GizmoBehavior>();
 		AddBehavior<DeleteBehavior>();
 		auto* gameManager = hh::game::GameManager::GetInstance();
