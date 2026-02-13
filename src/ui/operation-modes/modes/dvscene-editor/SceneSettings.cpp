@@ -27,9 +27,14 @@ namespace ui::operation_modes::modes::dvscene_editor {
 			
 			Editor("Cutscene Name", context.cutsceneName);
 			if (ImGui::Button("Play Cutscene")) {
-				app::evt::EventSetupData setupData{};
-				setupData.Setup(context.cutsceneName.c_str());
-				evtPlayer->PlayEvent(setupData);
+				if (auto* gameManager = hh::game::GameManager::GetInstance())
+				if (auto* levelManager = gameManager->GetService<hh::game::LevelManager>()) {
+					if (levelManager->GetLevelByName(context.cutsceneName.c_str())) {
+						app::evt::EventSetupData setupData{};
+						setupData.Setup(context.cutsceneName.c_str());
+						evtPlayer->PlayEvent(setupData);
+					}
+				}
 			}
 		}
 
