@@ -22,27 +22,27 @@ void ResMaterialEditor::RenderContents()
 		ImGui::PushID(static_cast<int>(i));
 		switch (info.type) {
 		case hh::needle::ParameterType::FLOAT:
-			RenderFloatParameterEditor(i, static_cast<ParameterFloatValue*>(data));
+			RenderFloatParameterEditor(i, static_cast<ParameterValueFloat*>(data));
 			break;
 		case hh::needle::ParameterType::BOOL:
-			RenderBoolParameterEditor(i, static_cast<ParameterBoolValue*>(data));
+			RenderBoolParameterEditor(i, static_cast<ParameterValueBool*>(data));
 			break;
 		case hh::needle::ParameterType::INT:
-			RenderIntParameterEditor(i, static_cast<ParameterIntValue*>(data));
+			RenderIntParameterEditor(i, static_cast<ParameterValueInt*>(data));
 			break;
 		case hh::needle::ParameterType::SAMPLER:
-			RenderSamplerParameterEditor(i, static_cast<ParameterSamplerValue*>(data));
+			RenderSamplerParameterEditor(i, static_cast<ParameterValueSampler*>(data));
 			break;
 #ifndef DEVTOOLS_TARGET_SDK_miller
 		case hh::needle::ParameterType::RS_FLAG_MASK:
-			RenderRsFlagMaskParameterEditor(i, static_cast<ParameterRsFlagMaskValue*>(data));
+			RenderRsFlagMaskParameterEditor(i, static_cast<ParameterValueRsFlagMask*>(data));
 			break;
 #endif
 		case hh::needle::ParameterType::SHADER_NAME:
-			RenderShaderNameParameterEditor(i, static_cast<ParameterShaderNameValue*>(data));
+			RenderShaderNameParameterEditor(i, static_cast<ParameterValueShaderName*>(data));
 			break;
 		case hh::needle::ParameterType::TEXTURE_NAME:
-			RenderTextureNameParameterEditor(i, static_cast<ParameterTextureNameValue*>(data));
+			RenderTextureNameParameterEditor(i, static_cast<ParameterValueTextureName*>(data));
 			break;
 		default:
 			RenderUnimplementedTypeParameterEditor(i);
@@ -66,7 +66,7 @@ ResMaterialEditor* ResMaterialEditor::Create(csl::fnd::IAllocator* allocator, hh
 	return new (allocator) ResMaterialEditor(allocator, resource);
 }
 
-void ResMaterialEditor::RenderFloatParameterEditor(size_t idx, ParameterFloatValue* data)
+void ResMaterialEditor::RenderFloatParameterEditor(size_t idx, ParameterValueFloat* data)
 {
 	auto& info = reinterpret_cast<MaterialChunkBuilder::ParameterInfo*>(reinterpret_cast<size_t>(resource->resource->GetMaterialData()) + 0x8)[idx];
 
@@ -84,12 +84,12 @@ void ResMaterialEditor::RenderFloatParameterEditor(size_t idx, ParameterFloatVal
 	}
 }
 
-void ResMaterialEditor::RenderBoolParameterEditor(size_t idx, hh::needle::ParameterBoolValue* data)
+void ResMaterialEditor::RenderBoolParameterEditor(size_t idx, hh::needle::ParameterValueBool* data)
 {
 	ImGui::Text("%s, %x", data->name->name, &data->value);
 }
 
-void ResMaterialEditor::RenderIntParameterEditor(size_t idx, hh::needle::ParameterIntValue* data)
+void ResMaterialEditor::RenderIntParameterEditor(size_t idx, hh::needle::ParameterValueInt* data)
 {
 	auto& info = reinterpret_cast<MaterialChunkBuilder::ParameterInfo*>(reinterpret_cast<size_t>(resource->resource->GetMaterialData()) + 0x8)[idx];
 
@@ -103,7 +103,7 @@ void ResMaterialEditor::RenderIntParameterEditor(size_t idx, hh::needle::Paramet
 static const char* blendModes[] = { "2/4/0", "2/1/0", "0/7/0", "2/1/2" };
 static const char* wrapModes[] = { "WRAP", "MIRROR", "CLAMP", "MIRRORONCE", "BORDER_HALF", "MIRRORONCE_BORDER_HALF", "BORDER" };
 
-void ResMaterialEditor::RenderSamplerParameterEditor(size_t idx, hh::needle::ParameterSamplerValue* data)
+void ResMaterialEditor::RenderSamplerParameterEditor(size_t idx, hh::needle::ParameterValueSampler* data)
 {
 	if (ImGui::TreeNode(data->name->name)) {
 		ComboEnum("Wrap mode U", data->wrapModeU, wrapModes);
@@ -116,18 +116,18 @@ void ResMaterialEditor::RenderSamplerParameterEditor(size_t idx, hh::needle::Par
 }
 
 #ifndef DEVTOOLS_TARGET_SDK_miller
-void ResMaterialEditor::RenderRsFlagMaskParameterEditor(size_t idx, hh::needle::ParameterRsFlagMaskValue* data)
+void ResMaterialEditor::RenderRsFlagMaskParameterEditor(size_t idx, hh::needle::ParameterValueRsFlagMask* data)
 {
 	Editor("Render options", data->rsFlagMask);
 }
 #endif
 
-void ResMaterialEditor::RenderShaderNameParameterEditor(size_t idx, hh::needle::ParameterShaderNameValue* data)
+void ResMaterialEditor::RenderShaderNameParameterEditor(size_t idx, hh::needle::ParameterValueShaderName* data)
 {
 	InputText("Shader Name", data->name);
 }
 
-void ResMaterialEditor::RenderTextureNameParameterEditor(size_t idx, hh::needle::ParameterTextureNameValue* data)
+void ResMaterialEditor::RenderTextureNameParameterEditor(size_t idx, hh::needle::ParameterValueTextureName* data)
 {
 	if (ImGui::TreeNode("Texture name")) {
 		InputText("Type", data->type);

@@ -53,6 +53,15 @@ namespace resources {
 			return arr[length - 1];
 		}
 
+		T& emplace(S i) {
+			emplace_back();
+
+			for (S j = length - 1; j >= i + 1; j--)
+				arr[j] = std::move(arr[j - 1]);
+
+			return arr[i];
+		}
+
 		void remove(S i) {
 			arr[i].~T();
 

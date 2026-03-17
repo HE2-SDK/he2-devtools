@@ -16,12 +16,18 @@ set(DEVTOOLS_UPDATE_SERVER_PATH "" CACHE PATH "Path to update server")
 
 set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
 
+# set(BOOST_INCLUDE_LIBRARIES )
+set(BOOST_ENABLE_CMAKE ON)
 set(OGDF_DEBUG_MODE NONE)
+set(OGDF_LIBRARY_TARGETS_ONLY ON)
+set(CGAL_DISABLE_GMP ON)
 include(FetchContent)
-FetchContent_Declare(OGDF GIT_REPOSITORY https://github.com/ogdf/ogdf.git GIT_TAG 8a7b22712929f1cd48c4ed701c52b0c0a69c01c8 EXCLUDE_FROM_ALL FIND_PACKAGE_ARGS)
+FetchContent_Declare(Boost URL https://github.com/boostorg/boost/releases/download/boost-1.90.0/boost-1.90.0-cmake.zip URL_HASH SHA256=89dc8dbdd61b0212dfff5286a07227cc40d0243f344037739b7c7f7f4a6c3584)
+FetchContent_Declare(OGDF GIT_REPOSITORY https://github.com/ogdf/ogdf.git GIT_TAG 3789445122b1bbedb5d59813880230276c73fb2b EXCLUDE_FROM_ALL FIND_PACKAGE_ARGS)
 FetchContent_Declare(rip GIT_REPOSITORY https://github.com/angryzor/rip.git GIT_TAG v1.0.37 EXCLUDE_FROM_ALL FIND_PACKAGE_ARGS 1.0.37)
 FetchContent_Declare(dieventlib GIT_REPOSITORY https://github.com/Ashrindy/DiEventLibCPP.git)
-FetchContent_MakeAvailable(ogdf rip dieventlib)
+FetchContent_MakeAvailable(Boost OGDF rip dieventlib)
+FetchContent_Populate(CGAL URL https://github.com/CGAL/cgal/releases/download/v6.1.1/CGAL-6.1.1-library.zip URL_HASH SHA256=6c5d68be1d28cbee3c3e05003746ec4791d0018c770b4276b9e6d69c3a0a355a)
 add_subdirectory(vendor EXCLUDE_FROM_ALL)
 
 # Settings for target sdks
@@ -84,7 +90,38 @@ foreach(DEVTOOLS_TARGET_SDK miller rangers wars)
     add_subdirectory(${SDK_PATH} ${DEVTOOLS_TARGET_SDK}-sdk EXCLUDE_FROM_ALL)
 
     add_library(${DEVTOOLS_TARGET} SHARED)
-    target_link_libraries(${DEVTOOLS_TARGET} PRIVATE ${DEVTOOLS_TARGET_SDK}-sdk filewatch detours imgui imgui-backend-win32 imgui-backend-dx11 imgui-node-editor imgui-memory-editor imguizmo implot imtimeline imbrowser yyjson reflectcpp OGDF rip-hl uwebsockets DiEventLib)
+    target_include_directories(${DEVTOOLS_TARGET} PRIVATE ${cgal_SOURCE_DIR}/include)
+    target_link_libraries(${DEVTOOLS_TARGET} PRIVATE
+        ${DEVTOOLS_TARGET_SDK}-sdk
+        filewatch
+        detours
+        imgui
+        imgui-backend-win32
+        imgui-backend-dx11
+        imgui-node-editor
+        imgui-memory-editor
+        imguizmo
+        implot
+        imtimeline
+        imbrowser
+        yyjson
+        reflectcpp
+        OGDF
+        rip-hl
+        uwebsockets
+        DiEventLib
+
+        # devtools doesn't use Boost, but it does use CGAL, which has a CMakeLists.txt utterly incompatible with FetchContent and depends on Boost
+        Boost::config
+        Boost::predef
+        Boost::iterator
+        Boost::any
+        Boost::math
+        Boost::algorithm
+        Boost::multiprecision
+        Boost::foreach
+        Boost::property_map
+    )
     target_compile_features(${DEVTOOLS_TARGET} PRIVATE cxx_std_20)
     target_compile_options(${DEVTOOLS_TARGET} PRIVATE /permissive- /W4 /wd4100 /wd4458 /wd4324)
     target_compile_definitions(${DEVTOOLS_TARGET}
@@ -102,6 +139,7 @@ foreach(DEVTOOLS_TARGET_SDK miller rangers wars)
             DEVTOOLS_VERSION_MINOR=${PROJECT_VERSION_MINOR}
             DEVTOOLS_VERSION_PATCH=${PROJECT_VERSION_PATCH}
             DEVTOOLS_MOD_FOLDER="${MOD_FOLDER_RELATIVE}"
+            CGAL_DISABLE_GMP=1
     )
     set_target_properties(${DEVTOOLS_TARGET}
         PROPERTIES

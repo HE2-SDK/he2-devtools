@@ -9,6 +9,7 @@ namespace ui::operation_modes::modes::asm_editor
 {
 	class ASMEditor : public OperationMode<Context>
 	{
+		ASMInterface asmInterface;
 		hh::fnd::Reference<NodeEditor> nodeEditor{};
 		csl::ut::MoveArray<float> outputPinTextWidths{ GetAllocator() };
 		bool initialized{};

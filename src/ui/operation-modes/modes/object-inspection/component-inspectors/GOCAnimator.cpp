@@ -59,10 +59,10 @@ void RenderComponentInspector(hh::anim::GOCAnimator& component)
 	RenderComponentInspector(static_cast<hh::anim::GOCAnimationSingle&>(component));
 
 	bool nope{ false };
-	if (ImGui::Button("ASM Editor")) {
-		auto* host = new (Desktop::instance->GetAllocator()) StandaloneOperationModeHost<ui::operation_modes::modes::asm_editor::ASMEditor>{ Desktop::instance->GetAllocator() };
-		host->operationMode.SetGOCAnimator(&component);
-	}
+	//if (ImGui::Button("ASM Editor")) {
+	//	auto* host = new (Desktop::instance->GetAllocator()) StandaloneOperationModeHost<ui::operation_modes::modes::asm_editor::ASMEditor>{ Desktop::instance->GetAllocator() };
+	//	host->operationMode.SetGOCAnimator(&component);
+	//}
 
 	const char* select{ "Select one" };
 	if (ImGui::BeginCombo("Current state", select)) {

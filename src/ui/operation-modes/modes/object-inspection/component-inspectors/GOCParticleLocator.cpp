@@ -25,7 +25,7 @@ void RenderComponentInspector(GOCParticleLocator& component) {
 					for (auto& effect : effects->boundItems) {
 						ImGui::PushID(effectIdx);
 						if (ImGui::TreeNodeEx("Effect", ImGuiTreeNodeFlags_DefaultOpen)) {
-							Editor("unk1", effect.unk1);
+							Editor("State Sequence Number", effect.stateSequenceNr);
 							Editor("unk2", effect.unk2);
 							Editor("unk3", effect.unk3);
 							Editor("unk4", effect.unk4);
@@ -55,7 +55,7 @@ void RenderComponentInspector(GOCParticleLocator& component) {
 					for (auto& sound : sounds->boundItems) {
 						ImGui::PushID(soundIdx);
 						if (ImGui::TreeNodeEx("Sound", ImGuiTreeNodeFlags_DefaultOpen)) {
-							Editor("unk1", sound.unk1);
+							Editor("State Sequence Number", sound.stateSequenceNr);
 							Editor("unk2", sound.unk2);
 							Editor("unk3", sound.unk3);
 							Editor("unk4", sound.unk4);
