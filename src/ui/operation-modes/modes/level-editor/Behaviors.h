@@ -185,6 +185,29 @@ namespace ui::operation_modes::modes::level_editor {
 		static constexpr bool allowRotate = true;
 		static constexpr bool allowScale = false;
 	};
+
+	template<> struct DragDropPlacementBehaviorTraits<Context> : BehaviorTraitsImpl<Context> {
+		using BehaviorTraitsImpl::BehaviorTraitsImpl;
+		bool CanPlace() const { return context.placementTargetLayer != nullptr; }
+		hh::game::ObjectData* SpawnPreviewObject(const hh::game::GameObjectClass* objectClass, const csl::math::Vector3& location) {
+			auto* savedClass = context.objectClassToPlace;
+			context.objectClassToPlace = objectClass;
+			auto* obj = context.SpawnObject(location);
+			context.objectClassToPlace = savedClass;
+			return obj;
+		}
+		void MovePreviewObject(hh::game::ObjectData* obj, const csl::math::Vector3& location) {
+			Eigen::Affine3f transform = ObjectTransformDataToAffine3f(obj->transform);
+			transform.translation() = Eigen::Vector3f{ location.x(), location.y(), location.z() };
+			UpdateAbsoluteTransform(transform, *obj);
+			context.RecalculateDependentTransforms(obj);
+		}
+		void DeletePreviewObject(hh::game::ObjectData* obj) {
+			csl::ut::MoveArray<hh::game::ObjectData*> objs{ hh::fnd::MemoryRouter::GetTempAllocator() };
+			objs.push_back(obj);
+			context.DeleteObjects(objs);
+		}
+	};
 }
 
 #include <ui/operation-modes/behaviors/Clipboard.h>
@@ -200,3 +223,4 @@ namespace ui::operation_modes::modes::level_editor {
 #include <ui/operation-modes/behaviors/GroundContextMenu.h>
 #include <ui/operation-modes/behaviors/DebugCommentsVisual.h>
 #include <ui/operation-modes/behaviors/ObjectLocationVisual3D.h>
+#include <ui/operation-modes/behaviors/DragDropPlacement.h>
