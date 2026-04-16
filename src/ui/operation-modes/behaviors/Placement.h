@@ -61,16 +61,6 @@ public:
 		if (CanPlace()) {
 			if ((placing || ImGui::IsKeyDown(ImGuiKey_LeftShift) || ImGui::IsKeyDown(ImGuiKey_RightShift)) && mousePicking->locationPicked)
 				PerformPlace(mousePicking->pickedLocation);
-
-			if constexpr (Traits::is3D) {
-				auto* groundContextMenu = operationMode.GetBehavior<GroundContextMenuBehavior<OpModeContext>>();
-				if (groundContextMenu && ImGui::BeginPopup("WorldContext")) {
-					if (ImGui::MenuItem("Place object", nullptr, nullptr))
-						PerformPlace(groundContextMenu->pickedLocation);
-
-					ImGui::EndPopup();
-				}
-			}
 		}
 	}
 };
