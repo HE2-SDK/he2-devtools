@@ -55,6 +55,10 @@ typedef std::tuple<
 #include "component-inspectors/GOCPointLight.h"
 #include "component-inspectors/GOCVibration.h"
 #include "component-inspectors/GOCHsm2.h"
+#include "component-inspectors/GOCBossActionSelect.h"
+#include "component-inspectors/GOCBossMoveableRange.h"
+#include "component-inspectors/GOCHealth.h"
+#include "component-inspectors/GOCHitStop.h"
 
 typedef std::tuple<
 	hh::game::GOCTransform,
@@ -87,7 +91,11 @@ typedef std::tuple<
 	hh::pba::GOCPhysicalAnimationBullet,
 	hh::gfx::GOCPointLight,
 	hh::game::GOCVibration,
-	app_cmn::fsm::GOCHsm2
+	app_cmn::fsm::GOCHsm2,
+	app::game::GOCBossActionSelect,
+	app::game::GOCBossMoveableRange,
+	app::game::GOCHealth,
+	app::game::GOCHitStop
 > InspectableComponents;
 #endif
 

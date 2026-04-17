@@ -287,6 +287,10 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         GOCPointLight
         GOCVibration
         GOCHsm2
+        GOCBossActionSelect
+        GOCBossMoveableRange
+        GOCHealth
+        GOCHitStop
     )
     set(DEVTOOLS_FEATURE_RESOURCE_INSPECTORS
         ResObjectWorldEditor
