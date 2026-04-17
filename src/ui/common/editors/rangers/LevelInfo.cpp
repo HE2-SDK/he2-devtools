@@ -143,9 +143,11 @@ bool Editor(const char* label, app::level::PlayerInformation& playerInfo)
 	edited |= Editor("vector4150", playerInfo.vector4150);
 	edited |= Editor("vector4170", playerInfo.vector4170);
 	edited |= Editor("vector4190", playerInfo.vector4190);
+#ifndef DEVTOOLS_TARGET_SDK_rangers
 	edited |= Editor("vector41B0", playerInfo.vector41B0);
 	edited |= Editor("vector41D0", playerInfo.vector41D0);
 	edited |= Editor("vector41F0", playerInfo.vector41F0);
+#endif
 	edited |= Editor("vector4210", playerInfo.vector4210);
 	edited |= Editor("vector4230", playerInfo.vector4230);
 	edited |= Editor("vector4250", playerInfo.vector4250);
@@ -196,7 +198,9 @@ bool Editor(const char* label, app::level::PlayerInformation& playerInfo)
 	//uint32_t dword3D4;
 	//uint32_t dword3D8;
 	//if (playerInfo->unk13241.isSet) Editor("unk13241", playerInfo->unk13241.value);
+#ifndef DEVTOOLS_TARGET_SDK_rangers
 	edited |= Editor("vector4480", playerInfo.vector4480);
+#endif
 	//if (playerInfo->qword4A0.isSet) Editor("qword4A0", playerInfo->qword4A0.value);
 	edited |= Editor("dword4AC", playerInfo.dword4AC);
 	edited |= Editor("word4B4", playerInfo.word4B4);
