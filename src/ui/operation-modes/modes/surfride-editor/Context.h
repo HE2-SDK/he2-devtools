@@ -24,6 +24,7 @@ namespace ui::operation_modes::modes::surfride_editor {
 		static hh::ui::ResSurfRideProject* GetResourceForComponent(hh::ui::GOCSprite* goc);
 		void AddCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer, ucsl::resources::swif::swif_version::SRS_CASTNODE::Type type);
 		void AddCast(ucsl::resources::swif::swif_version::SRS_CASTNODE& parent, ucsl::resources::swif::swif_version::SRS_CASTNODE::Type type);
+		void AddLayer(ucsl::resources::swif::swif_version::SRS_SCENE& scene);
 		void RemoveCast(ucsl::resources::swif::swif_version::SRS_CASTNODE& cast);
 		void AddMotion(ucsl::resources::swif::swif_version::SRS_ANIMATION& animation, ucsl::resources::swif::swif_version::SRS_CASTNODE& cast);
 		ucsl::resources::swif::swif_version::SRS_TRACK& AddTrack(ucsl::resources::swif::swif_version::SRS_MOTION& motion, ucsl::resources::swif::swif_version::ECurveType type, unsigned int firstFrame, unsigned int lastFrame, ucsl::resources::swif::swif_version::EInterpolationType interpolationType);
@@ -228,6 +229,8 @@ namespace ui::operation_modes::modes::surfride_editor {
 	private:
 		unsigned short GenerateUniqueId();
 		bool IsIdTaken(unsigned short id) const;
+		ucsl::resources::swif::swif_version::SRS_LAYER* CreateLayer(ucsl::resources::swif::swif_version::SRS_SCENE& scene);
+		ucsl::resources::swif::swif_version::SRS_ANIMATION* CreateAnimation(ucsl::resources::swif::swif_version::SRS_LAYER& layer);
 		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer);
 		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateImageCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer);
 		ucsl::resources::swif::swif_version::SRS_CASTNODE* CreateSliceCast(ucsl::resources::swif::swif_version::SRS_LAYER& layer);
