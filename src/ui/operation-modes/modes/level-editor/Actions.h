@@ -17,4 +17,5 @@ namespace ui::operation_modes::modes::level_editor {
 	using SetObjectClassToPlaceAction = Action<ActionId::LEVEL_EDITOR_SET_OBJECT_CLASS_TO_PLACE, const hh::game::GameObjectClass*>;
 	using ObjectClassToPlaceChangedAction = Action<ActionId::LEVEL_EDITOR_OBJECT_CLASS_TO_PLACE_CHANGED>;
 	using SetLayerEnabledAction = Action<ActionId::LEVEL_EDITOR_SET_LAYER_ENABLED, SetLayerEnabledPayload>;
+	using CloneSelectionAction = Action<ActionId::LEVEL_EDITOR_CLONE_SELECTION>;
 }

@@ -122,6 +122,19 @@ namespace ui::operation_modes::modes::level_editor {
 			GetContext().SetLayerEnabled(payload.layerName, payload.enabled);
 			break;
 		}
+		case CloneSelectionAction::id: {
+			auto& context = GetContext();
+			if (!context.placementTargetLayer) break;
+			auto& selection = GetBehavior<SelectionBehavior<Context>>()->GetSelection();
+			csl::ut::MoveArray<ObjectData*> clones{ hh::fnd::MemoryRouter::GetTempAllocator() };
+			for (auto* obj : selection) {
+				auto* clone = context.CopyObjectForPlacement(obj);
+				context.SpawnObject(clone);
+				clones.push_back(clone);
+			}
+			GetBehavior<SelectionBehavior<Context>>()->Select(clones);
+			break;
+		}
 		}
 	}
 
