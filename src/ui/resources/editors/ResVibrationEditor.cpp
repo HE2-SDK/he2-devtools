@@ -74,8 +74,8 @@ bool ResVibrationEditor::Editor(VibrationMotor& value, unsigned int idx, Vibrati
 			ImPlot::SetupAxis(ImAxis_Y1, "Amplitude", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoDecorations);
 
 			auto* tempAllocator = hh::fnd::MemoryRouter::GetTempAllocator();
-			float* time = static_cast<float*>(tempAllocator->Alloc(value.keyframeCount * sizeof(float), alignof(float)));
-			float* intensity = static_cast<float*>(tempAllocator->Alloc(value.keyframeCount * sizeof(float), alignof(float)));
+			float* time = new (tempAllocator) float[value.keyframeCount];
+			float* intensity = new (tempAllocator) float[value.keyframeCount];
 			for (unsigned int l = 0; l < value.keyframeCount; l++) {
 				auto& keyframe = value.keyframes[l];
 				time[l] = keyframe.time;
