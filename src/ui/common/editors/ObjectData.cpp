@@ -30,14 +30,17 @@ bool Editor(const char* label, hh::game::ObjectTransformData& obj)
 	return edited;
 }
 
-bool Editor(const char* label, hh::game::ObjectData& obj)
+bool Editor(const char* label, hh::game::ObjectData& obj, hh::game::ResObjectWorld* objectWorld)
 {
 	bool edited{};
 	auto* objSystem = GameObjectSystem::GetInstance();
 
 	Viewer("Id", obj.id);
 #ifdef DEVTOOLS_TARGET_SDK_wars
-	Viewer("Name", obj.name);
+	if (objectWorld)
+		edited |= InputText("Name", obj.name, objectWorld);
+	else
+		Viewer("Name", obj.name);
 #else
 	edited |= Editor("Name", obj.name);
 #endif

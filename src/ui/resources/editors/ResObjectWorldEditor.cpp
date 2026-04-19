@@ -19,7 +19,7 @@ void ResObjectWorldEditor::RenderContents()
 {
 	for (auto* obj : resource->GetObjects()) {
 		if (ImGui::TreeNode(obj, "%s", GetObjectName(obj))) {
-			Editor("Object data", *obj);
+			Editor("Object data", *obj, resource);
 			ImGui::TreePop();
 		}
 	}
