@@ -39,7 +39,6 @@ void RenderGameServiceInspector(hh::fmv::MovieManager& service)
                 Viewer("Filepath", movPly->usmFilePath);
                 Viewer("Progress", movPly->secondsRunning);
                 Viewer("Frames Running", movPly->framesRunning);
-                Editor("qword30", movPly->qword30);
                 Editor("renderPass", movPly->renderPass);
                 Editor("renderPriority", movPly->renderPriority);
                 Editor("flags", movPly->flags);

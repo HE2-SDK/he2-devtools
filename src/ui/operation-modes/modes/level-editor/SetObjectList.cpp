@@ -76,6 +76,7 @@ namespace ui::operation_modes::modes::level_editor {
 			ImGui::PopStyleColor();
 
 		if (type == SetObjectListTreeViewNode::Type::OBJECT) {
+			ImGui::PushID(GetID());
 			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left) && ImGui::IsItemHovered())
 				selectionBehavior->Select(object.object);
 			if (ImGui::BeginDragDropSource()) {
@@ -103,6 +104,22 @@ namespace ui::operation_modes::modes::level_editor {
 				}
 				ImGui::EndDragDropTarget();
 			}
+			if (ImGui::BeginPopupContextItem("Object context menu")) {
+				if (ImGui::MenuItem("Delete")) {
+					auto& selection = list.GetBehavior<SelectionBehavior<Context>>()->GetSelection();
+					for (auto* x : selection)
+						if (x == object.object) {
+							list.GetBehavior<SelectionBehavior<Context>>()->Deselect(x);
+							break;
+						}
+
+					list.GetContext().DeleteObject(object.object);
+					list.InvalidateTree();
+				}
+
+				ImGui::EndPopup();
+			}
+			ImGui::PopID();
 		}
 
 		if (type == SetObjectListTreeViewNode::Type::LAYER) {

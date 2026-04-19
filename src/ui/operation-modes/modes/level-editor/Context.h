@@ -26,6 +26,7 @@ namespace ui::operation_modes::modes::level_editor {
 
 		hh::game::ObjectData* CopyObjectForPlacement(hh::game::ObjectData* otherObject);
 		hh::game::ObjectData* CopyObjectForClipboard(hh::game::ObjectData* otherObject);
+		void DeleteObject(hh::game::ObjectData* object);
 		void DeleteObjects(const csl::ut::MoveArray<hh::game::ObjectData*>& objects);
 		void TerminateClipboardObject(hh::game::ObjectData* objectData);
 

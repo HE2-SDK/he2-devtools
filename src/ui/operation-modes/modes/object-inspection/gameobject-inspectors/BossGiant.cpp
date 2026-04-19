@@ -36,11 +36,6 @@ void RenderGameObjectInspector(app::BossGiant& object) {
             ImGui::Text(x->name.c_str());
         ImGui::TreePop();
     }
-    if (ImGui::TreeNode("qword2E8")) {
-        for (auto& x : ctx->qword2E8)
-            ImGui::Text(x->name.c_str());
-        ImGui::TreePop();
-    }
     Editor("qword328 (flags)", ctx->flags.bits);
     Editor("currentPhase", ctx->currentPhase);
     Editor("dword334", ctx->dword334);
