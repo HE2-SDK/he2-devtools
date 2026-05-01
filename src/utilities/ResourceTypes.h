@@ -21,10 +21,6 @@ namespace heur::resources {
     class ResSkeleton { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
 }
 
-namespace app::gfx {
-    class ResPointcloudModel { public: static const hh::fnd::ResourceTypeInfo* GetTypeInfo(); };
-}
-
 typedef std::tuple<
     app::gfx::FxParamManager,
     hh::game::ObjectWorld,

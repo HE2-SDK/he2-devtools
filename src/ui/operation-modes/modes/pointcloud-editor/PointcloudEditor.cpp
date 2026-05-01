@@ -30,15 +30,14 @@ namespace ui::operation_modes::modes::pointcloud_editor {
 		OperationMode::ProcessAction(action);
 
 		switch (action.id) {
-		//case SelectionTransformationBehavior<Context>::SelectionTransformChangedAction::id: {
-		//	auto& selection = GetBehavior<SelectionBehavior<Context>>()->GetSelection();
+		case SelectionTransformationBehavior<Context>::SelectionTransformChangedAction::id: {
+			auto& selection = GetBehavior<SelectionBehavior<Context>>()->GetSelection();
 
-		//	for (auto* instance : selection) {
+			for (auto* instance : selection)
+				GetContext().TransformUpdate(*instance, GetInstanceTransform(*instance));
 
-		//	}
-
-		//	break;
-		//}
+			break;
+		}
 		}
 	}
 

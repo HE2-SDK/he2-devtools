@@ -72,7 +72,10 @@ namespace ui::operation_modes::modes::pointcloud_editor {
 		bool IsRoot(InstanceData* obj) { return true; }
 		InstanceData* GetParent(InstanceData* obj) { return nullptr; }
 		Eigen::Affine3f GetSelectionSpaceTransform(InstanceData* obj) const { return GetInstanceTransform(*obj); }
-		void SetSelectionSpaceTransform(InstanceData* obj, const Eigen::Affine3f& transform) { UpdateInstanceTransform(*obj, transform); }
+		void SetSelectionSpaceTransform(InstanceData* obj, const Eigen::Affine3f& transform) { 
+			UpdateInstanceTransform(*obj, transform);
+			context.TransformUpdate(*obj, transform);
+		}
 	};
 
 	template<> struct SelectionAabbBehaviorTraits<Context> : BehaviorTraitsImpl<Context> {
