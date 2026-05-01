@@ -52,6 +52,17 @@ namespace ui::operation_modes::modes::dvscene_editor {
 					snprintf(sceneName, sizeof(sceneName), "%s - %zx", dvsc->cutsceneName.c_str(), reinterpret_cast<size_t>(obj));
 					if (ImGui::Selectable(sceneName, obj == context.goDVSC)) {
 						GetBehavior<SelectionBehavior<Context>>()->DeselectAll();
+
+						context.addedNodes.clear();
+						if (context.parsedScene) {
+							delete context.parsedScene;
+							context.parsedScene = nullptr;
+						}
+						
+						context.dvPages.clear();
+						context.goDVSC = nullptr;
+						context.evtScene = nullptr;
+
 						context.goDVSC = dvsc;
 						for (auto* evtScn : hh::game::GameManager::GetInstance()->GetService<app::evt::EventPlayer>()->evtSceneMgr->evtScenes)
 							if (strcmp(evtScn->setupData.playInfo.cutsceneName, dvsc->cutsceneName.c_str()) == 0)
