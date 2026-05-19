@@ -28,13 +28,23 @@ namespace ui::operation_modes::modes::dvscene_editor {
 			Editor("Cutscene Name", context.cutsceneName);
 			if (ImGui::Button("Play Cutscene")) {
 				if (auto* gameManager = hh::game::GameManager::GetInstance())
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 				if (auto* levelManager = gameManager->GetService<hh::game::LevelManager>()) {
-					if (levelManager->GetLevelByName(context.cutsceneName.c_str())) {
+					csl::ut::String levelName{ hh::fnd::GetTempAllocator() };
+					app::evt::EventSetupData::GetLevelName(context.cutsceneName.c_str(), levelName);
+					if (levelManager->GetLevelByName(levelName.c_str())) {
 						app::evt::EventSetupData setupData{};
 						setupData.Setup(context.cutsceneName.c_str());
 						evtPlayer->PlayEvent(setupData);
 					}
 				}
+#else
+				{
+					app::evt::EventSetupData setupData{};
+					setupData.Setup(context.cutsceneName.c_str());
+					evtPlayer->PlayEvent(setupData);
+				}
+#endif
 			}
 		}
 
