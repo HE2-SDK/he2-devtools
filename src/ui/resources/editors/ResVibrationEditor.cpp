@@ -17,6 +17,7 @@ bool ResVibrationEditor::Editor(Sound& value) {
 	return changed;
 }
 
+// TODO: Implement proper plot line rendering
 bool ResVibrationEditor::Editor(VibrationKeyframe& value, unsigned int idx) {
 	bool changed = false;
 
@@ -38,8 +39,9 @@ bool ResVibrationEditor::Editor(VibrationKeyframe& value, unsigned int idx) {
 
 	if (ImGui::BeginPopup("Editor")) {
 		changed |= ::Editor("Flags", value.flags);
-		changed |= ::Editor("Unk1", value.unk1);
-		changed |= ::Editor("Unk2", value.unk2);
+		changed |= ::Editor("Type", *(char*)&value.type);
+		changed |= ::Editor("Derivative In", value.in);
+		changed |= ::Editor("Derivative Out", value.out);
 		ImGui::EndPopup();
 	}
 
