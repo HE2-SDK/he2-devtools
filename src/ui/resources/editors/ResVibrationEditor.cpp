@@ -153,7 +153,6 @@ bool ResVibrationEditor::Editor(VibrationMotor& value, unsigned int idx, Vibrati
 			ImPlot::SetupAxis(ImAxis_X1, "Time");
 			ImPlot::SetupAxis(ImAxis_Y1, "Amplitude");
 
-			constexpr int resolution = 300;
 			if (value.keyframeCount > 1) {
 				ImPlot::SetNextFillStyle(color, 0.3f);
 				ImPlot::PlotLineG("X", GeneratePlotLine, &value, (value.keyframeCount - 1) * POINTS_PER_SEGMENT + 3, ImPlotLineFlags_Shaded);
