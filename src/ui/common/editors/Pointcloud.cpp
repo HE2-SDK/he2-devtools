@@ -15,10 +15,20 @@ bool Editor(const char* label, ucsl::resources::pointcloud::v2::InstanceData& in
 			if (auto* terrainGround = hh::game::GameManager::GetInstance()->GetGameObject("TerrainGround")) {
 				char nameHash[0x250];
 				snprintf(nameHash, sizeof(nameHash), "%s.%p", ogName, resource);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 				if (auto* gocVisualModel = terrainGround->GetComponent<hh::gfx::GOCVisualModel>(name_hash(nameHash))) {
 					snprintf(nameHash, sizeof(nameHash), "%s.%p", instance.name, resource);
 					gocVisualModel->SetNameHash(nameHash);
 				}
+#else
+				for (auto* comp : terrainGround->components)
+					if (comp->nameHash == name_hash(nameHash))
+						if (comp->pStaticClass == hh::gfx::GOCVisualModel::GetClass()) {
+							snprintf(nameHash, sizeof(nameHash), "%s.%p", instance.name, resource);
+							comp->SetNameHash(nameHash);
+							break;
+						}
+#endif
 			}
 		}
 	}
