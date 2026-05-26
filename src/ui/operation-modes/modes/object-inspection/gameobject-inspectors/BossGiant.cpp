@@ -17,7 +17,7 @@ void RenderGameObjectInspector(app::BossGiant& object) {
     Editor("cameraTimeElapsed", ctx->cameraTimeElapsed);
     Editor("objectBossTransform", ctx->startObjectBossTransform);
     Editor("dword200", ctx->dword200);
-    Editor("lastHitPosition", ctx->lastHitPosition);
+    Editor("cyloopHitPosition", ctx->cyloopHitPosition);
     Editor("qword220", ctx->csl__math__vector4220);
     Editor("relatedToLastHit", ctx->relatedToLastHit);
     Viewer("Current Camera name", ctx->currentCamera->cameraFrame->name.c_str());

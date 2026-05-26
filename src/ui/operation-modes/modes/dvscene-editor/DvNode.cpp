@@ -124,7 +124,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 				break;
 			}
 			}
-			if(auto* x = node->parent)
+			if(auto* x = &*node->parent)
 				transform = TransformToAffine3f(x->transform) * transform;
 			return transform;
 		}
@@ -137,7 +137,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 		if(CanTransform())
 		{
 			auto trans = transform;
-			if(auto* x = node->parent)
+			if(auto* x = &*node->parent)
 				trans = TransformToAffine3f(x->transform).inverse() * transform;
 			switch (node->nodeType) {
 			case hh::dv::DvNodeBase::NodeType::PATH:
