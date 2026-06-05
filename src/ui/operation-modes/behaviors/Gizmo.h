@@ -9,6 +9,7 @@ template<typename OpModeContext>
 class GizmoBehavior : public OperationModeBehavior {
     ImGuizmo::OPERATION gizmoOperation{ ImGuizmo::TRANSLATE };
     ImGuizmo::MODE gizmoMode{ ImGuizmo::LOCAL };
+    bool wasUsing{ false };
 
 public:
 	using ChangeCoordinateSystemAction = Action<ActionId::CHANGE_COORDINATE_SYSTEM>;
@@ -158,6 +159,11 @@ public:
 
 			ImGuiIO& io = ImGui::GetIO();
 			ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
+			bool isUsing = ImGuizmo::IsUsing();
+			if (isUsing && !wasUsing && (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) || ImGui::IsKeyDown(ImGuiKey_RightCtrl)))
+				Dispatch(Action<ActionId::LEVEL_EDITOR_CLONE_SELECTION>{});
+			wasUsing = isUsing;
 
 			if (ImGuizmo::Manipulate(camera->viewportData.viewMatrix.data(), camera->viewportData.projMatrix.data(), gizmoOperation, gizmoMode, selectionTransform.data(), NULL, NULL))
 				selTransform->SetSelectionTransform(selectionTransform);

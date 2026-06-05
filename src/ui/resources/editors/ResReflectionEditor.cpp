@@ -68,7 +68,6 @@ void ResReflectionEditor::RenderContents() {
 		const char* previewValue = rflClass == nullptr ? "<none>" : rflClass->GetName();
 		csl::ut::MoveArray<const RflClass*> matchingRflClasses{ hh::fnd::MemoryRouter::GetTempAllocator() };
 
-		ImGui::InputText("Search", searchStr, 200);
 		for (auto* rflc : RflClassNameRegistry::GetInstance()->GetItems()) {
 #ifdef DEVTOOLS_TARGET_SDK_miller
 			auto resSize = resource->GetSize() - 0x10;
@@ -115,12 +114,21 @@ void ResReflectionEditor::RenderContents() {
 
 			ImGui::EndCombo();
 		}
+
+		ImGui::InputText("Search", searchStr, 200);
 	}
+	else
+		ImGui::InputText("Search", searchStr, 200);
 
 	if (rflClass != nullptr) {
+		ImGuiTextFilter filter{};
+		snprintf(filter.InputBuf, sizeof(filter.InputBuf), "%s", searchStr);
+		filter.Build();
+		auto* activeFilter = filter.IsActive() ? &filter : nullptr;
+
 		if (showdiff) {
 			if (ImGui::BeginChild("Properties", ImVec2(ImGui::GetWindowSize().x / 2, 0))) {
-				if (ResettableReflectionEditor("Properties", resource->GetData(), origData, rflClass))
+				if (ResettableReflectionEditor("Properties", resource->GetData(), origData, rflClass, activeFilter))
 					diffResult = std::move(RflDiffStruct(GetAllocator(), origData, resource->GetData(), rflClass));
 			}
 			ImGui::EndChild();
@@ -142,7 +150,7 @@ void ResReflectionEditor::RenderContents() {
 		}
 		else {
 			if (ImGui::BeginChild("Properties")) {
-				ResettableReflectionEditor("Properties", resource->GetData(), origData, rflClass);
+				ResettableReflectionEditor("Properties", resource->GetData(), origData, rflClass, activeFilter);
 			}
 			ImGui::EndChild();
 		}

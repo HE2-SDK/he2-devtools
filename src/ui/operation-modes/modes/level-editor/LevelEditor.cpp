@@ -28,13 +28,30 @@ namespace ui::operation_modes::modes::level_editor {
 		AddBehavior<ObjectLocationVisual3DBehavior>();
 		AddBehavior<GroundContextMenuBehavior>();
 		AddBehavior<DebugCommentsVisualBehavior>();
+		AddBehavior<DragDropPlacementBehavior>();
 
 		auto* gameManager = GameManager::GetInstance();
 
 		gameManager->AddListener(this);
 
-		if (auto* objWorld = gameManager->GetService<ObjectWorld>())
+		if (auto* objWorld = gameManager->GetService<ObjectWorld>()) {
 			objWorld->AddWorldListener(this);
+
+			auto& chunks = objWorld->GetWorldChunks();
+			if (!chunks.empty()) {
+				auto* firstChunk = chunks[0];
+				ProcessAction(SetFocusedChunkAction{ firstChunk });
+
+				auto& layers = firstChunk->GetLayers();
+				if (!layers.empty()) {
+					ObjectWorldChunkLayer* firstLayer = layers[0];
+					for (auto* layer : layers)
+						if (strcmp(layer->GetName(), firstLayer->GetName()) < 0)
+							firstLayer = layer;
+					GetContext().placementTargetLayer = firstLayer;
+				}
+			}
+		}
 	}
 
 	LevelEditor::~LevelEditor() {
@@ -102,6 +119,19 @@ namespace ui::operation_modes::modes::level_editor {
 			auto& payload = static_cast<const SetLayerEnabledAction&>(action).payload;
 
 			GetContext().SetLayerEnabled(payload.layerName, payload.enabled);
+			break;
+		}
+		case CloneSelectionAction::id: {
+			auto& context = GetContext();
+			if (!context.placementTargetLayer) break;
+			auto& selection = GetBehavior<SelectionBehavior<Context>>()->GetSelection();
+			csl::ut::MoveArray<ObjectData*> clones{ hh::fnd::MemoryRouter::GetTempAllocator() };
+			for (auto* obj : selection) {
+				auto* clone = context.CopyObjectForPlacement(obj);
+				context.SpawnObject(clone);
+				clones.push_back(clone);
+			}
+			GetBehavior<SelectionBehavior<Context>>()->Select(clones);
 			break;
 		}
 		}
