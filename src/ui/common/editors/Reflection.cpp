@@ -26,6 +26,8 @@ public:
 	constexpr static size_t arity = 1;
 	static inline const char* currentMemberName{};
 	static inline bool defaultOpen{};
+	static inline const RflClass* currentRflClass{};
+	static inline const ImGuiTextFilter* filter{};
 	typedef bool result_type;
 
 
@@ -42,6 +44,10 @@ public:
 		currentMemberName = savedMemberName;
 		return edited;
 	}
+
+	static bool FilterActive() { return filter != nullptr && filter->IsActive(); }
+	static bool Matches(const RflClass* rflClass) { for (auto& member : rflClass->GetMembers()) if (Matches(member)) return true; return false; }
+	static bool Matches(const RflClassMember& member) { auto* memberClass = static_cast<const RflClass*>(member.GetClass()); return !FilterActive() || filter->PassFilter(member.GetName()) || memberClass != nullptr && Matches(memberClass); }
 
 	template<typename T, bool allowSliders = true>
 	static bool InputRflScalar(T& obj, const PrimitiveInfo<T>& info) {
@@ -204,6 +210,10 @@ public:
 
 	template<typename F>
 	static bool visit_field(opaque_obj& obj, const FieldInfo& info, F f) {
+		if (currentRflClass != nullptr)
+			for (auto& member : currentRflClass->GetMembers())
+				if (!strcmp(member.GetName(), info.name) && !Matches(member))
+					return false;
 		return NameScope(info.name, [&]() { return f(obj); });
 	}
 
@@ -216,8 +226,8 @@ public:
 	static bool visit_struct(opaque_obj& obj, const StructureInfo& info, F f) {
 		ImGui::PushID(&obj);
 		bool edited{};
-		bool isOpen{ ImGui::TreeNodeEx(currentMemberName, RenderStaticReflectionEditor::defaultOpen ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_None) };
-		const auto* rflClass = (const he2sdk::ucsl::GameInterface::RflSystem::RflClass*)info.rflClass;
+		bool isOpen{ ImGui::TreeNodeEx(currentMemberName, RenderStaticReflectionEditor::defaultOpen || FilterActive() ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_None) };
+		const auto* rflClass = static_cast<const RflClass*>(info.rflClass);
 
 		if (ImGui::BeginDragDropSource()) {
 			RflDragDropData dndData{ rflClass, obj };
@@ -251,7 +261,9 @@ public:
 		
 		if (isOpen) {
 			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+			auto* savedRflClass = currentRflClass; currentRflClass = rflClass;
 			edited = f(obj);
+			currentRflClass = savedRflClass;
 			ImGui::TreePop();
 		}
 		ImGui::PopID();
@@ -343,8 +355,8 @@ public:
 	static bool visit_struct(opaque_obj& obj, opaque_obj& orig, const StructureInfo& info, F f) {
 		ImGui::PushID(&obj);
 		bool edited{};
-		bool isOpen{ ImGui::TreeNodeEx(RenderStaticReflectionEditor::currentMemberName, RenderStaticReflectionEditor::defaultOpen ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_None) };
-		const auto* rflClass = (const he2sdk::ucsl::GameInterface::RflSystem::RflClass*)info.rflClass;
+		bool isOpen{ ImGui::TreeNodeEx(RenderStaticReflectionEditor::currentMemberName, RenderStaticReflectionEditor::defaultOpen || RenderStaticReflectionEditor::FilterActive() ? ImGuiTreeNodeFlags_DefaultOpen : ImGuiTreeNodeFlags_None) };
+		const auto* rflClass = static_cast<const RflClass*>(info.rflClass);
 
 		if (ImGui::BeginDragDropSource()) {
 			RflDragDropData dndData{ rflClass, obj };
@@ -385,7 +397,9 @@ public:
 		
 		if (isOpen) {
 			ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f);
+			auto* savedRflClass = RenderStaticReflectionEditor::currentRflClass; RenderStaticReflectionEditor::currentRflClass = rflClass;
 			edited |= f(obj, orig);
+			RenderStaticReflectionEditor::currentRflClass = savedRflClass;
 			ImGui::TreePop();
 		}
 		ImGui::PopID();
@@ -398,18 +412,22 @@ public:
 	}
 };
 
-bool ReflectionEditor(const char* label, void* reflectionData, const hh::fnd::RflClass* rflClass, bool defaultOpen) {
+bool ReflectionEditor(const char* label, void* reflectionData, const hh::fnd::RflClass* rflClass, bool defaultOpen, const ImGuiTextFilter* filter) {
 	ImGui::BeginGroup();
 	RenderStaticReflectionEditor::defaultOpen = defaultOpen;
+	RenderStaticReflectionEditor::filter = filter;
 	bool edited = RenderStaticReflectionEditor::NameScope(label, [&]() { return ucsl::reflection::traversals::traversal<RenderStaticReflectionEditor>{}(reflectionData, ucsl::reflection::providers::rflclass<he2sdk::ucsl::GameInterface>::reflect(rflClass)); });
+	RenderStaticReflectionEditor::filter = nullptr;
 	ImGui::EndGroup();
 	return edited;
 }
 
-bool ResettableReflectionEditor(const char* label, void* reflectionData, void* originalReflectionData, const hh::fnd::RflClass* rflClass) {
+bool ResettableReflectionEditor(const char* label, void* reflectionData, void* originalReflectionData, const hh::fnd::RflClass* rflClass, const ImGuiTextFilter* filter) {
 	ImGui::BeginGroup();
 	RenderStaticReflectionEditor::defaultOpen = false;
+	RenderStaticReflectionEditor::filter = filter;
 	bool edited = RenderStaticReflectionEditor::NameScope(label, [&]() { return ucsl::reflection::traversals::traversal<RenderResettableReflectionEditor>{}(reflectionData, originalReflectionData, ucsl::reflection::providers::rflclass<he2sdk::ucsl::GameInterface>::reflect(rflClass)); });
+	RenderStaticReflectionEditor::filter = nullptr;
 	ImGui::EndGroup();
 	return edited;
 }

@@ -59,9 +59,24 @@ void RflComparer::RenderContents()
 	//	return;
 	//}
 
+	ImGui::InputText("Search", searchStr, 200);
+	auto searchLen = strlen(searchStr);
 	const char* previewValue = rflClass == nullptr ? "<none>" : rflClass->GetName();
 
-	if (ImGui::BeginCombo("RflClass", previewValue)) {
+	if (searchLen != 0) {
+		for (auto* rflc : RflClassNameRegistry::GetInstance()->GetItems()) {
+			for (auto* h = rflc->GetName(); *h; h++) {
+				if (!_strnicmp(h, searchStr, searchLen)) {
+					if (ImGui::Selectable(rflc->GetName(), rflClass == rflc)) {
+						rflClass = rflc;
+						diffResult = RflDiffStruct(GetAllocator(), resource1->GetData(), resource2->GetData(), rflc);
+					}
+					break;
+				}
+			}
+		}
+	}
+	else if (ImGui::BeginCombo("RflClass", previewValue)) {
 		for (auto* rflc : RflClassNameRegistry::GetInstance()->GetItems()) {
 			//if (resource1->GetSize() == rflc->GetSizeInBytes() || resource2->GetSize() == rflc->GetSizeInBytes()) {
 				bool is_selected = rflClass == rflc;
