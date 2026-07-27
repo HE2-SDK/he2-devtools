@@ -357,4 +357,13 @@ namespace ui::operation_modes::modes::level_editor {
 	void Context::SetObjectClassToPlace(const hh::game::GameObjectClass* gameObjectClass) {
 		objectClassToPlace = gameObjectClass;
 	}
+
+	hh::game::ObjectWorldChunkLayer* Context::GetParentLayer(const hh::game::ObjectData* object) const {
+		for (auto* layer : focusedChunk->GetLayers())
+			for (auto* obj : layer->GetResource()->GetObjects())
+				if (obj == object)
+					return layer;
+
+		return nullptr;
+	}
 }
