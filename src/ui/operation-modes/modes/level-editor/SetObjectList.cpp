@@ -124,6 +124,25 @@ namespace ui::operation_modes::modes::level_editor {
 
 		if (type == SetObjectListTreeViewNode::Type::LAYER) {
 			ImGui::PushID(GetID());
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ObjectData")) {
+					ObjectData* object = *static_cast<ObjectData**>(payload->Data);
+
+					auto* originalParentLayer = list.GetContext().GetParentLayer(object);
+					originalParentLayer->RemoveObjectData(object);
+					layer.layer->AddObjectData(object, true);
+
+					for (auto* obj : originalParentLayer->GetResource()->GetObjects()) {
+						if (obj->parentID == object->id) {
+							originalParentLayer->RemoveObjectData(obj);
+							layer.layer->AddObjectData(obj, true);
+						}
+					}
+
+					list.InvalidateTree();
+				}
+				ImGui::EndDragDropTarget();
+			}
 			if (ImGui::BeginPopupContextItem("Layer context menu")) {
 				bool enabled{ layer.layer->IsEnable() };
 
