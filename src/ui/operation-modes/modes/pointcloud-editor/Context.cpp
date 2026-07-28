@@ -34,12 +34,18 @@ namespace ui::operation_modes::modes::pointcloud_editor {
 	}
 
 	void Context::TransformUpdate(InstanceData& instance, const Eigen::Affine3f& transform) {
+		// TODO: Split this off, possibly via making child classes of this editor
 		if (pcType == app::gfx::ResPointcloudModel::GetTypeInfo()) {
 			if (auto* terrainGround = hh::game::GameManager::GetInstance()->GetGameObject("TerrainGround")) {
-				char name[0x250];
+				char name[0x80];
 				snprintf(name, sizeof(name), "%s.%p", instance.name, resource);
 				if (auto* gocVisualModel = terrainGround->GetComponent<hh::gfx::GOCVisualModel>(name_hash(name)))
 					gocVisualModel->SetLocalTransform(transform);
+				else {
+					snprintf(name, sizeof(name), "%s.%p", instance.resourceName, resource);
+					if (auto* gocVisualModel = terrainGround->GetComponent<hh::gfx::GOCVisualModel>(name_hash(name)))
+						gocVisualModel->SetLocalTransform(transform);
+				}
 			}
 		}
 	}
