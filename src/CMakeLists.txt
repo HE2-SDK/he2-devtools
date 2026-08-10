@@ -724,10 +724,15 @@ if(${DEVTOOLS_FEATURE_SCENE_EDITOR})
             ui/operation-modes/modes/scene-editor/SceneEditor.cpp
             ui/operation-modes/modes/scene-editor/SceneSettings.cpp
             ui/operation-modes/modes/scene-editor/Timeline.cpp
+            ui/operation-modes/modes/scene-editor/SceneNodeGraph.cpp
+            ui/operation-modes/modes/scene-editor/SceneNodeInspector.cpp
         PRIVATE FILE_SET HEADERS FILES
             ui/operation-modes/modes/scene-editor/Context.h
             ui/operation-modes/modes/scene-editor/SceneEditor.h
             ui/operation-modes/modes/scene-editor/SceneSettings.h
             ui/operation-modes/modes/scene-editor/Timeline.h
+            ui/operation-modes/modes/scene-editor/SceneNodeGraph.h
+            ui/operation-modes/modes/scene-editor/SceneNodeInspector.h
+            ui/operation-modes/modes/scene-editor/Behaviors.h
         )
 endif()
