@@ -34,3 +34,6 @@
 [submodule "vendor/uwebsockets/uWebSockets"]
 	path = vendor/uwebsockets/uWebSockets
 	url = https://github.com/uNetworking/uWebSockets.git
+[submodule "vendor/recastnavigation/recastnavigation"]
+	path = vendor/recastnavigation/recastnavigation
+	url = https://github.com/recastnavigation/recastnavigation

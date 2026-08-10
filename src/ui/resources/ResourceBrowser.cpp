@@ -329,6 +329,25 @@ void ResourceBrowser::ShowExportResourceDialog(hh::fnd::ManagedResource* resourc
 	ImGuiFileDialog::Instance()->OpenDialog("ResourceExportDialog", "Choose File", extbuf, cfg);
 }
 
+struct ExportResourcesDialogData {
+	hh::fnd::ManagedResource** resources;
+	size_t count;
+};
+
+void ResourceBrowser::ShowExportResourceDialog(hh::fnd::ManagedResource** resources, size_t count) {
+	auto* data = new (hh::fnd::GetTempAllocator()) ExportResourcesDialogData{};
+
+	data->resources = new (hh::fnd::GetTempAllocator()) hh::fnd::ManagedResource*[count];
+	memcpy(data->resources, resources, sizeof(hh::fnd::ManagedResource*) * count);
+	data->count = count;
+
+	IGFD::FileDialogConfig cfg{};
+	cfg.path = GlobalSettings::defaultFileDialogDirectory;
+	cfg.flags = ImGuiFileDialogFlags_Modal | ImGuiFileDialogFlags_ConfirmOverwrite;
+	cfg.userDatas = data;
+	ImGuiFileDialog::Instance()->OpenDialog("ResourcesExportDialog", "Choose Folder", nullptr, cfg);
+}
+
 void ResourceBrowser::RenderLoadNewResourceDialog() {
 #ifndef DEVTOOLS_TARGET_SDK_wars
 	if (loadNewDialog.Display("ResourceLoadNewDialog", ImGuiWindowFlags_NoCollapse, ImVec2(800, 500))) {
@@ -379,6 +398,27 @@ void ResourceBrowser::RenderExportDialog() {
 			std::wstring wFilePath(filePath.begin(), filePath.end());
 
 			ExportResource(wFilePath.c_str(), resource);
+		}
+		ImGuiFileDialog::Instance()->Close();
+	}
+
+	if (ImGuiFileDialog::Instance()->Display("ResourcesExportDialog", ImGuiWindowFlags_NoCollapse, ImVec2(800, 500))) {
+		if (ImGuiFileDialog::Instance()->IsOk()) {
+			ExportResourcesDialogData* data = static_cast<ExportResourcesDialogData*>(ImGuiFileDialog::Instance()->GetUserDatas());
+			std::string folderPath = ImGuiFileDialog::Instance()->GetCurrentPath();
+
+			for (size_t x = 0; x < data->count; x++) {
+				auto* res = data->resources[x];
+
+				// The manual path creation might not always work out.
+				std::string filePath = folderPath + "//" + res->GetName() + "." + GetExtensionByTypeInfo(&res->GetClass());
+				std::wstring wFilePath(filePath.begin(), filePath.end());
+
+				ExportResource(wFilePath.c_str(), res);
+			}
+
+			hh::fnd::GetTempAllocator()->Free(data->resources);
+			hh::fnd::GetTempAllocator()->Free(data);
 		}
 		ImGuiFileDialog::Instance()->Close();
 	}

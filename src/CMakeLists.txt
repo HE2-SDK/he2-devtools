@@ -18,6 +18,7 @@ target_sources(${DEVTOOLS_TARGET}
         debug-rendering/renderables/Bones.cpp
         debug-rendering/renderables/PhysicalAnimation.cpp
         debug-rendering/renderables/Light.cpp
+        debug-rendering/renderables/NavMesh.cpp
         debug-rendering/visuals/AabbTree.cpp
         debug-rendering/visuals/Geometry.cpp
         debug-rendering/visuals/KdTree.cpp
@@ -92,6 +93,7 @@ target_sources(${DEVTOOLS_TARGET}
         debug-rendering/renderables/Bones.h
         debug-rendering/renderables/PhysicalAnimation.h
         debug-rendering/renderables/Light.h
+        debug-rendering/renderables/NavMesh.h
         debug-rendering/visuals/AabbTree.h
         debug-rendering/visuals/Geometry.h
         debug-rendering/visuals/KdTree.h
@@ -284,6 +286,11 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         GOCPlayerCollider
         GOCPointLight
         GOCVibration
+        GOCHsm2
+        GOCBossActionSelect
+        GOCBossMoveableRange
+        GOCHealth
+        GOCHitStop
     )
     set(DEVTOOLS_FEATURE_RESOURCE_INSPECTORS
         ResObjectWorldEditor
@@ -334,7 +341,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "miller")
     set(DEVTOOLS_FEATURE_LEVEL_EDITOR ON)
     set(DEVTOOLS_FEATURE_FXCOL_EDITOR OFF)
     set(DEVTOOLS_FEATURE_SVCOL_EDITOR ON)
-    set(DEVTOOLS_FEATURE_PCMODEL_EDITOR OFF)
+    set(DEVTOOLS_FEATURE_PCMODEL_EDITOR ON)
     set(DEVTOOLS_FEATURE_PCRT_EDITOR OFF)
     set(DEVTOOLS_FEATURE_SURFRIDE_EDITOR ON)
     set(DEVTOOLS_FEATURE_ASM_EDITOR ON)
@@ -370,6 +377,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "miller")
         GOCSound
         GOCParticleLocator
         GOCPlayerKinematicParams
+        GOCPlayerBlackboard
     )
     set(DEVTOOLS_FEATURE_RESOURCE_INSPECTORS
         ResObjectWorldEditor
@@ -716,10 +724,15 @@ if(${DEVTOOLS_FEATURE_SCENE_EDITOR})
             ui/operation-modes/modes/scene-editor/SceneEditor.cpp
             ui/operation-modes/modes/scene-editor/SceneSettings.cpp
             ui/operation-modes/modes/scene-editor/Timeline.cpp
+            ui/operation-modes/modes/scene-editor/SceneNodeGraph.cpp
+            ui/operation-modes/modes/scene-editor/SceneNodeInspector.cpp
         PRIVATE FILE_SET HEADERS FILES
             ui/operation-modes/modes/scene-editor/Context.h
             ui/operation-modes/modes/scene-editor/SceneEditor.h
             ui/operation-modes/modes/scene-editor/SceneSettings.h
             ui/operation-modes/modes/scene-editor/Timeline.h
+            ui/operation-modes/modes/scene-editor/SceneNodeGraph.h
+            ui/operation-modes/modes/scene-editor/SceneNodeInspector.h
+            ui/operation-modes/modes/scene-editor/Behaviors.h
         )
 endif()

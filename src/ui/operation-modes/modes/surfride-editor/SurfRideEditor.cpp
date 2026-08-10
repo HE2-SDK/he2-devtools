@@ -78,6 +78,10 @@ namespace ui::operation_modes::modes::surfride_editor
 			GetContext().AddCast(payload.cast, payload.type);
 			break;
 		}
+		case AddLayerToSceneAction::id: {
+			GetContext().AddLayer(*GetContext().focusedScene);
+			break;
+		}
 		case RemoveCastAction::id: {
 			auto& cast = static_cast<const RemoveCastAction&>(action).payload;
 

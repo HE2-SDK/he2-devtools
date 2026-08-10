@@ -220,6 +220,18 @@ namespace ui::operation_modes::modes::level_editor {
 		return CopyObject(GetAllocator(), otherObject);
 	}
 
+	void Context::DeleteObject(ObjectData* obj)
+	{
+		focusedChunk->Despawn(obj);
+
+		focusedChunk->ShutdownPendingObjects();
+
+		for (auto* layer : focusedChunk->GetLayers())
+			for (auto* object : layer->GetResource()->GetObjects())
+				if (object == obj)
+					layer->RemoveObjectData(obj);
+	}
+
 	void Context::DeleteObjects(const csl::ut::MoveArray<ObjectData*>& objects)
 	{
 		for (auto* obj : objects)
@@ -310,17 +322,48 @@ namespace ui::operation_modes::modes::level_editor {
 
 	void Context::SetObjectParent(hh::game::ObjectData* child, hh::game::ObjectData* parent)
 	{
-		auto parentAbsoluteTransform = ObjectTransformDataToAffine3f(parent->transform);
-		auto childAbsoluteTransform = ObjectTransformDataToAffine3f(child->transform);
+		if (parent) {
+			auto parentAbsoluteTransform = ObjectTransformDataToAffine3f(parent->transform);
+			auto childAbsoluteTransform = ObjectTransformDataToAffine3f(child->transform);
 
-		child->localTransform = Affine3fToObjectTransformData(parentAbsoluteTransform.inverse() * childAbsoluteTransform);
-		child->parentID = parent->id;
+			child->localTransform = Affine3fToObjectTransformData(parentAbsoluteTransform.inverse() * childAbsoluteTransform);
+			child->parentID = parent->id;
+		}
+		else {
+			hh::game::ObjectData* currentParent{ nullptr };
 
+			for (auto* layer : focusedChunk->GetLayers()) {
+				for (auto* object : layer->GetResource()->GetObjects()) {
+					if (child->parentID == object->id) {
+						currentParent = object;
+						break;
+					}
+				}
+			}
+
+			if (currentParent) {
+				auto parentAbsoluteTransform = ObjectTransformDataToAffine3f(currentParent->transform);
+				auto childAbsoluteTransform = ObjectTransformDataToAffine3f(child->transform);
+
+				child->localTransform = Affine3fToObjectTransformData(parentAbsoluteTransform * childAbsoluteTransform);
+			}
+			
+			child->parentID = {};
+		}
 		focusedChunk->Despawn(child);
 		focusedChunk->Restart(focusedChunk->GetObjectIndexByObjectData(child), true);
 	}
 
 	void Context::SetObjectClassToPlace(const hh::game::GameObjectClass* gameObjectClass) {
 		objectClassToPlace = gameObjectClass;
+	}
+
+	hh::game::ObjectWorldChunkLayer* Context::GetParentLayer(const hh::game::ObjectData* object) const {
+		for (auto* layer : focusedChunk->GetLayers())
+			for (auto* obj : layer->GetResource()->GetObjects())
+				if (obj == object)
+					return layer;
+
+		return nullptr;
 	}
 }

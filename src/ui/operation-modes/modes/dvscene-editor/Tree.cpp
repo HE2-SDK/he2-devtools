@@ -56,7 +56,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 									nodeName = GetElementName(elementId);
 								}
 								if (ImGui::Selectable(nodeName)) {
-									char* name = static_cast<char*>(hh::fnd::MemoryRouter::GetTempAllocator()->Alloc(strlen(nodeName) + 6, 1));
+									char* name = new (hh::fnd::GetTempAllocator()) char[strlen(nodeName) + 6];
 
 									strcpy(name, nodeName);
 									srand(time(nullptr));
@@ -73,7 +73,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 									memcpy(newNode->guid, &newFileNode.guid, 16);
 									ctx.ParentNode(runtimeParent, newNode);
 
-									hh::fnd::MemoryRouter::GetTempAllocator()->Free(name);
+									hh::fnd::GetTempAllocator()->Free(name);
 								}
 							}
 						}

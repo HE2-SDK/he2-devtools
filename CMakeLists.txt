@@ -84,7 +84,7 @@ foreach(DEVTOOLS_TARGET_SDK miller rangers wars)
     add_subdirectory(${SDK_PATH} ${DEVTOOLS_TARGET_SDK}-sdk EXCLUDE_FROM_ALL)
 
     add_library(${DEVTOOLS_TARGET} SHARED)
-    target_link_libraries(${DEVTOOLS_TARGET} PRIVATE ${DEVTOOLS_TARGET_SDK}-sdk filewatch detours imgui imgui-backend-win32 imgui-backend-dx11 imgui-node-editor imgui-memory-editor imguizmo implot imtimeline imbrowser yyjson reflectcpp OGDF rip-hl uwebsockets DiEventLib)
+    target_link_libraries(${DEVTOOLS_TARGET} PRIVATE ${DEVTOOLS_TARGET_SDK}-sdk filewatch detours imgui imgui-backend-win32 imgui-backend-dx11 imgui-node-editor imgui-memory-editor imguizmo implot imtimeline imbrowser yyjson reflectcpp OGDF rip-hl uwebsockets DiEventLib Recast Detour)
     target_compile_features(${DEVTOOLS_TARGET} PRIVATE cxx_std_20)
     target_compile_options(${DEVTOOLS_TARGET} PRIVATE /permissive- /W4 /wd4100 /wd4458 /wd4324)
     target_compile_definitions(${DEVTOOLS_TARGET}

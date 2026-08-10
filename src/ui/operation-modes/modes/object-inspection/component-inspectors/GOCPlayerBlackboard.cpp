@@ -3,14 +3,18 @@
 #include <ui/common/editors/Basic.h>
 #include <ui/common/viewers/Basic.h>
 
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 void RenderBlackboardAmyInspector(app::player::BlackboardAmy& blackboard) {
 	ImGui::Text("Unk1: %zx", blackboard.unk1);
 	ImGui::Text("Unk2: %x", blackboard.unk2);
 }
+#endif
 
 void RenderBlackboardSpeedInspector(app::player::BlackboardSpeed& blackboard) {
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 	ImGui::Text("Unk1: %x", blackboard.speed);
 	ImGui::Text("Unk2: %x", blackboard.speed2);
+#endif
 }
 
 void RenderBlackboardItemInspector(app::player::BlackboardItem& blackboard) {
@@ -18,6 +22,7 @@ void RenderBlackboardItemInspector(app::player::BlackboardItem& blackboard) {
 
 	ImGui::DragScalar("Ring capacity", ImGuiDataType_U32, &blackboard.ringCapacity);
 	ImGui::SliderScalar("Ring count", ImGuiDataType_U32, &blackboard.ringCount, &zero, &blackboard.ringCapacity);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 	ImGui::DragScalar("Unk1", ImGuiDataType_U32, &blackboard.unk1);
 	ImGui::DragScalar("unk2", ImGuiDataType_U16, &blackboard.unk2);
 	ImGui::DragScalar("unk3", ImGuiDataType_U8, &blackboard.unk3);
@@ -29,9 +34,11 @@ void RenderBlackboardItemInspector(app::player::BlackboardItem& blackboard) {
 	ImGui::DragScalar("unk6", ImGuiDataType_U16, &blackboard.unk6);
 	ImGui::DragScalar("unk7", ImGuiDataType_U16, &blackboard.unk7);
 	ImGui::DragScalar("unk8", ImGuiDataType_U8, &blackboard.unk8);
+#endif
 }
 
 void RenderBlackboardBattleInspector(app::player::BlackboardBattle& blackboard) {
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 	ImGui::DragScalar("powerLevel", ImGuiDataType_U8, &blackboard.powerLevel);
 	ImGui::DragScalar("defenseLevel", ImGuiDataType_U8, &blackboard.defenseLevel);
 	ImGui::DragScalar("unk1", ImGuiDataType_U8, &blackboard.unk1);
@@ -56,6 +63,7 @@ void RenderBlackboardBattleInspector(app::player::BlackboardBattle& blackboard) 
 	ImGui::Text("Unk16: %s", blackboard.unk16.c_str());
 	ImGui::DragScalar("flags0", ImGuiDataType_U8, &blackboard.flags0);
 	ImGui::DragScalar("flags1", ImGuiDataType_U8, &blackboard.flags1);
+#endif
 }
 
 const char* difficultyNames[]{ "EASY", "NORMAL", "HARD", "EXTREME" };
@@ -421,11 +429,14 @@ const char* formStateNames[] = {
 };
 
 void RenderBlackboardStatusInspector(app::player::BlackboardStatus& blackboard) {
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 	ImGui::DragScalar("byte20", ImGuiDataType_U8, &blackboard.byte20);
 	ComboEnum("characterId", blackboard.characterId, characterIdNames);
 	ComboEnum("formState", blackboard.formState, formStateNames);
+#endif
 
 	if (ImGui::TreeNode("Combat flags")) {
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 		for (size_t i = 0; i < 64; i++) {
 			char idxName[10];
 			snprintf(idxName, sizeof(idxName), "%zd", i);
@@ -438,6 +449,14 @@ void RenderBlackboardStatusInspector(app::player::BlackboardStatus& blackboard) 
 
 			CheckboxFlags(combatFlagNames[i] == nullptr ? idxName : combatFlagNames[i], blackboard.combatFlags[1], static_cast<app::player::BlackboardStatus::CombatFlag>(i - 64));
 		}
+#else
+		for (size_t i = 0; i < 64; i++) {
+			char idxName[10];
+			snprintf(idxName, sizeof(idxName), "%zd", i);
+
+			CheckboxFlags(idxName, blackboard.combatFlags, static_cast<app::player::BlackboardStatus::CombatFlag>(i));
+		}
+#endif
 		ImGui::TreePop();
 	}
 
@@ -469,6 +488,7 @@ void RenderBlackboardStatusInspector(app::player::BlackboardStatus& blackboard) 
 
 	ImGui::Text("Out of control time: %f", blackboard.outOfControlTime);
 	ImGui::Text("In control time: %f", blackboard.inControlTime);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 	ImGui::Text("%zx", blackboard.qword58);
 	ImGui::Text("%zx", blackboard.dword60);
 	ImGui::Text("%zx", blackboard.dword64);
@@ -486,8 +506,10 @@ void RenderBlackboardStatusInspector(app::player::BlackboardStatus& blackboard) 
 	ComboEnum("Difficulty", blackboard.byte180, difficultyNames);
 	ImGui::DragScalar("qword184", ImGuiDataType_U32, &blackboard.qword184);
 	DragScalar("qword188", blackboard.qword188);
+#endif
 }
 
+#ifdef DEVTOOLS_TARGET_SDK_rangers
 void RenderBlackboardTailsInspector(app::player::BlackboardTails& blackboard) {
 	ImGui::DragScalar("Unk1", ImGuiDataType_U32, &blackboard.unk1);
 	ImGui::DragScalar("Unk2", ImGuiDataType_U32, &blackboard.unk2);
@@ -496,15 +518,18 @@ void RenderBlackboardTailsInspector(app::player::BlackboardTails& blackboard) {
 	ImGui::DragScalar("Unk5", ImGuiDataType_U32, &blackboard.unk5);
 	ImGui::DragScalar("Unk6", ImGuiDataType_U32, &blackboard.unk6);
 }
+#endif
 
 const char* GetBlackboardName(unsigned int nameHash) {
 	switch (nameHash) {
-		case csl::ut::HashString("BlackboardAmy"): return "BlackboardAmy";
 		case csl::ut::HashString("BlackboardSpeed"): return "BlackboardSpeed";
 		case csl::ut::HashString("BlackboardItem"): return "BlackboardItem";
 		case csl::ut::HashString("BlackboardBattle"): return "BlackboardBattle";
 		case csl::ut::HashString("BlackboardStatus"): return "BlackboardStatus";
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+		case csl::ut::HashString("BlackboardAmy"): return "BlackboardAmy";
 		case csl::ut::HashString("BlackboardTails"): return "BlackboardTails";
+#endif
 		default: return "Unknown";
 	}
 }
@@ -513,12 +538,14 @@ void RenderComponentInspector(app::player::GOCPlayerBlackboard& component)
 	for (auto& content : component.blackboard->contents) {
 		if (ImGui::TreeNode(&*content, "%s", GetBlackboardName(content->GetNameHash()))) {
 			switch (content->GetNameHash()) {
-			case csl::ut::HashString("BlackboardAmy"): RenderBlackboardAmyInspector(static_cast<app::player::BlackboardAmy&>(*content)); break;
 			case csl::ut::HashString("BlackboardSpeed"): RenderBlackboardSpeedInspector(static_cast<app::player::BlackboardSpeed&>(*content)); break;
 			case csl::ut::HashString("BlackboardItem"): RenderBlackboardItemInspector(static_cast<app::player::BlackboardItem&>(*content)); break;
 			case csl::ut::HashString("BlackboardBattle"): RenderBlackboardBattleInspector(static_cast<app::player::BlackboardBattle&>(*content)); break;
 			case csl::ut::HashString("BlackboardStatus"): RenderBlackboardStatusInspector(static_cast<app::player::BlackboardStatus&>(*content)); break;
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+			case csl::ut::HashString("BlackboardAmy"): RenderBlackboardAmyInspector(static_cast<app::player::BlackboardAmy&>(*content)); break;
 			case csl::ut::HashString("BlackboardTails"): RenderBlackboardTailsInspector(static_cast<app::player::BlackboardTails&>(*content)); break;
+#endif
 			}
 			ImGui::TreePop();
 		}

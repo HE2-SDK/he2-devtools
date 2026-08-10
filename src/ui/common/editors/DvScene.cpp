@@ -147,7 +147,12 @@ bool Editor(const char* label, app::dv::DvElementAura::Description::AuraNode& no
     bool changed = false;
     if(ImGui::TreeNode(label)){
         unsigned int color[4] = { node.color[1], node.color[2], node.color[3], node.color[0] };
-        changed |= ColorEditor("Color", color);
+        if (changed |= ColorEditor("Color", color)) {
+            node.color[0] = color[3];
+            node.color[1] = color[0];
+            node.color[2] = color[1];
+            node.color[3] = color[2];
+        }
         changed |= Editor("Distance", node.distance);
         changed |= Editor("Noise Texture Scroll Speed", node.noiseTextureScrollSpeed);
         changed |= Editor("Blur Scale", node.blurScale);

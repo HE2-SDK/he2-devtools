@@ -95,8 +95,8 @@ namespace ui::operation_modes::modes::dvscene_editor {
 				break;
 			case hh::dv::DvNodeBase::NodeType::ELEMENT:
 			{
-				auto* element = &fileNode->data[sizeof(hh::dv::DvNodeElement::Description<hh::dv::DvElementBase::Description>)];
-				switch (reinterpret_cast<hh::dv::DvNodeElement::Description<hh::dv::DvElementBase::Description>*>(fileNode->data)->elementId) {
+				auto* element = &fileNode->data[sizeof(hh::dv::DvNodeElement::DescriptionBase)];
+				switch (reinterpret_cast<hh::dv::DvNodeElement::DescriptionBase*>(fileNode->data)->elementId) {
 				case hh::dv::DvNodeElement::ElementID::PATH_OFFSET:
 					transform = Eigen::Affine3f{ reinterpret_cast<hh::dv::DvElementPathOffset::Description*>(element)->offsetMatrix.matrix() };
 					break;
@@ -124,7 +124,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 				break;
 			}
 			}
-			if(auto* x = node->parent)
+			if(auto* x = &*node->parent)
 				transform = TransformToAffine3f(x->transform) * transform;
 			return transform;
 		}
@@ -137,7 +137,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 		if(CanTransform())
 		{
 			auto trans = transform;
-			if(auto* x = node->parent)
+			if(auto* x = &*node->parent)
 				trans = TransformToAffine3f(x->transform).inverse() * transform;
 			switch (node->nodeType) {
 			case hh::dv::DvNodeBase::NodeType::PATH:
@@ -145,8 +145,8 @@ namespace ui::operation_modes::modes::dvscene_editor {
 				break;
 			case hh::dv::DvNodeBase::NodeType::ELEMENT:
 			{
-				auto* element = &fileNode->data[sizeof(hh::dv::DvNodeElement::Description<hh::dv::DvElementBase::Description>)];
-				switch (reinterpret_cast<hh::dv::DvNodeElement::Description<hh::dv::DvElementBase::Description>*>(fileNode->data)->elementId) {
+				auto* element = &fileNode->data[sizeof(hh::dv::DvNodeElement::DescriptionBase)];
+				switch (reinterpret_cast<hh::dv::DvNodeElement::DescriptionBase*>(fileNode->data)->elementId) {
 				case hh::dv::DvNodeElement::ElementID::PATH_OFFSET:
 					reinterpret_cast<hh::dv::DvElementPathOffset::Description*>(element)->offsetMatrix = Eigen::Projective3f{ trans.matrix() };
 					break;

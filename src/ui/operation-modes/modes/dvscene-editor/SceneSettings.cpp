@@ -27,9 +27,24 @@ namespace ui::operation_modes::modes::dvscene_editor {
 			
 			Editor("Cutscene Name", context.cutsceneName);
 			if (ImGui::Button("Play Cutscene")) {
-				app::evt::EventSetupData setupData{};
-				setupData.Setup(context.cutsceneName.c_str());
-				evtPlayer->PlayEvent(setupData);
+				if (auto* gameManager = hh::game::GameManager::GetInstance())
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+				if (auto* levelManager = gameManager->GetService<hh::game::LevelManager>()) {
+					csl::ut::String levelName{ hh::fnd::GetTempAllocator() };
+					app::evt::EventSetupData::GetLevelName(context.cutsceneName.c_str(), levelName);
+					if (levelManager->GetLevelByName(levelName.c_str())) {
+						app::evt::EventSetupData setupData{};
+						setupData.Setup(context.cutsceneName.c_str());
+						evtPlayer->PlayEvent(setupData);
+					}
+				}
+#else
+				{
+					app::evt::EventSetupData setupData{};
+					setupData.Setup(context.cutsceneName.c_str());
+					evtPlayer->PlayEvent(setupData);
+				}
+#endif
 			}
 		}
 
@@ -47,6 +62,17 @@ namespace ui::operation_modes::modes::dvscene_editor {
 					snprintf(sceneName, sizeof(sceneName), "%s - %zx", dvsc->cutsceneName.c_str(), reinterpret_cast<size_t>(obj));
 					if (ImGui::Selectable(sceneName, obj == context.goDVSC)) {
 						GetBehavior<SelectionBehavior<Context>>()->DeselectAll();
+
+						context.addedNodes.clear();
+						if (context.parsedScene) {
+							delete context.parsedScene;
+							context.parsedScene = nullptr;
+						}
+						
+						context.dvPages.clear();
+						context.goDVSC = nullptr;
+						context.evtScene = nullptr;
+
 						context.goDVSC = dvsc;
 						for (auto* evtScn : hh::game::GameManager::GetInstance()->GetService<app::evt::EventPlayer>()->evtSceneMgr->evtScenes)
 							if (strcmp(evtScn->setupData.playInfo.cutsceneName, dvsc->cutsceneName.c_str()) == 0)

@@ -153,13 +153,13 @@ void RenderingEngineInspector::RenderContents()
 		if (ImGui::TreeNode(&ctxMgr, "%s", ctxMgr->nameId->name)) {
 			for (auto& ctx : ctxMgr->sceneContexts) {
 				if (ImGui::TreeNode(&ctx, "%s", ctx->GetName())) {
-					if (ctx->GetNameHash() == *reinterpret_cast<unsigned int*>(0x1440D0968ull)) {
+					if (ctx->GetNameHash() == *reinterpret_cast<unsigned int*>(0x1440D0CE8ull)) {
 						auto* sctx = static_cast<hh::needle::SCLocalLight*>(&*ctx);
 
 						Viewer("Number of lights?", sctx->implementation->numLights);
 						Viewer("Max lights?", sctx->implementation->maxLights);
 					}
-					if (ctx->GetNameHash() == *reinterpret_cast<unsigned int*>(0x1440C8B64ull)) {
+					if (ctx->GetNameHash() == *reinterpret_cast<unsigned int*>(0x1440C8EE4ull)) {
 						auto* sctx = static_cast<hh::needle::SCAtmosphere*>(&*ctx);
 
 						Editor("renderTargetViews[0]", sctx->implementation->renderTargetViews[0]);
@@ -172,10 +172,16 @@ void RenderingEngineInspector::RenderContents()
 						auto* sctx = static_cast<hh::needle::SCIBL*>(&*ctx);
 
 						if (sctx->implementation->probeBVH != nullptr) {
-							auto& probeBVH = sctx->implementation->probeBVH;
+							auto probeBVH = sctx->implementation->probeBVH;
 
-							size_t i{};
-							for (auto& node : probeBVH->implementation->probeNodes) {
+							if (ImGui::TreeNode("IBL Texture")) {
+								if (sctx->implementation->iblTexture != nullptr)
+									Editor("Texture", sctx->implementation->iblTexture);
+								ImGui::TreePop();
+							}
+
+							size_t i{ 0 };
+							for (auto node : probeBVH->implementation->probeNodes) {
 								ImGui::PushID(i++);
 								if (ImGui::TreeNode("Node")) {
 									Viewer("Texture name", node->textureName);
@@ -193,7 +199,7 @@ void RenderingEngineInspector::RenderContents()
 							}
 
 							if (probeBVH->implementation->ggxSamplingTexture.implementation != nullptr) {
-								auto& ggxTexImpl = probeBVH->implementation->ggxSamplingTexture.implementation;
+								auto ggxTexImpl = probeBVH->implementation->ggxSamplingTexture.implementation;
 								
 								if (ggxTexImpl->texture != nullptr)
 									Editor("Texture", ggxTexImpl->texture);

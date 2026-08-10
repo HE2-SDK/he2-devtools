@@ -76,6 +76,7 @@ namespace ui::operation_modes::modes::level_editor {
 			ImGui::PopStyleColor();
 
 		if (type == SetObjectListTreeViewNode::Type::OBJECT) {
+			ImGui::PushID(GetID());
 			if (ImGui::IsMouseReleased(ImGuiMouseButton_Left) && !ImGui::IsMouseDragging(ImGuiMouseButton_Left) && ImGui::IsItemHovered())
 				selectionBehavior->Select(object.object);
 			if (ImGui::BeginDragDropSource()) {
@@ -88,17 +89,60 @@ namespace ui::operation_modes::modes::level_editor {
 					ObjectData* parent = object.object;
 					ObjectData* child = *static_cast<ObjectData**>(payload->Data);
 
-					if (parent != child) {
+					// Unparent an object
+					if (child->parentID.IsNonNull() 
+						&& child->parentID == parent->id) 
+					{
+						list.GetContext().SetObjectParent(child, nullptr);
+						list.InvalidateTree();
+					}
+					// Parent an object
+					else if (parent != child) {
 						list.GetContext().SetObjectParent(child, parent);
 						list.InvalidateTree();
 					}
 				}
 				ImGui::EndDragDropTarget();
 			}
+			if (ImGui::BeginPopupContextItem("Object context menu")) {
+				if (ImGui::MenuItem("Delete")) {
+					auto& selection = list.GetBehavior<SelectionBehavior<Context>>()->GetSelection();
+					for (auto* x : selection)
+						if (x == object.object) {
+							list.GetBehavior<SelectionBehavior<Context>>()->Deselect(x);
+							break;
+						}
+
+					list.GetContext().DeleteObject(object.object);
+					list.InvalidateTree();
+				}
+
+				ImGui::EndPopup();
+			}
+			ImGui::PopID();
 		}
 
 		if (type == SetObjectListTreeViewNode::Type::LAYER) {
 			ImGui::PushID(GetID());
+			if (ImGui::BeginDragDropTarget()) {
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ObjectData")) {
+					ObjectData* object = *static_cast<ObjectData**>(payload->Data);
+
+					auto* originalParentLayer = list.GetContext().GetParentLayer(object);
+					originalParentLayer->RemoveObjectData(object);
+					layer.layer->AddObjectData(object, true);
+
+					for (auto* obj : originalParentLayer->GetResource()->GetObjects()) {
+						if (obj->parentID == object->id) {
+							originalParentLayer->RemoveObjectData(obj);
+							layer.layer->AddObjectData(obj, true);
+						}
+					}
+
+					list.InvalidateTree();
+				}
+				ImGui::EndDragDropTarget();
+			}
 			if (ImGui::BeginPopupContextItem("Layer context menu")) {
 				bool enabled{ layer.layer->IsEnable() };
 
@@ -168,6 +212,22 @@ namespace ui::operation_modes::modes::level_editor {
 			}
 			ImGui::EndCombo();
 		}
+
+		if (!focusedChunk) ImGui::BeginDisabled();
+
+		if (ImGui::Button("Export All")) {
+			auto& layers = focusedChunk->GetLayers();
+
+			csl::ut::MoveArray<hh::fnd::ManagedResource*> resources{ layers.size(), hh::fnd::GetTempAllocator() };
+
+			for (auto* layer : layers) resources.push_back(layer->GetResource());
+
+			ResourceBrowser::ShowExportResourceDialog(resources.begin(), resources.size());
+
+			resources.clear();
+		}
+
+		if (!focusedChunk) ImGui::EndDisabled();
 
 		if (dirty)
 			RebuildTree();

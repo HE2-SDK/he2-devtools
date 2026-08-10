@@ -26,6 +26,7 @@ namespace ui::operation_modes::modes::level_editor {
 
 		hh::game::ObjectData* CopyObjectForPlacement(hh::game::ObjectData* otherObject);
 		hh::game::ObjectData* CopyObjectForClipboard(hh::game::ObjectData* otherObject);
+		void DeleteObject(hh::game::ObjectData* object);
 		void DeleteObjects(const csl::ut::MoveArray<hh::game::ObjectData*>& objects);
 		void TerminateClipboardObject(hh::game::ObjectData* objectData);
 
@@ -56,5 +57,7 @@ namespace ui::operation_modes::modes::level_editor {
 		void SetObjectParent(hh::game::ObjectData* child, hh::game::ObjectData* parent);
 
 		void SetObjectClassToPlace(const hh::game::GameObjectClass* gameObjectClass);
+
+		hh::game::ObjectWorldChunkLayer* GetParentLayer(const hh::game::ObjectData* object) const;
 	};
 }
