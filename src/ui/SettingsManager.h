@@ -175,6 +175,7 @@ class SettingsManager
 #endif
         bool debugRenderingRenderGOCVisualDebugDraw{ true };
         bool debugRenderingRenderColliders{ true };
+        bool debugRenderingRenderMeshColliders{ true };
         bool debugRenderingRenderOcclusionCapsules{ true };
         bool debugRenderingRenderBones{ true };
         bool debugRenderingRenderPaths{ true };
@@ -182,6 +183,9 @@ class SettingsManager
         bool debugRenderingRenderPathTangents{ true };
         bool debugRenderingRenderPhysicalAnimation{ true };
         bool debugRenderingRenderLight{ true };
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+        bool debugRenderingRenderNavMesh{ true };
+#endif
         uint8_t debugRenderingGOCVisualDebugDrawOpacity{ 80 };
         float debugRenderingLevelEditorDebugBoxScale{ 0.3f };
         unsigned int debugRenderingLevelEditorDebugBoxRenderLimit{ 500 };

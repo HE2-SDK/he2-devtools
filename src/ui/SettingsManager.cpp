@@ -29,6 +29,9 @@ bool SettingsManager::Settings::operator==(const SettingsManager::Settings& othe
 		&& enableViewports == other.enableViewports
 		&& debugRenderingRenderGOCVisualDebugDraw == other.debugRenderingRenderGOCVisualDebugDraw
 		&& debugRenderingRenderColliders == other.debugRenderingRenderColliders
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+		&& debugRenderingRenderMeshColliders == other.debugRenderingRenderMeshColliders
+#endif
 		&& debugRenderingRenderOcclusionCapsules == other.debugRenderingRenderOcclusionCapsules
 		&& debugRenderingRenderBones == other.debugRenderingRenderBones
 		&& debugRenderingRenderPaths == other.debugRenderingRenderPaths
@@ -36,6 +39,9 @@ bool SettingsManager::Settings::operator==(const SettingsManager::Settings& othe
 		&& debugRenderingRenderPathTangents == other.debugRenderingRenderPathTangents
 		&& debugRenderingRenderPhysicalAnimation == other.debugRenderingRenderPhysicalAnimation
 		&& debugRenderingRenderLight == other.debugRenderingRenderLight
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+		&& debugRenderingRenderNavMesh == other.debugRenderingRenderNavMesh
+#endif
 		&& debugRenderingGOCVisualDebugDrawOpacity == other.debugRenderingGOCVisualDebugDrawOpacity
 		&& debugRenderingLevelEditorDebugBoxScale == other.debugRenderingLevelEditorDebugBoxScale
 		&& debugRenderingLevelEditorDebugBoxRenderLimit == other.debugRenderingLevelEditorDebugBoxRenderLimit
@@ -225,6 +231,11 @@ void SettingsManager::Render() {
 							constexpr uint8_t maxAlpha{ 255 };
 							ImGui::Checkbox("Render GOCVisualDebugDraw visuals", &tempSettings.debugRenderingRenderGOCVisualDebugDraw);
 							ImGui::Checkbox("Render colliders", &tempSettings.debugRenderingRenderColliders);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+							ImGui::Indent();
+							ImGui::Checkbox("Render mesh colliders", &tempSettings.debugRenderingRenderMeshColliders);
+							ImGui::Unindent();
+#endif
 							ImGui::Checkbox("Render occlusion capsules", &tempSettings.debugRenderingRenderOcclusionCapsules);
 							ImGui::Checkbox("Render bones", &tempSettings.debugRenderingRenderBones);
 							ImGui::Checkbox("Render paths", &tempSettings.debugRenderingRenderPaths);
@@ -234,6 +245,9 @@ void SettingsManager::Render() {
 							ImGui::Unindent();
 							ImGui::Checkbox("Render physical animation", &tempSettings.debugRenderingRenderPhysicalAnimation);
 							ImGui::Checkbox("Render lights", &tempSettings.debugRenderingRenderLight);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+							ImGui::Checkbox("Render navmesh", &tempSettings.debugRenderingRenderNavMesh);
+#endif
 							ImGui::SliderScalar("GOCVisualDebugDraw opacity (requires stage restart)", ImGuiDataType_U8, &tempSettings.debugRenderingGOCVisualDebugDrawOpacity, &minAlpha, &maxAlpha);
 							ImGui::Checkbox("Render primary tags", &tempSettings.debugRenderingLevelEditorDebugBoxRenderPrimaryTags);
 							ImGui::SetItemTooltip("Whether the primary text tag should be rendered (usually object name).");
@@ -394,6 +408,9 @@ void SettingsManager::ApplySettings() {
 	devtools::debug_rendering::DebugRenderingSystem::instance->gocVisualDebugDrawsRenderable.enabled = settings.debugRenderingRenderGOCVisualDebugDraw;
 	devtools::debug_rendering::DebugRenderingSystem::instance->gocVisualDebugDrawsRenderable.opacity = settings.debugRenderingGOCVisualDebugDrawOpacity;
 	devtools::debug_rendering::DebugRenderingSystem::instance->collidersRenderable.enabled = settings.debugRenderingRenderColliders;
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	devtools::debug_rendering::DebugRenderingSystem::instance->collidersRenderable.meshEnabled = settings.debugRenderingRenderMeshColliders;
+#endif
 	devtools::debug_rendering::DebugRenderingSystem::instance->occlusionCapsulesRenderable.enabled = settings.debugRenderingRenderOcclusionCapsules;
 	devtools::debug_rendering::DebugRenderingSystem::instance->bonesRenderable.enabled = settings.debugRenderingRenderBones;
 	devtools::debug_rendering::DebugRenderingSystem::instance->pathsRenderable.enabled = settings.debugRenderingRenderPaths;
@@ -404,6 +421,7 @@ void SettingsManager::ApplySettings() {
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 	devtools::debug_rendering::DebugRenderingSystem::instance->lightRenderable.enabled = settings.debugRenderingRenderLight;
+	devtools::debug_rendering::DebugRenderingSystem::instance->navMeshRenderable.enabled = settings.debugRenderingRenderNavMesh;
 #endif
 	ObjectLocationVisual3DBehaviorBase::ApplySettings(
 		settings.debugRenderingLevelEditorDebugBoxScale,
@@ -478,6 +496,9 @@ void SettingsManager::ReadLineFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	if (sscanf_s(line, "EnableViewports=%u", &u) == 1) { settings.enableViewports = static_cast<bool>(u); return; }
 	if (sscanf_s(line, "DebugRenderingRenderGOCVisualDebugDraw=%u", &u) == 1) { settings.debugRenderingRenderGOCVisualDebugDraw = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderColliders=%u", &u) == 1) { settings.debugRenderingRenderColliders = u; return; }
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	if (sscanf_s(line, "DebugRenderingRenderMeshColliders=%u", &u) == 1) { settings.debugRenderingRenderMeshColliders = u; return; }
+#endif
 	if (sscanf_s(line, "DebugRenderingRenderOcclusionCapsules=%u", &u) == 1) { settings.debugRenderingRenderOcclusionCapsules = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderBones=%u", &u) == 1) { settings.debugRenderingRenderBones = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderPaths=%u", &u) == 1) { settings.debugRenderingRenderPaths = u; return; }
@@ -485,6 +506,9 @@ void SettingsManager::ReadLineFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	if (sscanf_s(line, "DebugRenderingRenderPathTangents=%u", &u) == 1) { settings.debugRenderingRenderPathTangents = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderPhysicalAnimation=%u", &u) == 1) { settings.debugRenderingRenderPhysicalAnimation = u; return; }
 	if (sscanf_s(line, "DebugRenderingRenderLight=%u", &u) == 1) { settings.debugRenderingRenderLight = u; return; }
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	if (sscanf_s(line, "DebugRenderingRenderNavMesh=%u", &u) == 1) { settings.debugRenderingRenderNavMesh = u; return; }
+#endif
 	if (sscanf_s(line, "DebugRenderingGOCVisualDebugDrawOpacity=%u", &u) == 1) { settings.debugRenderingGOCVisualDebugDrawOpacity = static_cast<uint8_t>(u); return; }
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxScale=%f", &f) == 1) { settings.debugRenderingLevelEditorDebugBoxScale = f; return; }
 	if (sscanf_s(line, "DebugRenderingLevelEditorDebugBoxRenderLimit=%u", &u) == 1) { settings.debugRenderingLevelEditorDebugBoxRenderLimit = u; return; }
@@ -548,6 +572,9 @@ void SettingsManager::WriteAllFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	out_buf->appendf("EnableViewports=%u\n", settings.enableViewports);
 	out_buf->appendf("DebugRenderingRenderGOCVisualDebugDraw=%u\n", settings.debugRenderingRenderGOCVisualDebugDraw);
 	out_buf->appendf("DebugRenderingRenderColliders=%u\n", settings.debugRenderingRenderColliders);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	out_buf->appendf("DebugRenderingRenderMeshColliders=%u\n", settings.debugRenderingRenderMeshColliders);
+#endif
 	out_buf->appendf("DebugRenderingRenderOcclusionCapsules=%u\n", settings.debugRenderingRenderOcclusionCapsules);
 	out_buf->appendf("DebugRenderingRenderBones=%u\n", settings.debugRenderingRenderBones);
 	out_buf->appendf("DebugRenderingRenderPaths=%u\n", settings.debugRenderingRenderPaths);
@@ -555,6 +582,9 @@ void SettingsManager::WriteAllFn(ImGuiContext* ctx, ImGuiSettingsHandler* handle
 	out_buf->appendf("DebugRenderingRenderPathTangents=%u\n", settings.debugRenderingRenderPathTangents);
 	out_buf->appendf("DebugRenderingRenderPhysicalAnimation=%u\n", settings.debugRenderingRenderPhysicalAnimation);
 	out_buf->appendf("DebugRenderingRenderLight=%u\n", settings.debugRenderingRenderLight);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	out_buf->appendf("DebugRenderingRenderNavMesh=%u\n", settings.debugRenderingRenderNavMesh);
+#endif
 	out_buf->appendf("DebugRenderingGOCVisualDebugDrawOpacity=%u\n", settings.debugRenderingGOCVisualDebugDrawOpacity);
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxScale=%f\n", settings.debugRenderingLevelEditorDebugBoxScale);
 	out_buf->appendf("DebugRenderingLevelEditorDebugBoxRenderLimit=%u\n", settings.debugRenderingLevelEditorDebugBoxRenderLimit);

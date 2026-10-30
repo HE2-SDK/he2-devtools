@@ -13,5 +13,6 @@ namespace ui::operation_modes::modes::pointcloud_editor {
 
 		ucsl::resources::pointcloud::v2::InstanceData* AddInstance(const Eigen::Vector3f& position);
 		void RemoveInstance(ucsl::resources::pointcloud::v2::InstanceData& instance);
+		void TransformUpdate(ucsl::resources::pointcloud::v2::InstanceData& instance, const Eigen::Affine3f& transform);
 	};
 }

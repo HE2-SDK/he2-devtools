@@ -143,6 +143,34 @@ namespace ui::operation_modes::modes::surfride_editor {
 		return false;
 	}
 
+	SRS_LAYER* Context::CreateLayer(SRS_SCENE& scene) {
+		resources::ManagedCArray<SRS_LAYER, int> layers{ projectResource, scene.layers, scene.layerCount };
+
+		SRS_LAYER newLayer{};
+		newLayer.name = "newlayer";
+		newLayer.id = GenerateUniqueId();
+		newLayer.flags = 1;
+
+		CreateAnimation(newLayer);
+		newLayer.animationCount = 1;
+
+		layers.push_back(std::move(newLayer));
+
+		return &layers[layers.size() - 1];
+	}
+
+	SRS_ANIMATION* Context::CreateAnimation(SRS_LAYER& layer) {
+		resources::ManagedCArray<SRS_ANIMATION, int> animations{ projectResource, layer.animations, layer.animationCount };
+
+		SRS_ANIMATION newAnim{};
+		newAnim.id = GenerateUniqueId();
+		newAnim.name = "newanim";
+
+		animations.push_back(std::move(newAnim));
+
+		return &animations[animations.size() - 1];
+	}
+
 	SRS_CASTNODE* Context::CreateCast(SRS_LAYER& layer)
 	{
 		resources::ManagedCArray<SRS_CASTNODE, int> casts{ projectResource, layer.casts, layer.castCount };
@@ -290,6 +318,11 @@ namespace ui::operation_modes::modes::surfride_editor {
 		else
 			FindLastSibling(layer, newParent.childIndex).siblingIndex = static_cast<short>(cast - layer.casts);
 
+		ReloadResource();
+	}
+
+	void Context::AddLayer(ucsl::resources::swif::swif_version::SRS_SCENE& scene) {
+		auto* layer = CreateLayer(scene);
 		ReloadResource();
 	}
 

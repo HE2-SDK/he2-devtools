@@ -78,7 +78,18 @@ namespace ui::operation_modes::modes::surfride_editor {
 					RenderElement(camera, nullptr);
 				ImGui::TreePop();
 			}
-			if (ImGui::TreeNodeEx("Layers", nodeFlags)) {
+			bool isLayerTreeOpen = ImGui::TreeNodeEx("Layers", nodeFlags);
+
+			if (ImGui::BeginPopupContextItem()) {
+				if (ImGui::BeginMenu("Add")) {
+					if (ImGui::MenuItem("Layer"))
+						Dispatch(AddLayerToSceneAction{});
+					ImGui::EndMenu();
+				}
+				ImGui::EndPopup();
+			}
+
+			if (isLayerTreeOpen) {
 				for (auto& layer : std::span(scene.layers, scene.layerCount))
 					RenderElement(layer, runtimeScene == nullptr ? nullptr : runtimeScene->GetLayer(layer.id));
 				ImGui::TreePop();

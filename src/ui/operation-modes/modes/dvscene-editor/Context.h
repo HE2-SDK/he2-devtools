@@ -246,7 +246,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 		using CompatibleObject::CompatibleObject;
 
 		hh::fnd::Reference<hh::dv::DvSceneControl> goDVSC{};
-		dv::DvScene* parsedScene;
+		dv::DvScene* parsedScene{ nullptr };
 		app::evt::EventScene* evtScene;
 		std::mt19937 mt{ std::random_device{}() };
 		csl::ut::MoveArray32<DvPage*> dvPages;

@@ -10,6 +10,7 @@
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 #include "renderables/Light.h"
+#include "renderables/NavMesh.h"
 #endif
 
 namespace devtools::debug_rendering {
@@ -25,6 +26,7 @@ namespace devtools::debug_rendering {
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 		renderables::Light lightRenderable{};
+		renderables::NavMesh navMeshRenderable{};
 #endif
 
 		static hh::fnd::Reference<DebugRenderingSystem> instance;
