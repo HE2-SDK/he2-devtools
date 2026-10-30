@@ -29,6 +29,10 @@ bool Editor(const char* label, app::player::EffectList& effectList) {
 
 void RenderComponentInspector(app::player::GOCPlayerEffect& component) {
 	Editor("Effect lists", component.effectLists);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	Editor("currentEffectLocatorId", component.currentEffectLocatorId);
+#else
 	Editor("unk205", component.unk205);
+#endif
 	Editor("unk206", component.unk206);
 }
