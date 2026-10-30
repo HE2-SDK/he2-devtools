@@ -68,6 +68,7 @@ typedef std::tuple<
 	hh::physics::GOCCapsuleCollider,
 	hh::physics::GOCCylinderCollider,
 	hh::physics::GOCMeshCollider,
+	hh::physics::GOCHeightFieldCollider,
 	hh::ui::GOCSprite,
 	hh::ui::GOCUIComposition,
 	hh::eff::GOCEffect,
