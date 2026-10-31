@@ -22,7 +22,10 @@
 #include <utilities/ResourceTypes.h>
 #include <ucsl-reflection/reflections/resources/object-world/v2.h>
 #include <ucsl-reflection/reflections/resources/object-world/v3.h>
-#include <rip/binary/containers/binary-file/v2.h>
+#include <ucsl-reflection/providers/simplerfl.h>
+#include <ucsl-reflection/accessors/binary.h>
+#include <rip/models/binary-file/v2.h>
+#include <rip/serialization/binary.h>
 
 using namespace hh::fnd;
 
@@ -386,12 +389,20 @@ void ResourceBrowser::RenderExportDialog() {
 
 void ResourceBrowser::ExportResource(const wchar_t* filePath, ManagedResource* resource) {
 	if (&resource->GetClass() == hh::game::ResObjectWorld::GetTypeInfo()) {
-		std::ofstream ofs{ filePath, std::ios::trunc | std::ios::binary };
-		rip::binary::containers::binary_file::v2::BinaryFileSerializer<size_t> serializer{ ofs };
 #ifdef DEVTOOLS_TARGET_SDK_wars
-		serializer.serialize<he2sdk::ucsl::GameInterface>(*(ucsl::resources::object_world::v2::ObjectWorldData<he2sdk::ucsl::GameInterface::AllocatorSystem>*)static_cast<hh::game::ResObjectWorld*>(resource)->binaryData);
+		ucsl::reflection::providers::simplerfl<he2sdk::ucsl::GameInterface>::RootType<ucsl::resources::object_world::v2::reflections::ObjectWorldData<he2sdk::ucsl::GameInterface::AllocatorSystem>> refl{};
 #else
-		serializer.serialize<he2sdk::ucsl::GameInterface>(*(ucsl::resources::object_world::v3::ObjectWorldData<he2sdk::ucsl::GameInterface::AllocatorSystem>*)static_cast<hh::game::ResObjectWorld*>(resource)->binaryData);
+		ucsl::reflection::providers::simplerfl<he2sdk::ucsl::GameInterface>::RootType<ucsl::resources::object_world::v3::reflections::ObjectWorldData<he2sdk::ucsl::GameInterface::AllocatorSystem>> refl{};
 #endif
+
+		ucsl::reflection::accessors::binary<he2sdk::ucsl::GameInterface>::ValueConstAccessor<decltype(refl)> acc{ static_cast<hh::game::ResObjectWorld*>(resource)->binaryData, refl };
+
+		rip::models::BinaryFileV2<decltype(refl), he2sdk::ucsl::GameInterface::AllocatorSystem> model{ rip::binary::serializeBinaryToAllocatorSystemBuffer<he2sdk::ucsl::GameInterface::AllocatorSystem, size_t>(acc) };
+
+		std::ofstream ofs{ filePath, std::ios::trunc | std::ios::binary };
+		rip::binary::fast_ostream fos{ ofs };
+		rip::binary::binary_ostream<rip::binary::fast_ostream, size_t> bos{ fos };
+
+		rip::serialization::binary<decltype(model)>::save(bos, model);
 	}
 }

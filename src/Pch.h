@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include <detours.h>
 #undef CreateService
+#undef ABSOLUTE
 
 // Standard library
 #include <cstdint>

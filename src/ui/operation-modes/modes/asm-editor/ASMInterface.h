@@ -74,6 +74,7 @@ namespace ui::operation_modes::modes::asm_editor {
 		Id AddBlendMask();
 		Id AddBlendNode();
 		Id AddChildBlendNode(Id parent);
+		Id AddChildBlendNode(Id parent, unsigned short index);
 		Id AddBlendSpace();
 		Id AddClip();
 		Id AddVariable();

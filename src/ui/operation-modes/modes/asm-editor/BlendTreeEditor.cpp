@@ -8,7 +8,10 @@
 #ifdef DEVTOOLS_TARGET_SDK_miller
 #include <ucsl-reflection/reflections/resources/asm/v103-miller.h>
 #endif
-#include <rip/binary/containers/binary-file/v2.h>
+#include <ucsl-reflection/providers/simplerfl.h>
+#include <ucsl-reflection/accessors/binary.h>
+#include <rip/models/binary-file/v2.h>
+#include <rip/serialization/binary.h>
 #include <span>
 
 namespace ui::operation_modes::modes::asm_editor {
@@ -50,14 +53,24 @@ namespace ui::operation_modes::modes::asm_editor {
 			if (ImGuiFileDialog::Instance()->IsOk()) {
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 				auto* exportData = static_cast<ucsl::resources::animation_state_machine::v103_rangers::AsmData*>(ImGuiFileDialog::Instance()->GetUserDatas());
+
+				ucsl::reflection::providers::simplerfl<he2sdk::ucsl::GameInterface>::RootType<ucsl::resources::animation_state_machine::v103_rangers::reflections::AsmData> refl{};
 #endif
 #ifdef DEVTOOLS_TARGET_SDK_miller
 				auto* exportData = static_cast<ucsl::resources::animation_state_machine::v103_miller::AsmData*>(ImGuiFileDialog::Instance()->GetUserDatas());
+
+				ucsl::reflection::providers::simplerfl<he2sdk::ucsl::GameInterface>::RootType<ucsl::resources::animation_state_machine::v103_miller::reflections::AsmData> refl{};
 #endif
 
-				std::ofstream ofs{ ImGuiFileDialog::Instance()->GetFilePathName(), std::ios::binary };
-				rip::binary::containers::binary_file::v2::BinaryFileSerializer<size_t> serializer{ ofs };
-				serializer.serialize<he2sdk::ucsl::GameInterface>(*exportData);
+				ucsl::reflection::accessors::binary<he2sdk::ucsl::GameInterface>::ValueConstAccessor<decltype(refl)> acc{ exportData, refl };
+
+				rip::models::BinaryFileV2<decltype(refl), he2sdk::ucsl::GameInterface::AllocatorSystem> model{ rip::binary::serializeBinaryToAllocatorSystemBuffer<he2sdk::ucsl::GameInterface::AllocatorSystem, size_t>(acc) };
+
+				std::ofstream ofs{ ImGuiFileDialog::Instance()->GetFilePathName(), std::ios::trunc | std::ios::binary };
+				rip::binary::fast_ostream fos{ ofs };
+				rip::binary::binary_ostream<rip::binary::fast_ostream, size_t> bos{ fos };
+
+				rip::serialization::binary<decltype(model)>::save(bos, model);
 			}
 			ImGuiFileDialog::Instance()->Close();
 		}

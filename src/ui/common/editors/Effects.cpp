@@ -7,14 +7,14 @@ bool Editor(const char* label, hh::eff::EffectHandle& handle) {
 	bool edited{};
 
 	if (ImGui::TreeNode(label)) {
-		Viewer("Cyan handle", handle.unk1);
+		Viewer("Cyan handle", handle.cyanEffectHandle.unk1);
 		Viewer("Name", handle.GetName());
 		
 		bool paused{ handle.IsPaused() };
 		bool visible{ handle.IsVisible() };
 
 		if (ImGui::Button("Stop")) {
-			handle.Stop();
+			handle.Stop(true);
 			edited |= true;
 		}
 

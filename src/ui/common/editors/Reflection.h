@@ -10,7 +10,7 @@ static bool Editor(const char* label, T& reflectionData, bool defaultOpen = fals
     return ReflectionEditor(label, &reflectionData, &RESOLVE_STATIC_VARIABLE(T::rflClass), defaultOpen);
 }
 
-bool ResettableReflectionEditor(const char* label, void* reflectionData, void* originalReflectionData, const hh::fnd::RflClass* rflClass);
+bool ResettableReflectionEditor(const char* label, void* reflectionData, const void* originalReflectionData, const hh::fnd::RflClass* rflClass);
 
 template<typename T, typename = decltype(T::rflClass)>
 static bool Editor(const char* label, T& reflectionData, T& originalReflectionData) {

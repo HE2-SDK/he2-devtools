@@ -61,15 +61,15 @@ void ResMirageLightEditor::RenderContents()
 	changed |= Editor("Position", lightParam.lightPosition);
 	changed |= Editor("Color", lightParam.color);
 	if (lightParam.lightType == ucsl::resources::light::v2::LightType::POINT) {
-		changed |= Editor("Shadows Enabled", lightParam.pointLightParam.shadowEnabled);
-		changed |= Editor("Attenuation Radius", lightParam.pointLightParam.attenuationRadius);
-		changed |= Editor("Radius", lightParam.pointLightParam.radius);
+		changed |= Editor("Shadows Enabled", lightParam.parameters.pointLightParam.shadowEnabled);
+		changed |= Editor("Attenuation Radius", lightParam.parameters.pointLightParam.attenuationRadius);
+		changed |= Editor("Radius", lightParam.parameters.pointLightParam.radius);
 	}
 	else if (lightParam.lightType == ucsl::resources::light::v2::LightType::SPOT) {
-		changed |= Editor("Shadows Enabled", lightParam.spotLightParam.shadowEnabled);
-		changed |= Editor("Attenuation Radius", lightParam.spotLightParam.attenuationRadius);
-		changed |= Editor("Inner Cone Angle", lightParam.spotLightParam.innerConeAngle);
-		changed |= Editor("Outer Cone Angle", lightParam.spotLightParam.outerConeAngle);
+		changed |= Editor("Shadows Enabled", lightParam.parameters.spotLightParam.shadowEnabled);
+		changed |= Editor("Attenuation Radius", lightParam.parameters.spotLightParam.attenuationRadius);
+		changed |= Editor("Inner Cone Angle", lightParam.parameters.spotLightParam.innerConeAngle);
+		changed |= Editor("Outer Cone Angle", lightParam.parameters.spotLightParam.outerConeAngle);
 	}
 
 	if (changed) {

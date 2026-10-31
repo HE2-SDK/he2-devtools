@@ -2,6 +2,7 @@
 #include "Common.h"
 #include <ucsl/resources/object-world/v2.h>
 #include <ucsl/resources/object-world/v3.h>
+#include <rip/serialization/rfl/any.h>
 
 namespace devtools::api::object_world {
 	struct ObjectWorldChunk {

@@ -3,7 +3,9 @@
 #include <ucsl-reflection/providers/rflclass.h>
 #include <rip/util/memory.h>
 #include <rip/util/object-id-guids.h>
-#include <rip/binary/serialization/JsonSerializer.h>
+#include <rip/binary/stream.h>
+#include <rip/binary/serialization2/json.h>
+#include <rip/binary/accessors/binary-stream.h>
 #include <rfl.hpp>
 #include <rfl/json.hpp>
 
@@ -84,8 +86,13 @@ namespace devtools::api {
 	inline rfl::Object<rfl::Generic> getRflClassSerialization(void* obj, const typename he2sdk::ucsl::GameInterface::RflSystem::RflClass* rflClass) {
 		yyjson_mut_doc* doc = yyjson_mut_doc_new(nullptr);
 
-		rip::binary::JsonSerializer serializer{ doc };
-		yyjson_mut_val* json = serializer.serialize(obj, ucsl::reflection::providers::rflclass<he2sdk::ucsl::GameInterface>::reflect(rflClass));
+		ucsl::reflection::providers::rflclass<he2sdk::ucsl::GameInterface>::RootType refl{ rflClass };
+
+		rip::binary::mem_istream mis{ obj };
+		rip::binary::binary_istream<decltype(mis), size_t> bis{ mis };
+		rip::binary::accessors::binary_istream<decltype(bis)>::ValueAccessor<decltype(refl)> acc { bis, refl };
+
+		yyjson_mut_val* json = rip::binary::serializeJson(doc, acc);
 
 		yyjson_mut_doc_set_root(doc, json);
 

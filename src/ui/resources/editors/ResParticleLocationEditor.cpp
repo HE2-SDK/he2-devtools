@@ -15,7 +15,7 @@ void ResParticleLocationEditor::RenderContents() {
 	auto* effdbData = static_cast<ucsl::resources::effdb::v100::EffdbData*>(resource->unpackedBinaryData);
 
 	if (Editor(*effdbData, resource)) {
-		resource->bindings.clear();
+		resource->emitterSets.clear();
 		resource->Load(effdbData, 0);
 	}
 }
