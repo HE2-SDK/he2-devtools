@@ -4,6 +4,7 @@
 #include <utilities/math/Ray.h>
 #include <utilities/math/Frustum.h>
 #include <utilities/BoundingBoxes.h>
+#include <utilities/NameHash.h>
 #include <ui/Desktop.h>
 #include <ui/operation-modes/OperationMode.h>
 #include <ui/operation-modes/behaviors/ForwardDeclarations.h>
@@ -72,7 +73,10 @@ namespace ui::operation_modes::modes::pointcloud_editor {
 		bool IsRoot(InstanceData* obj) { return true; }
 		InstanceData* GetParent(InstanceData* obj) { return nullptr; }
 		Eigen::Affine3f GetSelectionSpaceTransform(InstanceData* obj) const { return GetInstanceTransform(*obj); }
-		void SetSelectionSpaceTransform(InstanceData* obj, const Eigen::Affine3f& transform) { UpdateInstanceTransform(*obj, transform); }
+		void SetSelectionSpaceTransform(InstanceData* obj, const Eigen::Affine3f& transform) { 
+			UpdateInstanceTransform(*obj, transform);
+			context.TransformUpdate(*obj, transform);
+		}
 	};
 
 	template<> struct SelectionAabbBehaviorTraits<Context> : BehaviorTraitsImpl<Context> {
@@ -83,8 +87,26 @@ namespace ui::operation_modes::modes::pointcloud_editor {
 			if (objects.size() == 0)
 				return false;
 
-			for (auto* instance : objects)
-				aabb.AddPoint(instance->position);
+			// TODO: Split this off, possibly via making child classes of this editor
+			if (context.pcType == app::gfx::ResPointcloudModel::GetTypeInfo()) {
+				if (auto* terrainGround = hh::game::GameManager::GetInstance()->GetGameObject("TerrainGround")) {
+					for (auto* instance : objects) {
+						char name[0x80];
+						snprintf(name, sizeof(name), "%s.%p", instance->name, context.resource);
+						if (auto* gocVisualModel = terrainGround->GetComponent<hh::gfx::GOCVisualModel>(name_hash(name)))
+							AddAabb(aabb, gocVisualModel->transformedAabb);
+						else {
+							snprintf(name, sizeof(name), "%s.%p", instance->resourceName, context.resource);
+							if (auto* gocVisualModel = terrainGround->GetComponent<hh::gfx::GOCVisualModel>(name_hash(name)))
+								AddAabb(aabb, gocVisualModel->transformedAabb);
+						}
+					}
+				}
+			}
+			else {
+				for (auto* instance : objects)
+					aabb.AddPoint(instance->position);
+			}
 
 			return true;
 		}

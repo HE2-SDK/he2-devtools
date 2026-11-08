@@ -1,11 +1,9 @@
 #pragma once
 #include <ui/operation-modes/OperationMode.h>
 #include "Context.h"
-#include <ui/operation-modes/behaviors/Selection.h>
-#include <ui/operation-modes/behaviors/SelectionTransformation.h>
-#include <ui/operation-modes/behaviors/Gizmo.h>
-#include <ui/operation-modes/behaviors/Delete.h>
+#include <ui/operation-modes/behaviors/ForwardDeclarations.h>
 #include "DvNode.h"
+#include <utilities/BoundingBoxes.h>
 
 namespace ui::operation_modes::modes::dvscene_editor {
     template<> struct SelectionBehaviorTraits<Context> {
@@ -14,7 +12,23 @@ namespace ui::operation_modes::modes::dvscene_editor {
 
 	template<> struct SelectionAabbBehaviorTraits<Context> : BehaviorTraitsImpl<Context> {
 		using BehaviorTraitsImpl::BehaviorTraitsImpl;
-		bool CalculateAabb(const csl::ut::MoveArray<DvNode>& objects, csl::geom::Aabb& aabb) { return false; }
+		bool CalculateAabb(const csl::ut::MoveArray<DvNode>& objects, csl::geom::Aabb& aabb) 
+		{
+			aabb = csl::geom::Aabb{ { INFINITY, INFINITY, INFINITY }, { -INFINITY, -INFINITY, -INFINITY } };
+			bool edited{ false };
+			for (auto& node : objects) {
+				if (node.node->nodeType == hh::dv::DvNodeBase::NodeType::CHARACTER ||
+					node.node->nodeType == hh::dv::DvNodeBase::NodeType::MODEL)
+				{
+					auto* modelNode = static_cast<hh::dv::DvNodeBaseAnimationModel*>(node.node);
+					if (auto* gocVisual = modelNode->GetDvSceneObject()->dvStandardChar->GetComponent<hh::gfx::GOCVisualModel>()) {
+						edited |= true;
+						AddAabb(aabb, gocVisual->transformedAabb);
+					}
+				}
+			}
+			return edited; 
+		}
 	};
 
 	template<> struct SelectionTransformationBehaviorTraits<Context> : BehaviorTraitsImpl<Context> {
@@ -44,3 +58,10 @@ namespace ui::operation_modes::modes::dvscene_editor {
 		}
 	};
 }
+
+#include <ui/operation-modes/behaviors/Selection.h>
+#include <ui/operation-modes/behaviors/SelectionAabb.h>
+#include <ui/operation-modes/behaviors/SelectionTransformation.h>
+#include <ui/operation-modes/behaviors/SelectionVisual.h>
+#include <ui/operation-modes/behaviors/Gizmo.h>
+#include <ui/operation-modes/behaviors/Delete.h>

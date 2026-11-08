@@ -196,7 +196,9 @@ bool Editor(const char* label, app::level::PlayerInformation& playerInfo)
 	//uint32_t dword3D4;
 	//uint32_t dword3D8;
 	//if (playerInfo->unk13241.isSet) Editor("unk13241", playerInfo->unk13241.value);
+#ifndef DEVTOOLS_TARGET_SDK_rangers
 	edited |= Editor("vector4480", playerInfo.vector4480);
+#endif
 	//if (playerInfo->qword4A0.isSet) Editor("qword4A0", playerInfo->qword4A0.value);
 	edited |= Editor("dword4AC", playerInfo.dword4AC);
 	edited |= Editor("word4B4", playerInfo.word4B4);

@@ -85,7 +85,7 @@ namespace ui::operation_modes::modes::surfride_editor {
 
 		ImGui::SeparatorText("Layer");
 		ImGui::Text("ID: %d", layer.id);
-		ImGui::Text("Name: %s", layer.name);
+		InputText("Name", layer.name, GetContext().projectResource);
 
 		if (ImGui::BeginCombo("Current animation", layer.animations[layer.currentAnimationIndex].name)) {
 			for (int i = 0; i < layer.animationCount; i++) {

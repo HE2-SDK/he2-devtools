@@ -18,7 +18,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
         {},
         {sizeof(DvNodeModelMotion), sizeof(DvNodeModelMotion::Description)},
         {sizeof(DvNodeModelNode), sizeof(DvNodeModelNode::Description)},
-        {sizeof(DvNodeElement), sizeof(DvNodeElement::Description<DvElementBase::Description>)}
+        {sizeof(DvNodeElement), sizeof(DvNodeElement::DescriptionBase)}
     };
 
 #ifdef DEVTOOLS_TARGET_SDK_rangers

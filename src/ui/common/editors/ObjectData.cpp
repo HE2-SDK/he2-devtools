@@ -18,6 +18,9 @@ ucsl::resources::object_world::v3::ComponentData* CreateComponentData(csl::fnd::
 }
 #endif
 
+// This could be turned into a universal struct, or simply replaced by the OS clipboard.
+static std::optional<hh::game::ObjectTransformData> clipboardObjTransform{};
+
 bool Editor(const char* label, hh::game::ObjectTransformData& obj)
 {
 	bool edited{};
@@ -26,18 +29,30 @@ bool Editor(const char* label, hh::game::ObjectTransformData& obj)
 	edited |= Editor("Position", obj.position);
 	edited |= EulerEditor("Rotation", obj.rotation);
 	ImGui::EndGroup();
+	if (ImGui::BeginPopupContextItem("Transform Menu")) {
+		if (ImGui::MenuItem("Copy"))
+			clipboardObjTransform = obj;
+
+		if (edited |= ImGui::MenuItem("Paste", nullptr, false, clipboardObjTransform.has_value()))
+			obj = clipboardObjTransform.value();
+
+		ImGui::EndPopup();
+	}
 	ImGui::PopID();
 	return edited;
 }
 
-bool Editor(const char* label, hh::game::ObjectData& obj)
+bool Editor(const char* label, hh::game::ObjectData& obj, hh::game::ResObjectWorld* objectWorld)
 {
 	bool edited{};
 	auto* objSystem = GameObjectSystem::GetInstance();
 
 	Viewer("Id", obj.id);
 #ifdef DEVTOOLS_TARGET_SDK_wars
-	Viewer("Name", obj.name);
+	if (objectWorld)
+		edited |= InputText("Name", obj.name, objectWorld);
+	else
+		Viewer("Name", obj.name);
 #else
 	edited |= Editor("Name", obj.name);
 #endif

@@ -33,7 +33,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 				reinterpret_cast<hh::dv::DvNodeElement*>(node)->element->RemoveCallback();
 				ctx->DeallocateNode(node);
 			}
-			if(auto* y = node->parent){
+			if(auto* y = &*node->parent){
 				y->childrenElements0.remove(y->childrenElements0.find(node));
 				y->childrenElements1.remove(y->childrenElements1.find(node));
 				y->childrenElements2.remove(y->childrenElements2.find(node));

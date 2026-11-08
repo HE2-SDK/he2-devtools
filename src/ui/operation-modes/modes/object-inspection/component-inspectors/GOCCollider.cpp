@@ -72,3 +72,17 @@ void RenderComponentInspector(hh::physics::GOCCylinderCollider& component)
 	ImGui::Text("Height: %f", component.halfHeight);
 	RenderComponentInspector(static_cast<hh::physics::GOCCollider&>(component));
 }
+
+void RenderComponentInspector(hh::physics::GOCMeshCollider& component)
+{
+	ImGui::SeparatorText("Parameters");
+	ImGui::Text("Resource name: %s", component.meshResource->GetName());
+	RenderComponentInspector(static_cast<hh::physics::GOCCollider&>(component));
+}
+
+void RenderComponentInspector(hh::physics::GOCHeightFieldCollider& component)
+{
+	ImGui::SeparatorText("Parameters");
+	ImGui::Text("Resource name: %s", component.resource->GetName());
+	RenderComponentInspector(static_cast<hh::physics::GOCCollider&>(component));
+}

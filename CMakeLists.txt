@@ -14,7 +14,9 @@ option(DEVTOOLS_INSTALL_TO_GAME_FOLDER "Install to game folder" ON)
 option(DEVTOOLS_INSTALL_TO_UPDATE_SERVER "Install to update server" OFF)
 set(DEVTOOLS_UPDATE_SERVER_PATH "" CACHE PATH "Path to update server")
 
-set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
+endif()
 
 # set(BOOST_INCLUDE_LIBRARIES )
 set(BOOST_ENABLE_CMAKE ON)
@@ -110,6 +112,8 @@ foreach(DEVTOOLS_TARGET_SDK rangers)
         rip-hl
         uwebsockets
         DiEventLib
+        Recast
+        Detour
 
         # devtools doesn't use Boost, but it does use CGAL, which has a CMakeLists.txt utterly incompatible with FetchContent and depends on Boost
         Boost::config
@@ -123,7 +127,11 @@ foreach(DEVTOOLS_TARGET_SDK rangers)
         Boost::property_map
     )
     target_compile_features(${DEVTOOLS_TARGET} PRIVATE cxx_std_20)
-    target_compile_options(${DEVTOOLS_TARGET} PRIVATE /permissive- /W4 /wd4100 /wd4458 /wd4324)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        target_compile_options(${DEVTOOLS_TARGET} PRIVATE /permissive- /W4 /wd4100 /wd4458 /wd4324)
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        target_compile_options(${DEVTOOLS_TARGET} PRIVATE /clang:-ftemplate-backtrace-limit=0 /clang:-fno-rtti)
+    endif()
     target_compile_definitions(${DEVTOOLS_TARGET}
         PRIVATE
             DEVTOOLS_BINARY_FILENAME=$<TARGET_FILE_NAME:${DEVTOOLS_TARGET}>

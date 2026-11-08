@@ -70,8 +70,10 @@ namespace ui::operation_modes::modes::pointcloud_editor {
 			ImGuiFileDialog::Instance()->OpenDialog("ResPointcloudExportDialog", "Choose File", ".pointcloud", cfg);
 		}
 
+#ifndef DEVTOOLS_TARGET_SDK_miller
 		if (ImGui::Button("Reload"))
 			ReloadManager::instance->ReloadSync(context.resource);
+#endif
 
 		if (ImGuiFileDialog::Instance()->Display("ResPointcloudExportDialog", ImGuiWindowFlags_NoCollapse, ImVec2(800, 500))) {
 			if (ImGuiFileDialog::Instance()->IsOk()) {

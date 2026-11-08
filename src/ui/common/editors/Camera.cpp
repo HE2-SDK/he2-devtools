@@ -8,7 +8,11 @@ bool Editor(const char* label, CameraParameter::Orientation::Target& target) {
     ImGui::PushID(label);
     
 	edited |= Editor("Up Vector", target.upVector);
-	edited |= Editor("Unk8b", target.unk8b);
+#ifdef DEVTOOLS_TARGET_SDK_rangers
+	edited |= Editor("Z Rot", target.zRot);
+#else
+    edited |= Editor("Unk8b", target.unk8b);
+#endif
 
     ImGui::PopID();
     return edited;

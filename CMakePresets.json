@@ -65,6 +65,61 @@
         "DEVTOOLS_ENABLE_IMGUI_DEMO_WINDOW": false,
         "DEVTOOLS_ENABLE_IMPLOT_DEMO_WINDOW": false
       }
+    },
+    {
+      "name": "x64-debug-clang",
+      "displayName": "x64 Debug (Clang)",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment and the Clang compiler. (Debug)",
+      "inherits": "windows-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "clang-cl.exe",
+        "DEVTOOLS_ENABLE_IMGUI_DEMO_WINDOW": false,
+        "DEVTOOLS_ENABLE_IMPLOT_DEMO_WINDOW": false
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-clang-x64"
+        }
+      }
+    },
+    {
+      "name": "x64-debug-with-demo-clang",
+      "displayName": "x64 Debug ImGui Demo (Clang)",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment and the Clang compiler and enable the ImGui demo window. (Debug)",
+      "inherits": "x64-debug-clang",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "DEVTOOLS_ENABLE_IMGUI_DEMO_WINDOW": true,
+        "DEVTOOLS_ENABLE_IMPLOT_DEMO_WINDOW": true
+      }
+    },
+    {
+      "name": "x64-release-clang",
+      "displayName": "x64 Release (Clang)",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment and the Clang compiler. (Release)",
+      "inherits": "x64-debug-clang",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "DEVTOOLS_ENABLE_IMGUI_DEMO_WINDOW": false,
+        "DEVTOOLS_ENABLE_IMPLOT_DEMO_WINDOW": false
+      }
+    },
+    {
+      "name": "x64-relwithdebinfo-clang",
+      "displayName": "x64 RelWithDebInfo (Clang)",
+      "description": "Target Windows (64-bit) with the Visual Studio development environment and the Clang compiler. (RelWithDebInfo)",
+      "inherits": "x64-debug-clang",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "DEVTOOLS_ENABLE_IMGUI_DEMO_WINDOW": false,
+        "DEVTOOLS_ENABLE_IMPLOT_DEMO_WINDOW": false
+      }
     }
   ],
   "buildPresets": [

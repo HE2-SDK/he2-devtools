@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.28)
 project(imbrowser LANGUAGES CXX)
 
-set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
+if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>")
+endif()
 
 add_library(imbrowser STATIC)
 target_compile_features(imbrowser PRIVATE cxx_std_20)

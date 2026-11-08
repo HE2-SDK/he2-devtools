@@ -38,7 +38,13 @@ namespace ui::operation_modes::modes::level_editor {
 		}
 		else {
 			auto focusedObject = selection[0];
+			// This can get imperformant at larger scales, when selecting the last object of the last layer, but it works for now.
+			// Best solution would be to set the object type of the Selection behavior to a custom struct, which would have a member for the parent layer.
+#ifdef DEVTOOLS_TARGET_SDK_wars
+			bool edited = Editor("Focused object", *focusedObject, GetContext().GetParentLayer(focusedObject)->GetResource());
+#else
 			bool edited = Editor("Focused object", *focusedObject);
+#endif
 
 			if (edited || ImGui::IsItemDeactivatedAfterEdit()) {
 				Dispatch(SelectionTransformationBehavior<Context>::SelectionTransformChangedAction{});
