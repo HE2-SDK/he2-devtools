@@ -17,6 +17,7 @@ ResReflectionEditor::ResReflectionEditor(csl::fnd::IAllocator* allocator, ResRef
 	char namebuf[500];
 	snprintf(namebuf, sizeof(namebuf), "%s - %s @ 0x%zx (file mapped @ 0x%zx) - using RflClass %s", resource->GetName(), resource->GetClass().pName, (size_t)resource, (size_t)resource->GetData(), rflClass->GetName());
 	SetTitle(namebuf);
+	MakeOriginalCopy();
 }
 
 ResReflectionEditor::ResReflectionEditor(csl::fnd::IAllocator* allocator, ResReflection* resource) : StandaloneWindow{ allocator }, forcedRflClass{ false }, resource{ resource }, rflClass{ nullptr }, diffResult{allocator} {
