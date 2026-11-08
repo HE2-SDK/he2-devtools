@@ -144,10 +144,7 @@ bool Editor(const char* label, hh::needle::SupportFX::FxRenderParam& renderParam
 	if (ImGui::TreeNode(label)) {
 		edited |= Editor("Viewports", renderParam.viewports);
 		edited |= Editor("Viewport count", renderParam.numViewports);
-		edited |= Editor("unk32", renderParam.unk32);
-		edited |= Editor("unk33", renderParam.unk33);
-		edited |= Editor("unk34", renderParam.unk34);
-		edited |= Editor("unk35", renderParam.unk35);
+		//edited |= Editor("Clear Color", renderParam.clearColor);
 		ImGui::TreePop();
 	}
 	return edited;

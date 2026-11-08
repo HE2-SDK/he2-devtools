@@ -19,7 +19,7 @@ bool Editor(const char* label, hh::gfnd::RenderManagerBase::SetupInfo& setupInfo
 	edited |= Editor("unk6", setupInfo.unk6);
 	edited |= Editor("unk7", setupInfo.unk7);
 	edited |= Editor("unk8", setupInfo.unk8);
-	edited |= Editor("unk9", setupInfo.unk9);
+	//Viewer("renderDocDLL", setupInfo.renderDocDLLFilepath);
 
 	return edited;
 }
