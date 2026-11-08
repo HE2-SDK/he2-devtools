@@ -115,10 +115,9 @@ void ResReflectionEditor::RenderContents() {
 			ImGui::EndCombo();
 		}
 
-		ImGui::InputText("Search", searchStr, 200);
-	}
-	else
-		ImGui::InputText("Search", searchStr, 200);
+		    }
+
+  ImGui::InputText("Search", searchStr, 200);
 
 	if (rflClass != nullptr) {
 		ImGuiTextFilter filter{};
