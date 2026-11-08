@@ -300,10 +300,10 @@ MemoryInspector::MemoryInspector(IAllocator* allocator) : StandaloneWindow{ allo
 		heapInspectors.push_back(new (allocator) HeapInspector{ allocator, this, heap.second });
 	for (auto& heap : lh->heaps2)
 		heapInspectors.push_back(new (allocator) HeapInspector{ allocator, this, heap.second });
-#endif
-#ifdef DEVTOOLS_TARGET_SDK_rangers
+#else
 	for (auto& heap : lh->heaps)
 		heapInspectors.push_back(new (allocator) HeapInspector{ allocator, this, heap.second });
+	heapInspectors.push_back(new (allocator) HeapInspector{ allocator, this, lh->memoryRouter->moduleAllocator->heap });
 #endif
 
 	SetTitle("Memory Inspector");
@@ -361,6 +361,7 @@ void MemoryInspector::RenderContents()
 		}
 #endif
 
+#ifndef DEVTOOLS_TARGET_SDK_miller
 		if (ImGui::BeginTabItem("Free memory")) {
 			char totalHeader[20]{};
 			char freeHeader[20]{};
@@ -387,6 +388,7 @@ void MemoryInspector::RenderContents()
 			}
 			ImGui::EndTabItem();
 		}
+#endif
 
 		if (ImGui::BeginTabItem("Allocation maps")) {
 			if (ImGui::BeginTable("Heap inspectors", 2, ImGuiTableFlags_BordersV | ImGuiTableFlags_BordersOuterH | ImGuiTableFlags_NoBordersInBody | ImGuiTableFlags_Resizable | ImGuiTableFlags_RowBg | ImGuiTableFlags_ScrollX)) {

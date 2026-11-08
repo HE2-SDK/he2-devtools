@@ -126,6 +126,7 @@ enum class IconId {
     COMPONENT_PATH,
     COMPONENT_POSTURE,
     COMPONENT_ENEMY,
+    REORDERABLE,
 };
 
 constexpr IconMap icons[] = {
@@ -178,6 +179,7 @@ constexpr IconMap icons[] = {
     { u'\uE047', "components/path" },
     { u'\uE048', "components/posture" },
     { u'\uE049', "components/enemy" },
+    { u'\uE050', "reorderable" },
 };
 
 void RegisterIconGlyphs(ImFont* font);

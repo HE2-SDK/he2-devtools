@@ -21,7 +21,7 @@ namespace ui::operation_modes::modes::asm_editor {
 		case PinType::BLEND_SPACE: return { 0.651f, 0.325f, 0.0f, 1.0f };
 		//case PinType::FLAG: return { 0.545f, 0.0f, 0.1f, 1.0f };
 		//case PinType::FLAG: return { 0.847f, 0.788f, 0.608f, 1.0f };
-		case PinType::FLAG: return { 1.0, 0.49, 0.0, 1.0f };
+		case PinType::FLAG: return { 1.0f, 0.49f, 0.0f, 1.0f };
 		default: assert(false); return { 0.0f, 0.0f, 0.0f, 0.0f }; break;
 		}
 	}
@@ -81,7 +81,15 @@ namespace ui::operation_modes::modes::asm_editor {
 		}
 	}
 
-	NodeEditor::NodeEditor(csl::fnd::IAllocator* allocator, hh::anim::ResAnimator& resource, hh::anim::GOCAnimator* gocAnimator) : CompatibleObject{ allocator }, resource{ resource }, nodeEditor { allocator }, asmData{ *resource.binaryData }, gocAnimator{ gocAnimator } {}
+	NodeEditor::NodeEditor(csl::fnd::IAllocator* allocator, ASMInterface& asmInterface) : CompatibleObject{ allocator }, asmInterface{ asmInterface }, nodeEditor{ allocator } {}
+
+	void NodeEditor::BeginContext() {
+		nodeEditor.BeginContext();
+	}
+
+	void NodeEditor::EndContext() {
+		nodeEditor.EndContext();
+	}
 
 	void NodeEditor::Begin() {
 		ImPlot::PushColormap(ImPlotColormap_Deep);
@@ -98,93 +106,158 @@ namespace ui::operation_modes::modes::asm_editor {
 		nodeEditor.RunAutoLayout();
 	}
 
-	void NodeEditor::State(short stateId) {
-		auto& state = asmData.states[stateId];
-		auto color = CalculateActiveStateColor(stateId);
-		auto progress = CalculateActiveStateProgress(stateId);
-		NodeId nodeId{ NodeType::STATE, stateId };
+	void NodeEditor::State(short stateIdx) {
+		auto& state = asmInterface.asmData.states[stateIdx];
+		auto color = CalculateActiveStateColor(stateIdx);
+		auto progress = CalculateActiveStateProgress(stateIdx);
+		NodeId nodeId{ NodeType::STATE, asmInterface.stateRegistry.GetId(stateIdx) };
 
 		float maxTextWidth = 0.0f;
 		for (unsigned short j = 0; j < state.eventCount; j++) {
-			auto& event = asmData.events[state.eventOffset + j];
+			auto& event = asmInterface.asmData.events[state.eventOffset + j];
 			maxTextWidth = std::fmaxf(maxTextWidth, ImGui::CalcTextSize(event.name).x);
 		}
 
 		ax::NodeEditor::PushStyleColor(ax::NodeEditor::StyleColor_NodeBorder, color);
 
-		nodeEditor.BeginNode(nodeId, maxTextWidth);
+		BeginNode(nodeId, nullptr, maxTextWidth, false);
 
 		nodeEditor.BeginInputPins();
 		InputPin({ nodeId, PinType::DEFAULT_TRANSITION, 0 });
-		InputPin({ nodeId, PinType::CLIP, 0 });
-		BeginInputPin({ nodeId, PinType::VARIABLE, 0 });
-		Editor("Speed", state.speed);
-		EndInputPin();
 		nodeEditor.EndInputPins();
 
-		nodeEditor.BeginControls();
-		ImGui::ProgressBar(progress, { ImGui::CalcTextSize(state.name).x + 10.0f * ImGui::GetFontSize() / 14.0f, 0.0f }, state.name);
-		Editor("Loop count", state.maxCycles);
-		CheckboxFlags("Loop", state.flags, StateData::Flag::LOOPS);
-		CheckboxFlags("Unknown 1", state.flags, StateData::Flag::UNK1);
-		CheckboxFlags("Use PBA", state.flags, StateData::Flag::USE_PBA);
+		if (BeginControls()) {
+			ImGui::ProgressBar(progress, { ImGui::CalcTextSize(state.name).x + 10.0f * ImGui::GetFontSize() / 14.0f, 0.0f }, state.name);
+			Editor("Loop count", state.maxCycles);
+			CheckboxFlags("Loop", state.flags, StateData::Flag::LOOPS);
+			CheckboxFlags("Unknown 1", state.flags, StateData::Flag::UNK1);
+			CheckboxFlags("Use PBA", state.flags, StateData::Flag::USE_PBA);
 
 #ifdef DEVTOOLS_TARGET_SDK_miller
-		CheckboxFlags("Use PBA blend factor", state.flags, StateData::Flag::USE_PBA_BLEND_FACTOR);
+			CheckboxFlags("Use PBA blend factor", state.flags, StateData::Flag::USE_PBA_BLEND_FACTOR);
 
-		float zero = 0.0f;
-		float one = 1.0f;
-		if (state.flags.test(StateData::Flag::USE_PBA_BLEND_FACTOR))
-			SliderScalar("PBA blend factor", state.pbaBlendFactor, &zero, &one);
+			float zero = 0.0f;
+			float one = 1.0f;
+			if (state.flags.test(StateData::Flag::USE_PBA_BLEND_FACTOR))
+				SliderScalar("PBA blend factor", state.pbaBlendFactor, &zero, &one);
 #endif
-		nodeEditor.EndControls();
+		}
+		else {
+			ImGui::ProgressBar(progress, { ImGui::CalcTextSize(state.name).x + 10.0f * ImGui::GetFontSize() / 14.0f, 0.0f }, state.name);
+		}
+		EndControls();
 
 		nodeEditor.BeginOutputPins();
 		OutputPin({ nodeId, PinType::DEFAULT_TRANSITION, 0 });
 		OutputPin({ nodeId, PinType::TRANSITION, 0 });
 		for (unsigned short j = 0; j < state.eventCount; j++)
-			OutputPin({ nodeId, PinType::EVENT, j }, asmData.events[state.eventOffset + j].name);
+			OutputPin({ nodeId, PinType::EVENT, j }, asmInterface.asmData.events[state.eventOffset + j].name);
+		nodeEditor.EndOutputPins();
+
+		EndNode();
+
+		ax::NodeEditor::PopStyleColor();
+	}
+
+	static const char* stateTypeNames[]{ "NULL", "CLIP", "BLEND_TREE", "NONE" };
+	void NodeEditor::BlendTreeState(short stateIdx)
+	{
+		auto& state = asmInterface.asmData.states[stateIdx];
+		auto color = CalculateActiveStateColor(stateIdx);
+		auto progress = CalculateActiveStateProgress(stateIdx);
+		NodeId nodeId{ NodeType::STATE, asmInterface.stateRegistry.GetId(stateIdx) };
+
+		ax::NodeEditor::PushStyleColor(ax::NodeEditor::StyleColor_NodeBorder, color);
+
+		BeginNode(nodeId, "State", 0.0f, false);
+
+		nodeEditor.BeginInputPins();
+		if (state.type == StateType::CLIP)
+			InputPin({ nodeId, PinType::CLIP, 0 });
+		else if (state.type == StateType::BLEND_TREE)
+			InputPin({ nodeId, PinType::BLEND_NODE, 0 });
+		if (BeginInputPin({ nodeId, PinType::VARIABLE, 0 })) {
+			Editor("Speed", state.speed);
+			EndInputPin();
+		}
+		nodeEditor.EndInputPins();
+
+		if (BeginControls()) {
+			ImGui::ProgressBar(progress, { ImGui::CalcTextSize(state.name).x + 10.0f * ImGui::GetFontSize() / 14.0f, 0.0f }, state.name);
+			if (ImGui::BeginCombo("Type", stateTypeNames[static_cast<char>(state.type) + 1])) {
+				for (char i = 0; i < 4; i++) {
+					if (ImGui::Selectable(stateTypeNames[i], static_cast<char>(state.type) == i - 1)) {
+						state.type = static_cast<StateType>(i - 1);
+						state.rootBlendNodeOrClipIndex = -1;
+					}
+
+					if (static_cast<char>(state.type) == i - 1)
+						ImGui::SetItemDefaultFocus();
+				}
+
+				ImGui::EndCombo();
+			}
+			Editor("Loop count", state.maxCycles);
+			CheckboxFlags("Loop", state.flags, StateData::Flag::LOOPS);
+			CheckboxFlags("Unknown 1", state.flags, StateData::Flag::UNK1);
+			CheckboxFlags("Use PBA", state.flags, StateData::Flag::USE_PBA);
+
+#ifdef DEVTOOLS_TARGET_SDK_miller
+			CheckboxFlags("Use PBA blend factor", state.flags, StateData::Flag::USE_PBA_BLEND_FACTOR);
+
+			float zero = 0.0f;
+			float one = 1.0f;
+			if (state.flags.test(StateData::Flag::USE_PBA_BLEND_FACTOR))
+				SliderScalar("PBA blend factor", state.pbaBlendFactor, &zero, &one);
+#endif
+		}
+		else {
+			ImGui::ProgressBar(progress, { ImGui::CalcTextSize(state.name).x + 10.0f * ImGui::GetFontSize() / 14.0f, 0.0f }, state.name);
+		}
+		EndControls();
+
+		nodeEditor.BeginOutputPins();
 		OutputPin({ nodeId, PinType::FLAG, 0 });
 		nodeEditor.EndOutputPins();
 
-		nodeEditor.EndNode();
+		EndNode();
 
 		ax::NodeEditor::PopStyleColor();
 	}
 
 	void NodeEditor::StateTransition(short prevStateId, short nextStateId)
 	{
-		Link({ { NodeType::STATE, prevStateId }, PinType::TRANSITION, 0 }, { { NodeType::STATE, nextStateId }, PinType::DEFAULT_TRANSITION, 0 });
+		Link({ { NodeType::STATE, asmInterface.stateRegistry.GetId(prevStateId) }, PinType::TRANSITION, 0 }, { { NodeType::STATE, asmInterface.stateRegistry.GetId(nextStateId) }, PinType::DEFAULT_TRANSITION, 0 });
 	}
 
 	void NodeEditor::StateDefaultTransition(short prevStateId, short nextStateId)
 	{
-		LinkWithLayout({ { NodeType::STATE, prevStateId }, PinType::DEFAULT_TRANSITION, 0 }, { { NodeType::STATE, nextStateId }, PinType::DEFAULT_TRANSITION, 0 });
+		LinkWithLayout({ { NodeType::STATE, asmInterface.stateRegistry.GetId(prevStateId) }, PinType::DEFAULT_TRANSITION, 0 }, { { NodeType::STATE, asmInterface.stateRegistry.GetId(nextStateId) }, PinType::DEFAULT_TRANSITION, 0 });
 	}
 
 	void NodeEditor::StateEventTransition(short prevStateId, short nextStateId, unsigned short idx)
 	{
-		LinkWithLayout({ { NodeType::STATE, prevStateId }, PinType::EVENT, idx }, { { NodeType::STATE, nextStateId }, PinType::DEFAULT_TRANSITION, 0 });
+		LinkWithLayout({ { NodeType::STATE, asmInterface.stateRegistry.GetId(prevStateId) }, PinType::EVENT, idx }, { { NodeType::STATE, asmInterface.stateRegistry.GetId(nextStateId) }, PinType::DEFAULT_TRANSITION, 0 });
 	}
 
 	void NodeEditor::StateTransitionFlow(short prevStateId, short nextStateId)
 	{
-		Flow({ { NodeType::STATE, prevStateId }, PinType::TRANSITION, 0 }, { { NodeType::STATE, nextStateId }, PinType::DEFAULT_TRANSITION, 0 });
+		Flow({ { NodeType::STATE, asmInterface.stateRegistry.GetId(prevStateId) }, PinType::TRANSITION, 0 }, { { NodeType::STATE, asmInterface.stateRegistry.GetId(nextStateId) }, PinType::DEFAULT_TRANSITION, 0 });
 	}
 
 	void NodeEditor::StateDefaultTransitionFlow(short prevStateId, short nextStateId)
 	{
-		Flow({ { NodeType::STATE, prevStateId }, PinType::DEFAULT_TRANSITION, 0 }, { { NodeType::STATE, nextStateId }, PinType::DEFAULT_TRANSITION, 0 });
+		Flow({ { NodeType::STATE, asmInterface.stateRegistry.GetId(prevStateId) }, PinType::DEFAULT_TRANSITION, 0 }, { { NodeType::STATE, asmInterface.stateRegistry.GetId(nextStateId) }, PinType::DEFAULT_TRANSITION, 0 });
 	}
 
 	void NodeEditor::StateEventTransitionFlow(short prevStateId, short nextStateId, unsigned short idx)
 	{
-		Flow({ { NodeType::STATE, prevStateId }, PinType::EVENT, idx }, { { NodeType::STATE, nextStateId }, PinType::DEFAULT_TRANSITION, 0 });
+		Flow({ { NodeType::STATE, asmInterface.stateRegistry.GetId(prevStateId) }, PinType::EVENT, idx }, { { NodeType::STATE, asmInterface.stateRegistry.GetId(nextStateId) }, PinType::DEFAULT_TRANSITION, 0 });
 	}
 
 	void NodeEditor::StateTransitionFlowAuto(short prevStateId, short nextStateId)
 	{
-		auto& state = asmData.states[prevStateId];
+		auto& state = asmInterface.GetState(prevStateId);
 
 		if (state.stateEndTransition.transitionInfo.targetStateIndex == nextStateId) {
 			StateDefaultTransitionFlow(prevStateId, nextStateId);
@@ -192,7 +265,7 @@ namespace ui::operation_modes::modes::asm_editor {
 		}
 
 		for (unsigned short j = 0; j < state.eventCount; j++) {
-			auto& event = asmData.events[state.eventOffset + j];
+			auto& event = asmInterface.asmData.events[state.eventOffset + j];
 
 			if (event.transition.transitionInfo.targetStateIndex == nextStateId) {
 				StateEventTransitionFlow(prevStateId, nextStateId, j);
@@ -210,184 +283,185 @@ namespace ui::operation_modes::modes::asm_editor {
 	{
 		for (auto l : GetActiveLayers()) {
 			if (l.prevState && l.nextState && l.prevState != l.nextState) {
-				short prevId = static_cast<short>(l.prevState->stateData - asmData.states);
-				short nextId = static_cast<short>(l.nextState->stateData - asmData.states);
+				short prevIdx = static_cast<short>(l.prevState->stateData - asmInterface.asmData.states);
+				short nextIdx = static_cast<short>(l.nextState->stateData - asmInterface.asmData.states);
 
-				StateTransitionFlowAuto(prevId, nextId);
+				StateTransitionFlowAuto(prevIdx, nextIdx);
 			}
 		}
 	}
 
 	void NodeEditor::StateClip(short clipId, short stateId)
 	{
-		LinkWithLayout({ { NodeType::CLIP, clipId }, PinType::CLIP, 0 }, { { NodeType::STATE, stateId }, PinType::CLIP, 0 });
+		LinkWithLayout({ { NodeType::CLIP, asmInterface.clipRegistry.GetId(clipId) }, PinType::CLIP, 0 }, { { NodeType::STATE, asmInterface.stateRegistry.GetId(stateId) }, PinType::CLIP, 0 });
 	}
 
 	void NodeEditor::StateBlendNode(short blendNodeId, short stateId)
 	{
-		LinkWithLayout({ { NodeType::BLEND_NODE, blendNodeId }, PinType::BLEND_NODE, 0 }, { { NodeType::STATE, stateId }, PinType::CLIP, 0 });
+		LinkWithLayout({ { NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeId) }, PinType::BLEND_NODE, 0 }, { { NodeType::STATE, asmInterface.stateRegistry.GetId(stateId) }, PinType::BLEND_NODE, 0 });
 	}
 
-	void NodeEditor::Variable(short variableId)
+	void NodeEditor::Variable(short variableIdx)
 	{
-		NodeId nodeId{ NodeType::VARIABLE, variableId };
+		NodeId nodeId{ NodeType::VARIABLE, asmInterface.variableRegistry.GetId(variableIdx) };
 
-		nodeEditor.BeginNode(nodeId, 10.0f * ImGui::GetFontSize() / 14.0f);
-
-		nodeEditor.BeginTitle();
-		ImGui::Text("Variable");
-		nodeEditor.EndTitle();
+		BeginNode(nodeId, "Variable", 10.0f * ImGui::GetFontSize() / 14.0f);
 
 		nodeEditor.BeginInputPins();
 		nodeEditor.EndInputPins();
 
-		nodeEditor.BeginControls();
-		Viewer("Name", asmData.variables[variableId]);
-		if (gocAnimator)
-			Viewer("Value", gocAnimator->animationStateMachine->variables[variableId].bindables.collectionFloat);
-		nodeEditor.EndControls();
+		if (BeginControls()) {
+			Viewer("Name", asmInterface.asmData.variables[variableIdx]);
+			if (asmInterface.gocAnimator)
+				Viewer("Value", asmInterface.gocAnimator->animationStateMachine->variables[variableIdx].bindables.collectionFloat);
+		}
+		else {
+			ImGui::Text("%s", asmInterface.asmData.variables[variableIdx]);
+		}
+		EndControls();
 
 		nodeEditor.BeginOutputPins();
 		OutputPin({ nodeId, PinType::VARIABLE, 0 });
 		nodeEditor.EndOutputPins();
 
-		nodeEditor.EndNode();
+		EndNode();
 	}
 
 	void NodeEditor::BlendNodeVariable(short variableId, short blendNodeId, unsigned short idx)
 	{
-		LinkWithLayout({ { NodeType::VARIABLE, variableId }, PinType::VARIABLE, 0 }, { { NodeType::BLEND_NODE, blendNodeId }, PinType::VARIABLE, idx });
+		LinkWithLayout({ { NodeType::VARIABLE, asmInterface.variableRegistry.GetId(variableId) }, PinType::VARIABLE, 0 }, { { NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeId) }, PinType::VARIABLE, idx });
 	}
 
 	void NodeEditor::BlendSpaceVariable(short variableId, short blendSpaceId, unsigned short idx)
 	{
-		LinkWithLayout({ { NodeType::VARIABLE, variableId }, PinType::VARIABLE, 0 }, { { NodeType::BLEND_SPACE, blendSpaceId }, PinType::VARIABLE, idx });
+		LinkWithLayout({ { NodeType::VARIABLE, asmInterface.variableRegistry.GetId(variableId) }, PinType::VARIABLE, 0 }, { { NodeType::BLEND_SPACE, asmInterface.blendSpaceRegistry.GetId(blendSpaceId) }, PinType::VARIABLE, idx });
 	}
 
-	void NodeEditor::Clip(short clipId)
+	void NodeEditor::Clip(short clipIdx)
 	{
-		auto& clipData = asmData.clips[clipId];
+		bool needsReload{};
+		auto& clipData = asmInterface.asmData.clips[clipIdx];
 
-		NodeId nodeId{ NodeType::CLIP, clipId };
+		NodeId nodeId{ NodeType::CLIP, asmInterface.clipRegistry.GetId(clipIdx) };
 
-		nodeEditor.BeginNode(nodeId, 10.0f * ImGui::GetFontSize() / 14.0f);
-
-		nodeEditor.BeginTitle();
-		ImGui::Text("Clip");
-		nodeEditor.EndTitle();
+		BeginNode(nodeId, "Clip", 10.0f * ImGui::GetFontSize() / 14.0f, false);
 
 		nodeEditor.BeginInputPins();
 		InputBlendMaskPin(nodeId, 0, "Blend mask", clipData.blendMaskIndex);
 		nodeEditor.EndInputPins();
 
-		nodeEditor.BeginControls();
-		InputText("Name", clipData.name, &resource);
-		InputText("Resource", clipData.animationSettings.resourceName, &resource);
-		Editor("Start", clipData.animationSettings.start);
-		Editor("End", clipData.animationSettings.end);
-		Editor("Speed", clipData.animationSettings.speed);
-		Editor("Loop", clipData.animationSettings.loops);
-		CheckboxFlags("Mirror", clipData.animationSettings.flags, ClipData::AnimationSettings::Flag::MIRROR);
-		CheckboxFlags("Play until end", clipData.animationSettings.flags, ClipData::AnimationSettings::Flag::PLAY_UNTIL_ANIMATION_END);
-		CheckboxFlags("No resource resolution", clipData.animationSettings.flags, ClipData::AnimationSettings::Flag::NO_ANIMATION_RESOLUTION);
-		nodeEditor.EndControls();
+		if (BeginControls()) {
+			InputText("Name", clipData.name, asmInterface.resource);
+			needsReload |= InputText("Resource", clipData.animationSettings.resourceName, asmInterface.resource);
+			needsReload |= Editor("Start", clipData.animationSettings.start);
+			needsReload |= Editor("End", clipData.animationSettings.end);
+			needsReload |= Editor("Speed", clipData.animationSettings.speed);
+			needsReload |= Editor("Loop", clipData.animationSettings.loops);
+			needsReload |= CheckboxFlags("Mirror", clipData.animationSettings.flags, ClipData::AnimationSettings::Flag::MIRROR);
+			needsReload |= CheckboxFlags("Play until end", clipData.animationSettings.flags, ClipData::AnimationSettings::Flag::PLAY_UNTIL_ANIMATION_END);
+			needsReload |= CheckboxFlags("No resource resolution", clipData.animationSettings.flags, ClipData::AnimationSettings::Flag::NO_ANIMATION_RESOLUTION);
+		}
+		else {
+			ImGui::Text("%s", clipData.name);
+		}
+		EndControls();
 
 		nodeEditor.BeginOutputPins();
 		OutputPin({ nodeId, PinType::CLIP, 0 });
 		nodeEditor.EndOutputPins();
 
-		nodeEditor.EndNode();
+		EndNode();
+
+		if (needsReload)
+			asmInterface.ReloadResource();
 	}
 
 	void NodeEditor::BlendNodeClip(short clipId, short blendNodeId, unsigned short idx)
 	{
-		LinkWithLayout({ { NodeType::CLIP, clipId }, PinType::CLIP, 0 }, { { NodeType::BLEND_NODE, blendNodeId }, PinType::CLIP, idx });
+		LinkWithLayout({ { NodeType::CLIP, asmInterface.clipRegistry.GetId(clipId) }, PinType::CLIP, 0 }, { { NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeId) }, PinType::CLIP, idx });
 	}
 
 	void NodeEditor::BlendSpaceClip(short clipId, short blendSpaceId, unsigned short idx)
 	{
-		LinkWithLayout({ { NodeType::CLIP, clipId }, PinType::CLIP, 0 }, { { NodeType::BLEND_SPACE, blendSpaceId }, PinType::CLIP, idx });
+		LinkWithLayout({ { NodeType::CLIP, asmInterface.clipRegistry.GetId(clipId) }, PinType::CLIP, 0 }, { { NodeType::BLEND_SPACE, asmInterface.blendSpaceRegistry.GetId(blendSpaceId) }, PinType::CLIP, idx });
 	}
 
-	void NodeEditor::BlendSpace(short blendSpaceId)
+	void NodeEditor::BlendSpace(short blendSpaceIdx)
 	{
-		auto& blendSpace = asmData.blendSpaces[blendSpaceId];
+		auto& blendSpace = asmInterface.asmData.blendSpaces[blendSpaceIdx];
 
-		NodeId nodeId{ NodeType::BLEND_SPACE, blendSpaceId };
+		NodeId nodeId{ NodeType::BLEND_SPACE, asmInterface.blendSpaceRegistry.GetId(blendSpaceIdx) };
 
-		nodeEditor.BeginNode(nodeId, 10.0f * ImGui::GetFontSize() / 14.0f);
-
-		nodeEditor.BeginTitle();
-		ImGui::Text("BlendSpace");
-		nodeEditor.EndTitle();
+		BeginNode(nodeId, "BlendSpace", 10.0f * ImGui::GetFontSize() / 14.0f);
 
 		nodeEditor.BeginInputPins();
 		for (unsigned short i = 0; i < blendSpace.nodeCount; i++)
 			InputClipPin(nodeId, i, "Clip", blendSpace.clipIndices[i]);
-		BlendSpaceVariablePins(nodeId, blendSpaceId, 0);
+		BlendSpaceVariablePins(nodeId, blendSpaceIdx, 0);
 		nodeEditor.EndInputPins();
 
-		nodeEditor.BeginControls();
-		BlendSpaceControls(blendSpaceId);
-		nodeEditor.EndControls();
+		if (BeginControls()) {
+			BlendSpaceControls(blendSpaceIdx);
+		}
+		EndControls();
 
 		nodeEditor.BeginOutputPins();
 		OutputPin({ nodeId, PinType::BLEND_SPACE, 0 });
 		nodeEditor.EndOutputPins();
 
-		nodeEditor.EndNode();
+		EndNode();
 	}
 
 	void NodeEditor::BlendNodeBlendSpace(short blendSpaceId, short blendNodeId)
 	{
-		LinkWithLayout({ { NodeType::BLEND_SPACE, blendSpaceId }, PinType::BLEND_SPACE, 0 }, { { NodeType::BLEND_NODE, blendNodeId }, PinType::BLEND_SPACE, 0 });
+		LinkWithLayout({ { NodeType::BLEND_SPACE, asmInterface.blendSpaceRegistry.GetId(blendSpaceId) }, PinType::BLEND_SPACE, 0 }, { { NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeId) }, PinType::BLEND_SPACE, 0 });
 	}
 
-	void NodeEditor::BlendMask(short blendMaskId)
+	void NodeEditor::BlendMask(short blendMaskIdx)
 	{
-		auto& blendMask = asmData.blendMasks[blendMaskId];
+		auto& blendMask = asmInterface.asmData.blendMasks[blendMaskIdx];
 
-		NodeId nodeId{ NodeType::BLEND_MASK, blendMaskId };
+		NodeId nodeId{ NodeType::BLEND_MASK, asmInterface.blendMaskRegistry.GetId(blendMaskIdx) };
 
-		nodeEditor.BeginNode(nodeId, 10.0f * ImGui::GetFontSize() / 14.0f);
-
-		nodeEditor.BeginTitle();
-		ImGui::Text("Blend mask");
-		nodeEditor.EndTitle();
+		BeginNode(nodeId, blendMask.name, 10.0f * ImGui::GetFontSize() / 14.0f);
 
 		nodeEditor.BeginInputPins();
 		nodeEditor.EndInputPins();
 
-		nodeEditor.BeginControls();
-		InputText("Name", blendMask.name, &resource);
-		ImGui::Text("Bones:");
-		for (unsigned short i = 0; i < blendMask.maskBoneCount; i++)
-			ImGui::Text("%s", asmData.maskBones[blendMask.maskBoneOffset + i]);
-		nodeEditor.EndControls();
+		if (BeginControls()) {
+			InputText("Name", blendMask.name, asmInterface.resource);
+			ImGui::Text("Bones:");
+			for (unsigned short i = 0; i < blendMask.maskBoneCount; i++)
+				ImGui::Text("%s", asmInterface.asmData.maskBones[blendMask.maskBoneOffset + i]);
+		}
+		else {
+			ImGui::Text("%s", blendMask.name);
+		}
+		EndControls();
 
 		nodeEditor.BeginOutputPins();
 		OutputPin({ nodeId, PinType::BLEND_MASK, 0 });
 		nodeEditor.EndOutputPins();
 
-		nodeEditor.EndNode();
+		EndNode();
 	}
 
 	void NodeEditor::ClipBlendMask(short blendMaskId, short clipId)
 	{
-		LinkWithLayout({ { NodeType::BLEND_MASK, blendMaskId }, PinType::BLEND_MASK, 0 }, { { NodeType::CLIP, clipId }, PinType::BLEND_MASK, 0 });
+		LinkWithLayout({ { NodeType::BLEND_MASK, asmInterface.blendMaskRegistry.GetId(blendMaskId) }, PinType::BLEND_MASK, 0 }, { { NodeType::CLIP, asmInterface.clipRegistry.GetId(clipId) }, PinType::BLEND_MASK, 0 });
 	}
 
-	void NodeEditor::LerpBlendNode(short blendNodeId, hh::anim::LerpBlendNode* liveNode)
+	void NodeEditor::LerpBlendNode(short blendNodeIdx, hh::anim::LerpBlendNode* liveNode)
 	{
-		BranchBlendNode(blendNodeId, "Lerp", [=]() {
-			auto& nodeData = asmData.blendNodes[blendNodeId];
+		BranchBlendNode(blendNodeIdx, "Lerp", [=]() {
+			auto& nodeData = asmInterface.asmData.blendNodes[blendNodeIdx];
 
-			BaseBlendNodeControls(blendNodeId);
+			BaseBlendNodeControls(blendNodeIdx);
 
 			if (nodeData.childNodeArraySize < 2)
 				return;
 
-			auto childNodes = &asmData.blendNodes[nodeData.childNodeArrayOffset];
+			auto childNodes = &asmInterface.asmData.blendNodes[nodeData.childNodeArrayOffset];
 
 			if (ImPlot::BeginPlot("Lerp", { 300.0f * ImGui::GetFontSize() / 14.0f, 200.0f * ImGui::GetFontSize() / 14.0f })) {
 				ImPlot::SetupAxes("Blend factor", "Contribution", ImPlotAxisFlags_AutoFit, ImPlotAxisFlags_AutoFit);
@@ -404,8 +478,8 @@ namespace ui::operation_modes::modes::asm_editor {
 						}, &plotInfo, nodeData.childNodeArraySize);
 				}
 
-				if (gocAnimator && nodeData.blendFactorVariableIndex != -1) {
-					double cur = gocAnimator->animationStateMachine->variables[nodeData.blendFactorVariableIndex].bindables.collectionFloat;
+				if (asmInterface.gocAnimator && nodeData.blendFactorVariableIndex != -1) {
+					double cur = asmInterface.gocAnimator->animationStateMachine->variables[nodeData.blendFactorVariableIndex].bindables.collectionFloat;
 					double values[]{ cur };
 					ImPlot::PlotInfLines("Current", values, 1);
 				}
@@ -415,164 +489,188 @@ namespace ui::operation_modes::modes::asm_editor {
 		});
 	}
 
-	void NodeEditor::AdditiveBlendNode(short blendNodeId, hh::anim::AdditiveBlendNode* liveNode)
+	void NodeEditor::AdditiveBlendNode(short blendNodeIdx, hh::anim::AdditiveBlendNode* liveNode)
 	{
-		SimpleBranchBlendNode(blendNodeId, "Add");
+		SimpleBranchBlendNode(blendNodeIdx, "Add");
 	}
 
-	void NodeEditor::ClipNode(short blendNodeId, hh::anim::ClipNode* liveNode)
+	void NodeEditor::ClipNode(short blendNodeIdx, hh::anim::ClipNode* liveNode)
 	{
 		BlendNode(
-			blendNodeId,
+			blendNodeIdx,
 			"Clip",
 			[=]() {
-				NodeId nodeId{ NodeType::BLEND_NODE, blendNodeId };
-				auto& nodeData = asmData.blendNodes[blendNodeId];
+				NodeId nodeId{ NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeIdx) };
+				auto& nodeData = asmInterface.asmData.blendNodes[blendNodeIdx];
 
-				BaseBlendNodeInputs(blendNodeId);
+				BaseBlendNodeInputs(blendNodeIdx);
 
 				InputClipPin(nodeId, 0, "Clip", nodeData.childNodeArrayOffset);
 			},
-			[=]() { BaseBlendNodeControls(blendNodeId); }
+			[=]() { BaseBlendNodeControls(blendNodeIdx); }
 		);
 	}
 
-	void NodeEditor::OverrideBlendNode(short blendNodeId, hh::anim::OverrideBlendNode* liveNode)
+	void NodeEditor::OverrideBlendNode(short blendNodeIdx, hh::anim::OverrideBlendNode* liveNode)
 	{
-		SimpleBranchBlendNode(blendNodeId, "Override");
+		SimpleBranchBlendNode(blendNodeIdx, "Override");
 	}
 
-	void NodeEditor::LayerBlendNode(short blendNodeId, hh::anim::LayerBlendNode* liveNode)
+	void NodeEditor::LayerBlendNode(short blendNodeIdx, hh::anim::LayerBlendNode* liveNode)
 	{
-		SimpleBlendNode(blendNodeId, "Layer");
+		SimpleBlendNode(blendNodeIdx, "Layer");
 	}
 
-	void NodeEditor::MulBlendNode(short blendNodeId, hh::anim::MulBlendNode* liveNode)
+	void NodeEditor::MulBlendNode(short blendNodeIdx, hh::anim::MulBlendNode* liveNode)
 	{
-		SimpleBranchBlendNode(blendNodeId, "Mul");
+		SimpleBranchBlendNode(blendNodeIdx, "Mul");
 	}
 
-	void NodeEditor::BlendSpaceNode(short blendNodeId, hh::anim::BlendSpaceNode* liveNode)
+	void NodeEditor::BlendSpaceNode(short blendNodeIdx, hh::anim::BlendSpaceNode* liveNode)
 	{
 		BlendNode(
-			blendNodeId,
+			blendNodeIdx,
 			"BlendSpace",
 			[=]() {
-				NodeId nodeId{ NodeType::BLEND_NODE, blendNodeId };
-				auto& nodeData = asmData.blendNodes[blendNodeId];
+				NodeId nodeId{ NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeIdx) };
+				auto& nodeData = asmInterface.asmData.blendNodes[blendNodeIdx];
 
-				BaseBlendNodeInputs(blendNodeId);
+				BaseBlendNodeInputs(blendNodeIdx);
 
 				InputPin({ nodeId, PinType::BLEND_SPACE, 0 }, "Blend space");
 
 				if (nodeData.blendSpaceIndex != -1) {
-					auto& blendSpace = asmData.blendSpaces[nodeData.blendSpaceIndex];
+					auto& blendSpace = asmInterface.asmData.blendSpaces[nodeData.blendSpaceIndex];
 
 					for (unsigned short i = 0; i < blendSpace.nodeCount; i++)
-						InputPin({ nodeId, PinType::BLEND_NODE, i }, asmData.clips[blendSpace.clipIndices[i]].name);
+						InputPin({ nodeId, PinType::BLEND_NODE, i }, blendSpace.clipIndices[i] == -1 ? "<none>" : asmInterface.asmData.clips[blendSpace.clipIndices[i]].name);
 				}
 			},
-			[=]() { BaseBlendNodeControls(blendNodeId); }
+			[=]() { BaseBlendNodeControls(blendNodeIdx); }
 		);
 	}
 
-	void NodeEditor::CollapsedBlendSpaceNode(short blendNodeId, hh::anim::BlendSpaceNode* liveNode)
+	void NodeEditor::CollapsedBlendSpaceNode(short blendNodeIdx, hh::anim::BlendSpaceNode* liveNode)
 	{
 		BlendNode(
-			blendNodeId,
+			blendNodeIdx,
 			"BlendSpace",
 			[=]() {
-				NodeId nodeId{ NodeType::BLEND_NODE, blendNodeId };
-				auto& nodeData = asmData.blendNodes[blendNodeId];
+				NodeId nodeId{ NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeIdx) };
+				auto& nodeData = asmInterface.asmData.blendNodes[blendNodeIdx];
 
-				BaseBlendNodeInputs(blendNodeId);
-
-				BlendSpaceVariablePins(nodeId, nodeData.blendSpaceIndex, 1);
+				BaseBlendNodeInputs(blendNodeIdx);
 
 				if (nodeData.blendSpaceIndex != -1) {
-					auto& blendSpace = asmData.blendSpaces[nodeData.blendSpaceIndex];
+					BlendSpaceVariablePins(nodeId, nodeData.blendSpaceIndex, 1);
+
+					auto& blendSpace = asmInterface.asmData.blendSpaces[nodeData.blendSpaceIndex];
 
 					for (unsigned short i = 0; i < blendSpace.nodeCount; i++)
-						InputPin({ nodeId, PinType::CLIP, i }, asmData.clips[blendSpace.clipIndices[i]].name);
+						InputPin({ nodeId, PinType::CLIP, i }, blendSpace.clipIndices[i] == -1 ? "<none>" : asmInterface.asmData.clips[blendSpace.clipIndices[i]].name);
 				}
 			},
 			[=]() {
-				BaseBlendNodeControls(blendNodeId);
-				BlendSpaceControls(asmData.blendNodes[blendNodeId].blendSpaceIndex);
+				BaseBlendNodeControls(blendNodeIdx);
+				if (asmInterface.asmData.blendNodes[blendNodeIdx].blendSpaceIndex != -1)
+					BlendSpaceControls(asmInterface.asmData.blendNodes[blendNodeIdx].blendSpaceIndex);
+				else {
+					ImGui::Text("Missing blend space. Disable collapsing of blend space nodes and assign a blend space, or click the button below to create one.");
+					if (ImGui::Button("Create blend space")) {
+						auto blendSpaceId = asmInterface.AddBlendSpace();
+
+						asmInterface.SetBlendNodeBlendSpace(asmInterface.blendNodeRegistry.GetId(blendNodeIdx), blendSpaceId);
+					}
+				}
 			}
 		);
 	}
 
-	void NodeEditor::TwoPointLerpBlendNode(short blendNodeId, hh::anim::TwoPointLerpBlendNode* liveNode)
+	void NodeEditor::TwoPointLerpBlendNode(short blendNodeIdx, hh::anim::TwoPointLerpBlendNode* liveNode)
 	{
-		SimpleBlendNode(blendNodeId, "Two Point Lerp");
+		SimpleBlendNode(blendNodeIdx, "Two Point Lerp");
 	}
 
-	void NodeEditor::SimpleBlendNode(short blendNodeId, const char* name)
+	void NodeEditor::SimpleBlendNode(short blendNodeIdx, const char* name)
 	{
 		BlendNode(
-			blendNodeId,
+			blendNodeIdx,
 			name,
-			[=]() { BaseBlendNodeInputs(blendNodeId); },
-			[=]() { BaseBlendNodeControls(blendNodeId); }
+			[=]() { BaseBlendNodeInputs(blendNodeIdx); },
+			[=]() { BaseBlendNodeControls(blendNodeIdx); }
 		);
 	}
 
-	void NodeEditor::SimpleBranchBlendNode(short blendNodeId, const char* name)
+	void NodeEditor::SimpleBranchBlendNode(short blendNodeIdx, const char* name)
 	{
 		BranchBlendNode(
-			blendNodeId,
+			blendNodeIdx,
 			name,
-			[=]() { BaseBlendNodeControls(blendNodeId); }
+			[=]() { BaseBlendNodeControls(blendNodeIdx); }
 		);
 	}
 
-	void NodeEditor::BaseBlendNodeInputs(short blendNodeId)
+	void NodeEditor::BaseBlendNodeInputs(short blendNodeIdx)
 	{
-		auto& nodeData = asmData.blendNodes[blendNodeId];
+		auto& nodeData = asmInterface.asmData.blendNodes[blendNodeIdx];
 
-		InputVariablePin({ NodeType::BLEND_NODE, blendNodeId }, 0, "Blend factor", nodeData.blendFactorVariableIndex);
+		InputVariablePin({ NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeIdx) }, 0, "Blend factor", nodeData.blendFactorVariableIndex);
 	}
 
+	static const char* blendNodeTypeNames[]{
+		"LERP",
+		"ADDITIVE",
+		"CLIP",
+		"OVERRIDE",
+		"LAYER",
+		"MULTIPLY",
+		"BLEND_SPACE",
+		"TWO_POINT_LERP",
+	};
 	void NodeEditor::BaseBlendNodeControls(short blendNodeId)
 	{
-		auto& nodeData = asmData.blendNodes[blendNodeId];
+		auto& nodeData = asmInterface.asmData.blendNodes[blendNodeId];
 
+		auto type = nodeData.type;
+		if (ComboEnum("Type", type, blendNodeTypeNames)) {
+			asmInterface.SetBlendNodeType(asmInterface.blendNodeRegistry.GetId(blendNodeId), type);
+			asmInterface.ReloadResource();
+		}
 		Editor("Blend factor target", nodeData.blendFactorTarget);
 	}
 
 	void NodeEditor::BlendNodeChildRelationship(short childNodeId, short parentNodeId, unsigned short idx)
 	{
-		LinkWithLayout({ { NodeType::BLEND_NODE, childNodeId }, PinType::BLEND_NODE, 0 }, { { NodeType::BLEND_NODE, parentNodeId }, PinType::BLEND_NODE, idx });
+		LinkWithLayout({ { NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(childNodeId) }, PinType::BLEND_NODE, 0 }, { { NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(parentNodeId) }, PinType::BLEND_NODE, idx });
 	}
 
-	void NodeEditor::Flag(short flagId)
+	void NodeEditor::Flag(short flagIdx)
 	{
-		NodeId nodeId{ NodeType::FLAG, flagId };
+		NodeId nodeId{ NodeType::FLAG, asmInterface.flagRegistry.GetId(flagIdx) };
 
-		nodeEditor.BeginNode(nodeId, 10.0f * ImGui::GetFontSize() / 14.0f);
-
-		nodeEditor.BeginTitle();
-		ImGui::Text("Flag");
-		nodeEditor.EndTitle();
+		BeginNode(nodeId, "Flag", 10.0f * ImGui::GetFontSize() / 14.0f, false);
 
 		nodeEditor.BeginInputPins();
 		InputPin({ nodeId, PinType::FLAG, 0 });
 		nodeEditor.EndInputPins();
 
-		nodeEditor.BeginControls();
-		InputText("Name", asmData.flags[flagId], &resource);
-		nodeEditor.EndControls();
+		if (BeginControls()) {
+			InputText("Name", asmInterface.asmData.flags[flagIdx], asmInterface.resource);
+		}
+		else {
+			ImGui::Text("%s", asmInterface.asmData.flags[flagIdx]);
+		}
+		EndControls();
 
 		nodeEditor.BeginOutputPins();
 		nodeEditor.EndOutputPins();
 
-		nodeEditor.EndNode();
+		EndNode();
 	}
 
 	void NodeEditor::StateFlag(short flagId, short stateId)
 	{
-		LinkWithLayout({ { NodeType::STATE, stateId }, PinType::FLAG, 0 }, { { NodeType::FLAG, flagId }, PinType::FLAG, 0 });
+		LinkWithLayout({ { NodeType::STATE, asmInterface.stateRegistry.GetId(stateId) }, PinType::FLAG, 0 }, { { NodeType::FLAG, asmInterface.flagRegistry.GetId(flagId) }, PinType::FLAG, 0 });
 	}
 
 	void NodeEditor::LayerBlendTreeOutput(short blendNodeId)
@@ -580,30 +678,32 @@ namespace ui::operation_modes::modes::asm_editor {
 		NodeId nodeId{ NodeType::LAYER_BLEND_TREE_OUTPUT, 0 };
 		InputPinId nextPin{ nodeId, PinType::BLEND_NODE, 0 };
 
-		nodeEditor.BeginNode(nodeId, 10.0f * ImGui::GetFontSize() / 14.0f);
-
-		nodeEditor.BeginTitle();
-		ImGui::Text("Layer blend tree output");
-		nodeEditor.EndTitle();
+		BeginNode(nodeId, "Layer blend tree output", 10.0f * ImGui::GetFontSize() / 14.0f);
 
 		nodeEditor.BeginInputPins();
 		InputPin(nextPin, "Blend node");
 		nodeEditor.EndInputPins();
 
-		nodeEditor.BeginControls();
-		nodeEditor.EndControls();
+		if (BeginControls()) {
+		}
+		EndControls();
 
 		nodeEditor.BeginOutputPins();
 		nodeEditor.EndOutputPins();
 
-		nodeEditor.EndNode();
+		EndNode();
 
-		LinkWithLayout({ { NodeType::BLEND_NODE, blendNodeId }, PinType::BLEND_NODE, 0 }, nextPin);
+		LinkWithLayout({ { NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeId) }, PinType::BLEND_NODE, 0 }, nextPin);
 	}
 
-	bool NodeEditor::IsStateSelected(short idx)
+	bool NodeEditor::IsStateSelected(short id)
 	{
-		return ax::NodeEditor::IsNodeSelected(NodeId{ NodeType::STATE, idx });
+		return ax::NodeEditor::IsNodeSelected(NodeId{ NodeType::STATE, asmInterface.stateRegistry.GetId(id) });
+	}
+
+	bool NodeEditor::ShowBackgroundContextMenu()
+	{
+		return ax::NodeEditor::ShowBackgroundContextMenu();
 	}
 
 	bool NodeEditor::ShowNodeContextMenu(NodeId& nodeId)
@@ -621,6 +721,15 @@ namespace ui::operation_modes::modes::asm_editor {
 		bool result = ax::NodeEditor::ShowPinContextMenu(&axPinId);
 		if (result)
 			pinId = axPinId;
+		return result;
+	}
+
+	bool NodeEditor::ShowLinkContextMenu(LinkId& linkId)
+	{
+		ax::NodeEditor::LinkId axLinkId;
+		bool result = ax::NodeEditor::ShowLinkContextMenu(&axLinkId);
+		if (result)
+			linkId = axLinkId;
 		return result;
 	}
 
@@ -655,9 +764,47 @@ namespace ui::operation_modes::modes::asm_editor {
 		return true;
 	}
 
-	ImVec4 NodeEditor::CalculateActiveStateColor(short stateId)
+	bool NodeEditor::QueryNewInputNode(InputPinId& pinId)
 	{
-		auto& state = asmData.states[stateId];
+		ax::NodeEditor::PinId pin;
+
+		bool result = ax::NodeEditor::QueryNewNode(&pin);
+
+		if (!result || !pin)
+			return false;
+
+		PinId iPin = pin;
+
+		if (iPin.kind != ax::NodeEditor::PinKind::Input)
+			return false;
+
+		pinId = InputPinId{ static_cast<unsigned long long>(iPin) };
+
+		return true;
+	}
+
+	bool NodeEditor::QueryNewOutputNode(OutputPinId& pinId)
+	{
+		ax::NodeEditor::PinId pin;
+
+		bool result = ax::NodeEditor::QueryNewNode(&pin);
+
+		if (!result || !pin)
+			return false;
+
+		PinId iPin = pin;
+
+		if (iPin.kind != ax::NodeEditor::PinKind::Input)
+			return false;
+
+		pinId = OutputPinId{ static_cast<unsigned long long>(iPin) };
+
+		return true;
+	}
+
+	ImVec4 NodeEditor::CalculateActiveStateColor(short stateIdx)
+	{
+		auto& state = asmInterface.asmData.states[stateIdx];
 
 		for (auto l : GetActiveLayers()) {
 			auto layerColor = ImPlot::GetColormapColor(l.layer.layerId);
@@ -671,32 +818,88 @@ namespace ui::operation_modes::modes::asm_editor {
 		return ax::NodeEditor::GetStyle().Colors[ax::NodeEditor::StyleColor_NodeBorder];
 	}
 
-	float NodeEditor::CalculateActiveStateProgress(short stateId)
+	float NodeEditor::CalculateActiveStateProgress(short stateIdx)
 	{
-		auto& state = asmData.states[stateId];
+		auto& state = asmInterface.asmData.states[stateIdx];
 
 		for (auto l : GetActiveLayers()) {
 			if (l.nextState && l.nextState->stateData == &state)
-				return l.nextState->implementation.currentTime / l.nextState->implementation.duration;
+				return l.nextState->implementation.duration == 0.0f ? 0.0f : l.nextState->implementation.currentTime / l.nextState->implementation.duration;
 			else if (l.prevState && l.prevState->stateData == &state)
-				return l.prevState->implementation.currentTime / l.prevState->implementation.duration;
+				return l.prevState->implementation.duration == 0.0f ? 0.0f : l.prevState->implementation.currentTime / l.prevState->implementation.duration;
 		}
 
 		return 0.0f;
 	}
 
-	void NodeEditor::BeginInputPin(const InputPinId& pinId)
+	void NodeEditor::BeginNode(ax::NodeEditor::NodeId nodeId, const char* title, float maxOutputPinLabelWidth, bool defaultUnfolded)
+	{
+		ImGui::PushID(reinterpret_cast<void*>(nodeId.Get()));
+		auto* stateStrg = ImGui::GetStateStorage();
+		currentNodeUnfolded = stateStrg->GetBool(ImGui::GetID("UnfoldedState"), defaultUnfolded);
+		currentNodeTitle = title;
+		ImGui::PopID();
+
+		nodeEditor.BeginNode(nodeId, currentNodeUnfolded ? maxOutputPinLabelWidth : 0);
+
+		if (title != nullptr) {
+			nodeEditor.BeginTitle();
+			auto pos = ImGui::GetCursorPos();
+
+			if (ImGui::InvisibleButton("Title Button", ImGui::CalcTextSize(currentNodeTitle))) {
+				stateStrg->SetBool(ImGui::GetID("UnfoldedState"), !currentNodeUnfolded);
+			}
+
+			ImGui::SetCursorPos(pos);
+			ImGui::Text("%s", currentNodeTitle);
+			nodeEditor.EndTitle();
+		}
+	}
+
+	void NodeEditor::EndNode()
+	{
+		nodeEditor.EndNode();
+	}
+
+	bool NodeEditor::BeginControls()
+	{
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+
+		return currentNodeUnfolded;
+	}
+
+	void NodeEditor::EndControls()
+	{
+		ImGui::EndGroup();
+	}
+
+	bool NodeEditor::BeginInputPin(const InputPinId& pinId)
 	{
 		nodeEditor.BeginInputPin(pinId, pinId.type);
+
+		if (!currentNodeUnfolded) {
+			nodeEditor.EndInputPin();
+			return false;
+		}
+
+		return true;
 	}
 
 	void NodeEditor::EndInputPin() {
 		nodeEditor.EndInputPin();
 	}
 
-	void NodeEditor::BeginOutputPin(const OutputPinId& pinId, float labelWidth)
+	bool NodeEditor::BeginOutputPin(const OutputPinId& pinId, float labelWidth)
 	{
-		nodeEditor.BeginOutputPin(pinId, labelWidth, pinId.type);
+		nodeEditor.BeginOutputPin(pinId, currentNodeUnfolded ? labelWidth : 0.0f, pinId.type);
+
+		if (!currentNodeUnfolded) {
+			nodeEditor.EndOutputPin();
+			return false;
+		}
+
+		return true;
 	}
 
 	void NodeEditor::EndOutputPin() {
@@ -705,43 +908,45 @@ namespace ui::operation_modes::modes::asm_editor {
 
 	void NodeEditor::InputPin(const InputPinId& pinId)
 	{
-		BeginInputPin(pinId);
-		EndInputPin();
+		if (BeginInputPin(pinId)) {
+			EndInputPin();
+		}
 	}
 
 	void NodeEditor::OutputPin(const OutputPinId& pinId)
 	{
-		BeginOutputPin(pinId, 0.0f);
-		EndOutputPin();
+		if (BeginOutputPin(pinId, 0.0f)) {
+			EndOutputPin();
+		}
 	}
 
-	void NodeEditor::InputVariablePin(const NodeId& nodeId, unsigned short idx, const char* label, short variableId)
+	void NodeEditor::InputVariablePin(const NodeId& nodeId, unsigned short idx, const char* label, short variableIdx)
 	{
-		if (gocAnimator && variableId != -1)
-			InputPin({ nodeId, PinType::VARIABLE, idx }, label, "%f", gocAnimator->animationStateMachine->variables[variableId].bindables.collectionFloat);
+		if (asmInterface.gocAnimator && variableIdx != -1)
+			InputPin({ nodeId, PinType::VARIABLE, idx }, label, "%f", asmInterface.gocAnimator->animationStateMachine->variables[variableIdx].bindables.collectionFloat);
 		else
 			InputPin({ nodeId, PinType::VARIABLE, idx }, label);
 	}
 
-	void NodeEditor::InputClipPin(const NodeId& nodeId, unsigned short idx, const char* label, short clipId)
+	void NodeEditor::InputClipPin(const NodeId& nodeId, unsigned short idx, const char* label, short clipIdx)
 	{
-		if (clipId != -1)
-			InputPin({ nodeId, PinType::CLIP, idx }, label, "%s", asmData.clips[clipId].name);
+		if (clipIdx != -1)
+			InputPin({ nodeId, PinType::CLIP, idx }, label, "%s", asmInterface.asmData.clips[clipIdx].name);
 		else
 			InputPin({ nodeId, PinType::CLIP, idx }, label);
 	}
 
-	void NodeEditor::InputBlendMaskPin(const NodeId& nodeId, unsigned short idx, const char* label, short blendMaskId)
+	void NodeEditor::InputBlendMaskPin(const NodeId& nodeId, unsigned short idx, const char* label, short blendMaskIdx)
 	{
-		if (blendMaskId != -1)
-			InputPin({ nodeId, PinType::BLEND_MASK, idx }, label, "%s", asmData.blendMasks[blendMaskId].name);
+		if (blendMaskIdx != -1)
+			InputPin({ nodeId, PinType::BLEND_MASK, idx }, label, "%s", asmInterface.asmData.blendMasks[blendMaskIdx].name);
 		else
 			InputPin({ nodeId, PinType::BLEND_MASK, idx }, label);
 	}
 
 	void NodeEditor::Link(const OutputPinId& fromPin, const InputPinId& toPin)
 	{
-		nodeEditor.Link(GetLinkId(fromPin, toPin), fromPin, toPin, fromPin.type);
+		nodeEditor.Link(LinkId{ fromPin, toPin }, fromPin, toPin, fromPin.type);
 	}
 
 	void NodeEditor::LayoutLink(const NodeId& fromNode, const NodeId& toNode)
@@ -757,33 +962,53 @@ namespace ui::operation_modes::modes::asm_editor {
 
 	void NodeEditor::Flow(const OutputPinId& fromPin, const InputPinId& toPin)
 	{
-		nodeEditor.Flow(GetLinkId(fromPin, toPin));
+		nodeEditor.Flow(LinkId{ fromPin, toPin });
 	}
 
-	void NodeEditor::BlendSpaceVariablePins(ax::NodeEditor::NodeId nodeId, short blendSpaceId, unsigned short startIdx)
+	void NodeEditor::BlendSpaceVariablePins(ax::NodeEditor::NodeId nodeId, short blendSpaceIdx, unsigned short startIdx)
 	{
-		auto& blendSpace = asmData.blendSpaces[blendSpaceId];
+		auto& blendSpace = asmInterface.asmData.blendSpaces[blendSpaceIdx];
 
 		InputVariablePin(nodeId, startIdx + 0, "X", blendSpace.xVariableIndex);
 		InputVariablePin(nodeId, startIdx + 1, "Y", blendSpace.yVariableIndex);
 	}
 
-	void NodeEditor::BlendSpaceControls(short blendSpaceId)
+	void NodeEditor::BlendSpaceControls(short blendSpaceIdx)
 	{
-		auto& blendSpace = asmData.blendSpaces[blendSpaceId];
+		auto& blendSpace = asmInterface.asmData.blendSpaces[blendSpaceIdx];
+
+		unsigned short clickedNodeIdx{};
+		ImPlotPoint clickPos{};
+		bool openBgCtxMenu{};
+		bool openNodeCtxMenu{};
+		bool hov{};
+		ImVec2 plotPos{};
 
 		if (ImPlot::BeginPlot("Blend space", { 300.0f * ImGui::GetFontSize() / 14.0f, 300.0f * ImGui::GetFontSize() / 14.0f })) {
-			ImPlot::SetupAxes(asmData.variables[blendSpace.xVariableIndex], asmData.variables[blendSpace.yVariableIndex], ImPlotAxisFlags_None, ImPlotAxisFlags_None);
-			ImPlot::SetupAxesLimits(blendSpace.xMin, blendSpace.xMax, blendSpace.yMin, blendSpace.yMax);
+			ImPlot::SetupAxes(blendSpace.xVariableIndex == -1 ? "X" : asmInterface.asmData.variables[blendSpace.xVariableIndex], blendSpace.yVariableIndex == -1 ? "Y" : asmInterface.asmData.variables[blendSpace.yVariableIndex], ImPlotAxisFlags_None, ImPlotAxisFlags_None);
+			ImPlot::SetupAxesLimits(blendSpace.xMin, blendSpace.xMax, blendSpace.yMin, blendSpace.yMax, ImPlotCond_Always);
+			ImPlot::SetupFinish();
 
 			for (unsigned short i = 0; i < blendSpace.nodeCount; i++) {
 				auto& node = blendSpace.nodes[i];
 				double x = node.x();
 				double y = node.y();
+				bool pointClicked{};
 
-				if (ImPlot::DragPoint(i, &x, &y, { 1.0f, 1.0f, 1.0f, 1.0f }))
-					node = { x, y };
-				ImPlot::Annotation(x, y, { 1.0f, 1.0f, 1.0f, 0.0f }, { 0.0f, -5.0f }, true, "%s", asmData.clips[blendSpace.clipIndices[i]].name);
+				if (ImPlot::DragPoint(i, &x, &y, { 1.0f, 1.0f, 1.0f, 1.0f }, 4.0f, 0, &pointClicked)) {
+					node = {
+						std::min(std::max((float)x, blendSpace.xMin), blendSpace.xMax),
+						std::min(std::max((float)y, blendSpace.yMin), blendSpace.yMax)
+					};
+
+					asmInterface.TriangulateBlendSpace(asmInterface.blendSpaceRegistry.GetId(blendSpaceIdx));
+				}
+				ImPlot::Annotation(x, y, { 1.0f, 1.0f, 1.0f, 0.0f }, { 0.0f, -5.0f }, true, "%s", blendSpace.clipIndices[i] == -1 ? "" : asmInterface.asmData.clips[blendSpace.clipIndices[i]].name);
+
+				if (pointClicked) {
+					clickedNodeIdx = i;
+					openNodeCtxMenu = true;
+				}
 			}
 
 			for (unsigned short i = 0; i < blendSpace.triangleCount; i++) {
@@ -795,30 +1020,72 @@ namespace ui::operation_modes::modes::asm_editor {
 				ImPlot::PlotLine(name, triangleXs, triangleYs, 3, ImPlotLineFlags_Loop);
 			}
 
-			if (gocAnimator && blendSpace.xVariableIndex != -1 && blendSpace.yVariableIndex != -1) {
-				double curX = gocAnimator->animationStateMachine->variables[blendSpace.xVariableIndex].bindables.collectionFloat;
-				double curY = gocAnimator->animationStateMachine->variables[blendSpace.yVariableIndex].bindables.collectionFloat;
+			if (asmInterface.gocAnimator && blendSpace.xVariableIndex != -1 && blendSpace.yVariableIndex != -1) {
+				double curX = asmInterface.gocAnimator->animationStateMachine->variables[blendSpace.xVariableIndex].bindables.collectionFloat;
+				double curY = asmInterface.gocAnimator->animationStateMachine->variables[blendSpace.yVariableIndex].bindables.collectionFloat;
 
 				ImPlot::PlotScatter("Current", &curX, &curY, 1, ImPlotScatterFlags_None);
 			}
 
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right) && ImPlot::IsPlotHovered()) {
+				clickPos = ImPlot::GetPlotMousePos();
+				openBgCtxMenu = true;
+			}
+
+			hov = ImPlot::IsPlotHovered();
+			plotPos = ImPlot::GetPlotPos();
+
 			ImPlot::EndPlot();
+		}
+
+		// Hacky shit to avoid incompatibilities in node editor...
+		auto* ctx = ImGui::GetCurrentContext();
+		ctx->HoveredIdAllowOverlap = false;
+
+		if (openBgCtxMenu) {
+			ImGui::GetStateStorage()->SetFloat(ImGui::GetID("clickX"), (float)clickPos.x);
+			ImGui::GetStateStorage()->SetFloat(ImGui::GetID("clickY"), (float)clickPos.y);
+			ImGui::OpenPopup("Background Context Menu");
+		}
+		if (openNodeCtxMenu) {
+			ImGui::GetStateStorage()->SetInt(ImGui::GetID("clickedNodeIdx"), clickedNodeIdx);
+			ImGui::OpenPopup("Node Context Menu");
+		}
+
+		clickPos = { ImGui::GetStateStorage()->GetFloat(ImGui::GetID("clickX")), ImGui::GetStateStorage()->GetFloat(ImGui::GetID("clickY")) };
+		clickedNodeIdx = ImGui::GetStateStorage()->GetInt(ImGui::GetID("clickedNodeIdx"));
+
+		if (ImGui::BeginPopup("Background Context Menu")) {
+			if (ImGui::MenuItem("Add clip")) {
+				asmInterface.AddBlendSpaceNode(asmInterface.blendSpaceRegistry.GetId(blendSpaceIdx), { clickPos.x, clickPos.y });
+				asmInterface.ReloadResource();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::BeginPopup("Node Context Menu")) {
+			if (ImGui::MenuItem("Remove")) {
+				asmInterface.RemoveBlendSpaceNode(asmInterface.blendSpaceRegistry.GetId(blendSpaceIdx), clickedNodeIdx);
+				asmInterface.ReloadResource();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (ImGui::TreeNode("Bounds")) {
+			Editor("X minimum", blendSpace.xMin);
+			Editor("X maximum", blendSpace.xMax);
+			Editor("Y minimum", blendSpace.yMin);
+			Editor("Y maximum", blendSpace.yMax);
+			ImGui::TreePop();
 		}
 	}
 
-	ax::NodeEditor::LinkId NodeEditor::GetLinkId(ax::NodeEditor::PinId fromPinId, ax::NodeEditor::PinId toPinId) {
-		unsigned long long lFromPinId = fromPinId.Get();
-		unsigned long long lToPinId = toPinId.Get();
-
-		return (lFromPinId << 32) | lToPinId;
-	}
-
-	NodeId::NodeId(NodeType type, short idx) : type{ type }, idx{ idx } {}
+	NodeId::NodeId(NodeType type, ASMInterface::Id id) : type{ type }, id{ id } {}
 
 	NodeId::NodeId(unsigned long long nodeId)
 	{
 		type = static_cast<NodeType>((nodeId >> 16) & 0xF);
-		idx = nodeId & 0xFFFFFFFF;
+		id = nodeId & 0xFFFF;
 	}
 
 	NodeId::NodeId(ax::NodeEditor::NodeId nodeId) : NodeId(nodeId.Get()) {}
@@ -826,9 +1093,9 @@ namespace ui::operation_modes::modes::asm_editor {
 	NodeId::operator unsigned long long() const
 	{
 		unsigned long long lType = static_cast<unsigned long long>(type);
-		unsigned long long lIdx = idx;
+		unsigned long long lId = id;
 
-		return (lType << 16) | lIdx;
+		return (lType << 16) | lId;
 	}
 
 	NodeId::operator ax::NodeEditor::NodeId() const
@@ -872,4 +1139,27 @@ namespace ui::operation_modes::modes::asm_editor {
 	OutputPinId::OutputPinId(const NodeId& nodeId, PinType type, unsigned short idx) : PinId{ nodeId, ax::NodeEditor::PinKind::Output, type, idx } {}
 	OutputPinId::OutputPinId(unsigned long long nodeId) : PinId{ nodeId } {}
 	OutputPinId::OutputPinId(ax::NodeEditor::PinId nodeId) : PinId{ nodeId } {}
+
+	LinkId::LinkId(const OutputPinId& inputPinId, const InputPinId& outputPinId) : inputPinId{ inputPinId }, outputPinId{ outputPinId } {}
+
+	LinkId::LinkId(unsigned long long nodeId)
+	{
+		inputPinId = (nodeId >> 32) & 0xFFFFFFFF;
+		outputPinId = nodeId & 0xFFFFFFFF;
+	}
+
+	LinkId::LinkId(ax::NodeEditor::LinkId nodeId) : LinkId(nodeId.Get()) {}
+
+	LinkId::operator unsigned long long() const
+	{
+		unsigned long long lInputPinId = inputPinId;
+		unsigned long long lOutputPinId = outputPinId;
+
+		return (lInputPinId << 32) | lOutputPinId;
+	}
+
+	LinkId::operator ax::NodeEditor::LinkId() const
+	{
+		return static_cast<unsigned long long>(*this);
+	}
 }

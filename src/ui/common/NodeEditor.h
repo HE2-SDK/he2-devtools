@@ -27,8 +27,15 @@ public:
 		autoLayout.Recalculate();
 	}
 
-	void Begin() {
+	void BeginContext() {
 		ax::NodeEditor::SetCurrentEditor(context);
+	}
+
+	void EndContext() {
+		ax::NodeEditor::SetCurrentEditor(nullptr);
+	}
+
+	void Begin() {
 		ax::NodeEditor::PushStyleVar(ax::NodeEditor::StyleVar_FlowDuration, 0.25f);
 		ax::NodeEditor::PushStyleVar(ax::NodeEditor::StyleVar_FlowMarkerDistance, 45.0f);
 		ax::NodeEditor::PushStyleVar(ax::NodeEditor::StyleVar_FlowSpeed, 300.0f);
@@ -40,7 +47,6 @@ public:
 		autoLayout.End();
 		ax::NodeEditor::End();
 		ax::NodeEditor::PopStyleVar(3);
-		ax::NodeEditor::SetCurrentEditor(nullptr);
 	}
 
 	void BeginNode(ax::NodeEditor::NodeId nodeId, float maxOutputPinLabelWidth) {

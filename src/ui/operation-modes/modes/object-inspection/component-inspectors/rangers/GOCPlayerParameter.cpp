@@ -57,16 +57,16 @@ void RenderComponentInspector(app::player::GOCPlayerParameter& component) {
 	if (ImGui::Button("Edit character parameters..."))
 		switch (component.characterId) {
 		case app::player::CharacterId::SONIC:
-			ResReflectionEditor::Create(Desktop::instance->GetAllocator(), &component.characterParameters->sonic);
+			ResReflectionEditor::Create(Desktop::instance->GetAllocator(), (hh::fnd::ResReflectionT<heur::rfl::SonicParameters>*)&*component.characterParameters);
 			break;
 		case app::player::CharacterId::AMY:
-			ResReflectionEditor::Create(Desktop::instance->GetAllocator(), &component.characterParameters->amy);
+			ResReflectionEditor::Create(Desktop::instance->GetAllocator(), (hh::fnd::ResReflectionT<heur::rfl::AmyParameters>*)&*component.characterParameters);
 			break;
 		case app::player::CharacterId::KNUCKLES:
-			ResReflectionEditor::Create(Desktop::instance->GetAllocator(), &component.characterParameters->knuckles);
+			ResReflectionEditor::Create(Desktop::instance->GetAllocator(), (hh::fnd::ResReflectionT<heur::rfl::KnucklesParameters>*)&*component.characterParameters);
 			break;
 		case app::player::CharacterId::TAILS:
-			ResReflectionEditor::Create(Desktop::instance->GetAllocator(), &component.characterParameters->tails);
+			ResReflectionEditor::Create(Desktop::instance->GetAllocator(), (hh::fnd::ResReflectionT<heur::rfl::TailsParameters>*)&*component.characterParameters);
 			break;
 		}
 

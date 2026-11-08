@@ -483,7 +483,7 @@ void RenderBlackboardStatusInspector(app::player::BlackboardStatus& blackboard) 
 	ImGui::DragScalar("qword174", ImGuiDataType_U32, &blackboard.qword174);
 	ImGui::DragScalar("qword178", ImGuiDataType_U32, &blackboard.qword178);
 	ImGui::DragScalar("dword17C", ImGuiDataType_U32, &blackboard.dword17C);
-	ComboEnum("Difficulty", blackboard.byte180, difficultyNames);
+	ComboEnum("Difficulty", blackboard.difficulty, difficultyNames);
 	ImGui::DragScalar("qword184", ImGuiDataType_U32, &blackboard.qword184);
 	DragScalar("qword188", blackboard.qword188);
 }

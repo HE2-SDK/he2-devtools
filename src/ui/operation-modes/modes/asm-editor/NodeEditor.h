@@ -2,6 +2,7 @@
 #include <ui/common/NodeEditor.h>
 #include <ranges>
 #include <imgui_internal.h>
+#include "ASMInterface.h"
 
 namespace ui::operation_modes::modes::asm_editor {
 	enum class NodeType {
@@ -29,10 +30,10 @@ namespace ui::operation_modes::modes::asm_editor {
 
 	struct NodeId {
 		NodeType type{};
-		short idx{};
+		size_t id{};
 
 		NodeId() = default;
-		NodeId(NodeType type, short idx);
+		NodeId(NodeType type, ASMInterface::Id id);
 		NodeId(unsigned long long nodeId);
 		NodeId(ax::NodeEditor::NodeId nodeId);
 		operator unsigned long long() const;
@@ -67,6 +68,18 @@ namespace ui::operation_modes::modes::asm_editor {
 		OutputPinId(ax::NodeEditor::PinId nodeId);
 	};
 
+	struct LinkId {
+		OutputPinId inputPinId{};
+		InputPinId outputPinId{};
+
+		LinkId() = default;
+		LinkId(const OutputPinId& inputPinId, const InputPinId& outputPinId);
+		LinkId(unsigned long long linkId);
+		LinkId(ax::NodeEditor::LinkId linkId);
+		operator unsigned long long() const;
+		operator ax::NodeEditor::LinkId() const;
+	};
+
 	class NodeEditorInterface {
 	public:
 		using PinType = PinType;
@@ -80,107 +93,114 @@ namespace ui::operation_modes::modes::asm_editor {
 	};
 
 	class NodeEditor : public CompatibleObject {
+		ASMInterface& asmInterface;
 		RawNodeEditor nodeEditor;
-		hh::anim::ResAnimator& resource;
-		hh::anim::AsmData& asmData;
-		hh::anim::GOCAnimator* gocAnimator;
+		bool currentNodeUnfolded{};
+		const char* currentNodeTitle{};
 
 	public:
-		NodeEditor(csl::fnd::IAllocator* allocator, hh::anim::ResAnimator& resource, hh::anim::GOCAnimator* gocAnimator);
+		NodeEditor(csl::fnd::IAllocator* allocator, ASMInterface& asmInterface);
 
+		void BeginContext();
+		void EndContext();
 		void Begin();
 		void End();
 
 		void RunAutoLayout();
 
-		void State(short stateId);
-		void StateTransition(short prevStateId, short nextStateId);
-		void StateDefaultTransition(short prevStateId, short nextStateId);
-		void StateEventTransition(short prevStateId, short nextStateId, unsigned short idx);
-		void StateTransitionFlow(short prevStateId, short nextStateId);
-		void StateDefaultTransitionFlow(short prevStateId, short nextStateId);
-		void StateEventTransitionFlow(short prevStateId, short nextStateId, unsigned short idx);
-		void StateTransitionFlowAuto(short prevStateId, short nextStateId);
+		void State(short stateIdx);
+		void BlendTreeState(short stateIdx);
+		void StateTransition(short prevStateIdx, short nextStateIdx);
+		void StateDefaultTransition(short prevStateIdx, short nextStateIdx);
+		void StateEventTransition(short prevStateIdx, short nextStateIdx, unsigned short idx);
+		void StateTransitionFlow(short prevStateIdx, short nextStateIdx);
+		void StateDefaultTransitionFlow(short prevStateIdx, short nextStateIdx);
+		void StateEventTransitionFlow(short prevStateIdx, short nextStateIdx, unsigned short idx);
+		void StateTransitionFlowAuto(short prevStateIdx, short nextStateIdx);
 		void StateActiveTransitionFlow();
-		void StateClip(short clipId, short stateId);
-		void StateBlendNode(short blendNodeId, short stateId);
+		void StateClip(short clipIdx, short stateIdx);
+		void StateBlendNode(short blendNodeIdx, short stateIdx);
 
-		void Variable(short variableId);
-		void BlendNodeVariable(short variableId, short blendNodeId, unsigned short idx);
-		void BlendSpaceVariable(short variableId, short blendSpaceId, unsigned short idx);
+		void Variable(short variableIdx);
+		void BlendNodeVariable(short variableIdx, short blendNodeIdx, unsigned short idx);
+		void BlendSpaceVariable(short variableIdx, short blendSpaceIdx, unsigned short idx);
 
-		void Clip(short clipId);
-		void BlendNodeClip(short clipId, short blendNodeId, unsigned short idx);
-		void BlendSpaceClip(short clipId, short blendSpaceId, unsigned short idx);
+		void Clip(short clipIdx);
+		void BlendNodeClip(short clipIdx, short blendNodeIdx, unsigned short idx);
+		void BlendSpaceClip(short clipIdx, short blendSpaceIdx, unsigned short idx);
 
-		void BlendSpace(short blendSpaceId);
-		void BlendNodeBlendSpace(short blendSpaceId, short blendNodeId);
+		void BlendSpace(short blendSpaceIdx);
+		void BlendNodeBlendSpace(short blendSpaceIdx, short blendNodeIdx);
 
-		void BlendMask(short blendMaskId);
-		void ClipBlendMask(short blendMaskId, short clipId);
+		void BlendMask(short blendMaskIdx);
+		void ClipBlendMask(short blendMaskIdx, short clipIdx);
 
-		void LerpBlendNode(short blendNodeId, hh::anim::LerpBlendNode* liveNode);
-		void AdditiveBlendNode(short blendNodeId, hh::anim::AdditiveBlendNode* liveNode);
-		void ClipNode(short blendNodeId, hh::anim::ClipNode* liveNode);
-		void OverrideBlendNode(short blendNodeId, hh::anim::OverrideBlendNode* liveNode);
-		void LayerBlendNode(short blendNodeId, hh::anim::LayerBlendNode* liveNode);
-		void MulBlendNode(short blendNodeId, hh::anim::MulBlendNode* liveNode);
-		void BlendSpaceNode(short blendNodeId, hh::anim::BlendSpaceNode* liveNode);
-		void CollapsedBlendSpaceNode(short blendNodeId, hh::anim::BlendSpaceNode* liveNode);
-		void TwoPointLerpBlendNode(short blendNodeId, hh::anim::TwoPointLerpBlendNode* liveNode);
-		void BlendNodeChildRelationship(short childNodeId, short parentNodeId, unsigned short idx);
+		void LerpBlendNode(short blendNodeIdx, hh::anim::LerpBlendNode* liveNode);
+		void AdditiveBlendNode(short blendNodeIdx, hh::anim::AdditiveBlendNode* liveNode);
+		void ClipNode(short blendNodeIdx, hh::anim::ClipNode* liveNode);
+		void OverrideBlendNode(short blendNodeIdx, hh::anim::OverrideBlendNode* liveNode);
+		void LayerBlendNode(short blendNodeIdx, hh::anim::LayerBlendNode* liveNode);
+		void MulBlendNode(short blendNodeIdx, hh::anim::MulBlendNode* liveNode);
+		void BlendSpaceNode(short blendNodeIdx, hh::anim::BlendSpaceNode* liveNode);
+		void CollapsedBlendSpaceNode(short blendNodeIdx, hh::anim::BlendSpaceNode* liveNode);
+		void TwoPointLerpBlendNode(short blendNodeIdx, hh::anim::TwoPointLerpBlendNode* liveNode);
+		void BlendNodeChildRelationship(short childNodeIdx, short parentNodeIdx, unsigned short idx);
 
-		void Flag(short flagId);
-		void StateFlag(short flagId, short stateId);
+		void Flag(short flagIdx);
+		void StateFlag(short flagIdx, short stateIdx);
 
-		void LayerBlendTreeOutput(short blendNodeId);
+		void LayerBlendTreeOutput(short blendNodeIdx);
 
 		bool IsStateSelected(short idx);
 
+		bool ShowBackgroundContextMenu();
 		bool ShowNodeContextMenu(NodeId& nodeId);
 		bool ShowPinContextMenu(PinId& pinId);
+		bool ShowLinkContextMenu(LinkId& linkId);
 
 		bool BeginCreate();
 		bool QueryNewLink(OutputPinId& startPinId, InputPinId& endPinId);
+		bool QueryNewInputNode(InputPinId& pinId);
+		bool QueryNewOutputNode(OutputPinId& pinId);
 		void EndCreate();
 
 	private:
 		template<typename I, typename C>
-		void BlendNode(short blendNodeId, const char* name, I renderInputPins, C renderControls) {
-			NodeId nodeId{ NodeType::BLEND_NODE, blendNodeId };
+		void BlendNode(short blendNodeIdx, const char* name, I renderInputPins, C renderControls) {
+			NodeId nodeId{ NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeIdx) };
+			
+			char nameBuf[256];
+			snprintf(nameBuf, sizeof(nameBuf), "Blend node - %s", name);
 
-			nodeEditor.BeginNode(nodeId, 0.0f);
-
-			nodeEditor.BeginTitle();
-			ImGui::Text("Blend node - %s", name);
-			nodeEditor.EndTitle();
+			BeginNode(nodeId, nameBuf, 0.0f);
 
 			nodeEditor.BeginInputPins();
 			renderInputPins();
 			nodeEditor.EndInputPins();
 
-			nodeEditor.BeginControls();
-			ImGui::PushItemWidth(100.0f);
-			renderControls();
-			ImGui::PopItemWidth();
-			nodeEditor.EndControls();
+			if (BeginControls()) {
+				ImGui::PushItemWidth(100.0f);
+				renderControls();
+				ImGui::PopItemWidth();
+			}
+			EndControls();
 
 			nodeEditor.BeginOutputPins();
 			OutputPin({ nodeId, PinType::BLEND_NODE, 0 });
 			nodeEditor.EndOutputPins();
 
-			nodeEditor.EndNode();
+			EndNode();
 		}
 		template<typename C>
-		void BranchBlendNode(short blendNodeId, const char* name, C renderControls) {
+		void BranchBlendNode(short blendNodeIdx, const char* name, C renderControls) {
 			BlendNode(
-				blendNodeId,
+				blendNodeIdx,
 				name,
 				[=]() {
-					NodeId nodeId{ NodeType::BLEND_NODE, blendNodeId };
-					auto& nodeData = asmData.blendNodes[blendNodeId];
+					NodeId nodeId{ NodeType::BLEND_NODE, asmInterface.blendNodeRegistry.GetId(blendNodeIdx) };
+					auto& nodeData = asmInterface.asmData.blendNodes[blendNodeIdx];
 
-					BaseBlendNodeInputs(blendNodeId);
+					BaseBlendNodeInputs(blendNodeIdx);
 
 					for (unsigned short i = 0; i < nodeData.childNodeArraySize; i++)
 						InputPin({ nodeId, PinType::BLEND_NODE, i }, "Child");
@@ -201,7 +221,7 @@ namespace ui::operation_modes::modes::asm_editor {
 		};
 
 		auto GetActiveLayers() {
-			return std::views::all(gocAnimator->animationStateMachine->layers)
+			return std::views::all(asmInterface.gocAnimator->animationStateMachine->layers)
 				| std::views::filter([](auto& l) { return l.layerState != nullptr; })
 				| std::views::transform([](auto& l) { return ActiveLayerInfo{ l, l.layerState->GetPreviousAnimationState(), l.layerState->GetCurrentAnimationState() }; });
 		}
@@ -209,40 +229,48 @@ namespace ui::operation_modes::modes::asm_editor {
 		ImVec4 CalculateActiveStateColor(short stateId);
 		float CalculateActiveStateProgress(short stateId);
 
-		void BeginInputPin(const InputPinId& pinId);
+		void BeginNode(ax::NodeEditor::NodeId nodeId, const char* title, float maxOutputPinLabelWidth, bool defaultUnfolded = true);
+		void EndNode();
+		bool BeginControls();
+		void EndControls();
+		bool BeginInputPin(const InputPinId& pinId);
 		void EndInputPin();
-		void BeginOutputPin(const OutputPinId& pinId, float labelWidth);
+		bool BeginOutputPin(const OutputPinId& pinId, float labelWidth);
 		void EndOutputPin();
 
 		template<typename... Args>
 		void InputPin(const InputPinId& pinId, const char* fmt, Args... args) {
-			BeginInputPin(pinId);
-			ImGui::Text("%s", fmt, args...);
-			EndInputPin();
+			if (BeginInputPin(pinId)) {
+				ImGui::Text("%s", fmt, args...);
+				EndInputPin();
+			}
 		}
 
 		template<typename... Args>
 		void OutputPin(const OutputPinId& pinId, const char* fmt, Args... args) {
 			const char* text, * text_end;
 			ImFormatStringToTempBuffer(&text, &text_end, fmt, args...);
-			BeginOutputPin(pinId, ImGui::CalcTextSize(text).x + ImGui::GetStyle().ItemSpacing.x);
-			ImGui::Text("%s", text);
-			EndOutputPin();
+			if (BeginOutputPin(pinId, ImGui::CalcTextSize(text).x + ImGui::GetStyle().ItemSpacing.x)) {
+				ImGui::Text("%s", text);
+				EndOutputPin();
+			}
 		}
 
 		template<typename... Args>
 		void InputPin(const InputPinId& pinId, const char* label, const char* fmt, Args... args) {
-			BeginInputPin(pinId);
-			ImGui::LabelText(label, fmt, args...);
-			EndInputPin();
+			if (BeginInputPin(pinId)) {
+				ImGui::LabelText(label, fmt, args...);
+				EndInputPin();
+			}
 		}
 		template<typename... Args>
 		void OutputPin(const OutputPinId& pinId, const char* label, const char* fmt, Args... args) {
 			const char* text, * text_end;
 			ImFormatStringToTempBuffer(&text, &text_end, fmt, args...);
-			BeginOutputPin(pinId, ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemInnerSpacing.x + ImGui::CalcTextSize(text).x + ImGui::GetStyle().ItemSpacing.x);
-			ImGui::LabelText(label, "%s", fmt);
-			EndOutputPin();
+			if (BeginOutputPin(pinId, ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemInnerSpacing.x + ImGui::CalcTextSize(text).x + ImGui::GetStyle().ItemSpacing.x)) {
+				ImGui::LabelText(label, "%s", fmt);
+				EndOutputPin();
+			}
 		}
 
 		void InputPin(const InputPinId& pinId);
@@ -263,17 +291,5 @@ namespace ui::operation_modes::modes::asm_editor {
 
 		void BlendSpaceVariablePins(ax::NodeEditor::NodeId nodeId, short blendSpaceId, unsigned short startIdx);
 		void BlendSpaceControls(short blendSpaceId);
-
-		//static ax::NodeEditor::NodeId GetNodeId(NodeType type, unsigned short idx);
-		//static ax::NodeEditor::PinId GetPinId(ax::NodeEditor::NodeId nodeId, ax::NodeEditor::PinKind kind, PinType type, unsigned short idx);
-		//static ax::NodeEditor::PinId GetInputPinId(ax::NodeEditor::NodeId nodeId, PinType type, unsigned short idx);
-		//static ax::NodeEditor::PinId GetOutputPinId(ax::NodeEditor::NodeId nodeId, PinType type, unsigned short idx);
-		static ax::NodeEditor::LinkId GetLinkId(ax::NodeEditor::PinId fromPinId, ax::NodeEditor::PinId toPinId);
-
-		//static void DecodeNodeId(ax::NodeEditor::NodeId nodeId, NodeType& type, unsigned short& idx);
-		//static void DecodePinId(ax::NodeEditor::PinId pinId, ax::NodeEditor::PinKind kind, PinType type, unsigned short idx);
-		//static void DecodeInputPinId(ax::NodeEditor::PinId pinId, PinType type, unsigned short idx);
-		//static void DecodeOutputPinId(ax::NodeEditor::PinId pinId, PinType type, unsigned short idx);
-		//static ax::NodeEditor::LinkId DecodeLinkId(ax::NodeEditor::PinId fromPinId, ax::NodeEditor::PinId toPinId);
 	};
 }

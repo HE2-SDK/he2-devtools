@@ -8,13 +8,12 @@ namespace ui::operation_modes::modes::asm_editor
 
 	void ASMEditor::RenderScene()
 	{
+		nodeEditor->BeginContext();
 		nodeEditor->Begin();
 
 		RenderNodes();
 		RenderTransitions();
 		RenderFlow();
-
-		auto& asmData = *GetContext().gocAnimator->asmResourceManager->animatorResource->binaryData;
 
 		if (nodeEditor->ShowNodeContextMenu(ctxNodeId)) {
 			ax::NodeEditor::Suspend();
@@ -24,7 +23,7 @@ namespace ui::operation_modes::modes::asm_editor
 
 		ax::NodeEditor::Suspend();
 		if (ImGui::BeginPopup("Node Context Menu")) {
-			auto& state = asmData.states[ctxNodeId.idx];
+			auto& state = asmInterface.GetState(ctxNodeId.id);
 
 			if (ImGui::MenuItem("Change to"))
 				GetContext().gocAnimator->ChangeState(state.name);
@@ -35,40 +34,37 @@ namespace ui::operation_modes::modes::asm_editor
 		ax::NodeEditor::Resume();
 
 		nodeEditor->End();
+		nodeEditor->EndContext();
 	}
 
 	void ASMEditor::SetGOCAnimator(GOCAnimator* gocAnimator)
 	{
 		GetContext().gocAnimator = gocAnimator;
-		nodeEditor = new (GetAllocator()) NodeEditor{ GetAllocator(), *gocAnimator->asmResourceManager->animatorResource, gocAnimator };
+		//nodeEditor = new (GetAllocator()) NodeEditor{ GetAllocator(	), *gocAnimator->asmResourceManager->animatorResource, gocAnimator };
 	}
 
 
 	void ASMEditor::RenderNodes()
 	{
-		auto& asmData = *GetContext().gocAnimator->asmResourceManager->animatorResource->binaryData;
-
-		for (unsigned short i = 0; i < asmData.stateCount; i++)
+		for (unsigned short i = 0; i < asmInterface.asmData.stateCount; i++)
 			nodeEditor->State(i);
 	}
 
 	void ASMEditor::RenderTransitions()
 	{
-		auto& asmData = *GetContext().gocAnimator->asmResourceManager->animatorResource->binaryData;
-
-		for (unsigned short i = 0; i < asmData.stateCount; i++) {
-			auto& state = asmData.states[i];
+		for (unsigned short i = 0; i < asmInterface.asmData.stateCount; i++) {
+			auto& state = asmInterface.asmData.states[i];
 
 			if (state.stateEndTransition.transitionInfo.targetStateIndex != -1)
 				nodeEditor->StateDefaultTransition(i, state.stateEndTransition.transitionInfo.targetStateIndex);
 
 			for (unsigned short j = 0; j < state.eventCount; j++)
-				nodeEditor->StateEventTransition(i, asmData.events[state.eventOffset + j].transition.transitionInfo.targetStateIndex, j);
+				nodeEditor->StateEventTransition(i, asmInterface.asmData.events[state.eventOffset + j].transition.transitionInfo.targetStateIndex, j);
 
 			if (state.transitionArrayIndex != -1) {
 				if (nodeEditor->IsStateSelected(i)) {
-					auto& transitionArray = asmData.transitionArrays[state.transitionArrayIndex];
-					auto* transitions = &asmData.transitions[transitionArray.offset];
+					auto& transitionArray = asmInterface.asmData.transitionArrays[state.transitionArrayIndex];
+					auto* transitions = &asmInterface.asmData.transitions[transitionArray.offset];
 
 					for (int j = 0; j < transitionArray.size; j++)
 						nodeEditor->StateTransition(i, transitions[j].transitionInfo.targetStateIndex);

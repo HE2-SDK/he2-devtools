@@ -112,7 +112,7 @@ bool Editor(const char* label, hh::game::GameObject*& gameObject)
 
 	ImGui::SameLine();
 
-	if (ImGui::BeginCombo(label, gameObject == nullptr ? "<none>" : gameObject->name)) {
+	if (ImGui::BeginCombo(label, gameObject == nullptr ? "<none>" : gameObject->name.c_str())) {
 		for (auto* obj : hh::game::GameManager::GetInstance()->objects) {
 			if (ImGui::Selectable(obj->name)) {
 				gameObject = obj;

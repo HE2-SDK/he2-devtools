@@ -46,6 +46,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/inputs/Basic.cpp
         ui/common/overlays/Tag.cpp
         ui/common/icons.cpp
+        ui/common/Reorderable.cpp
         ui/common/StandaloneWindow.cpp
         ui/common/stb_image.cpp
         ui/common/Textures.cpp
@@ -128,6 +129,7 @@ target_sources(${DEVTOOLS_TARGET}
         ui/common/overlays/Tag.h
         ui/common/icons.h
         ui/common/NodeEditor.h
+        ui/common/Reorderable.h
         ui/common/StandaloneWindow.h
         ui/common/stb_image.h
         ui/common/Textures.h
@@ -284,6 +286,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         GOCPlayerCollider
         GOCPointLight
         GOCVibration
+        GOCCharacterIk
     )
     set(DEVTOOLS_FEATURE_RESOURCE_INSPECTORS
         ResObjectWorldEditor
@@ -326,6 +329,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "rangers")
         EventPlayer
         MovieManager
         SoundManagerCri
+        EffectManager
     )
 endif()
 
@@ -379,6 +383,7 @@ if(${DEVTOOLS_TARGET_SDK} STREQUAL "miller")
         ResParticleLocationEditor
     )
     set(DEVTOOLS_FEATURE_CORE_SERVICE_INSPECTORS
+        MemoryInspector
         GraphicsContextInspector
         RenderManagerInspector
     )
@@ -602,12 +607,14 @@ if(${DEVTOOLS_FEATURE_ASM_EDITOR})
             ui/operation-modes/modes/asm-editor/NodeEditor.cpp
             ui/operation-modes/modes/asm-editor/BlendTreeEditor.cpp
             ui/operation-modes/modes/asm-editor/ASMEditor.cpp
+            ui/operation-modes/modes/asm-editor/ASMInterface.cpp
             ui/operation-modes/modes/object-inspection/component-inspectors/GOCAnimator.cpp
         PRIVATE FILE_SET HEADERS FILES
             ui/operation-modes/modes/asm-editor/Context.h
             ui/operation-modes/modes/asm-editor/NodeEditor.h
             ui/operation-modes/modes/asm-editor/BlendTreeEditor.h
             ui/operation-modes/modes/asm-editor/ASMEditor.h
+            ui/operation-modes/modes/asm-editor/ASMInterface.h
             ui/operation-modes/modes/object-inspection/component-inspectors/GOCAnimator.h
     )
 endif()

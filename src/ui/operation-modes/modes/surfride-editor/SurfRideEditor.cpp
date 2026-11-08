@@ -11,7 +11,9 @@
 #else
 #include <ucsl-reflection/reflections/resources/swif/v6.h>
 #endif
-#include <rip/binary/containers/swif/SWIF.h>
+#include <ucsl-reflection/accessors/binary.h>
+#include <ucsl-reflection/providers/simplerfl.h>
+#include <rip/serialization/binary.h>
 #include <ui/common/editors/Reflection.h>
 #include <ui/common/StandaloneOperationModeHost.h>
 #include <ui/GlobalSettings.h>
@@ -94,7 +96,7 @@ namespace ui::operation_modes::modes::surfride_editor
 			IGFD::FileDialogConfig cfg{};
 			cfg.path = GlobalSettings::defaultFileDialogDirectory;
 			cfg.flags = ImGuiFileDialogFlags_Modal | ImGuiFileDialogFlags_ConfirmOverwrite;
-			cfg.userDatas = GetContext().project;
+			cfg.userDatas = &*GetContext().projectResource;
 			ImGuiFileDialog::Instance()->OpenDialog("ResSurfRideProjectExportDialog", "Choose File", ".swif", cfg);
 			break;
 		}
@@ -174,9 +176,16 @@ namespace ui::operation_modes::modes::surfride_editor
 			if (ImGuiFileDialog::Instance()->IsOk()) {
 				auto* exportProjectData = static_cast<SRS_PROJECT*>(ImGuiFileDialog::Instance()->GetUserDatas());
 
-				std::ofstream ofs{ ImGuiFileDialog::Instance()->GetFilePathName(), std::ios::trunc | std::ios::binary };
-				rip::binary::containers::swif::v1::SWIFSerializer serializer{ ofs };
-				serializer.serialize<he2sdk::ucsl::GameInterface>(*exportProjectData);
+				//ucsl::reflection::providers::simplerfl<he2sdk::ucsl::GameInterface>::RootType<ucsl::resources::swif::v6::reflections::SRS_PROJECT> refl{};
+				//ucsl::reflection::accessors::binary<he2sdk::ucsl::GameInterface>::ValueConstAccessor<decltype(refl)> acc{ exportProjectData, refl };
+
+				//rip::models::SWIFV1<decltype(refl), he2sdk::ucsl::GameInterface::AllocatorSystem> swifModel{ rip::binary::serializeBinaryToAllocatorSystemBuffer<he2sdk::ucsl::GameInterface::AllocatorSystem, size_t>(acc) };
+
+				//std::ofstream ofs{ ImGuiFileDialog::Instance()->GetFilePathName(), std::ios::trunc | std::ios::binary };
+				//rip::binary::fast_ostream fos{ ofs };
+				//rip::binary::binary_ostream<rip::binary::fast_ostream, size_t> bos{ fos };
+
+				//rip::serialization::binary<decltype(swifModel)>::save(bos, swifModel);
 			}
 			ImGuiFileDialog::Instance()->Close();
 		}

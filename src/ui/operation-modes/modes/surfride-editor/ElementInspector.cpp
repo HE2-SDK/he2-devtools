@@ -195,6 +195,6 @@ namespace ui::operation_modes::modes::surfride_editor {
 		Editor("Near clipping plane", camera.nearPlane);
 		Editor("Far clipping plane", camera.farPlane);
 		Viewer("Unk1", camera.unk1);
-		Viewer("Unk2", camera.unk2);
+		Editor("User data", GetContext().projectResource, camera.userData);
 	}
 }

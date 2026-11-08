@@ -1,6 +1,6 @@
 #include "GOCEffect.h"
 bool Editor(const char* label, hh::eff::GOCEffect::EffectInfo& info);
-bool Editor(const char* label, hh::eff::GOCEffect::NewEffectInfo& info);
+bool Editor(const char* label, hh::eff::GOCEffect::AttachedEffectInfo& info);
 #include <ui/common/editors/Basic.h>
 #include <ui/common/editors/Effects.h>
 #include <ui/common/viewers/Basic.h>
@@ -9,18 +9,18 @@ using namespace hh::eff;
 
 bool Editor(const char* label, hh::eff::GOCEffect::EffectInfo& info) {
 	bool edited{};
-	
+
 	edited |= Editor("Handle", info.handle);
-	edited |= CheckboxFlags("Unk 0 flag", info.flags, hh::eff::GOCEffect::EffectInfo::Flag::UNK0);
-	edited |= CheckboxFlags("Unk 1 flag", info.flags, hh::eff::GOCEffect::EffectInfo::Flag::UNK1);
+	edited |= CheckboxFlags("Attached", info.flags, hh::eff::GOCEffect::EffectInfo::Flag::ATTACHED);
+	edited |= CheckboxFlags("Ignore StopAttachedEffectAll", info.flags, hh::eff::GOCEffect::EffectInfo::Flag::IGNORE_STOP_ATTACHED_EFFECT_ALL);
 
 	return edited;
 }
 
-bool Editor(const char* label, hh::eff::GOCEffect::NewEffectInfo& info) {
+bool Editor(const char* label, hh::eff::GOCEffect::AttachedEffectInfo& info) {
 	bool edited{};
 	edited |= Editor("Base", (hh::eff::GOCEffect::EffectInfo&)info);
-	edited |= Editor("Delay", info.delay);
+	edited |= Editor("Attach time", info.attachTime);
 	return edited;
 }
 
@@ -33,6 +33,6 @@ void RenderComponentInspector(GOCEffect& component) {
 
 	ImGui::Separator();
 	
-	Editor("New effects", component.newEffects);
-	Editor("Effects", component.effects);
+	Editor("Attached effects", component.attachedEffects);
+	Editor("Detached effects", component.detachedEffects);
 }

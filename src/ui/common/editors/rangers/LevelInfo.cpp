@@ -143,9 +143,9 @@ bool Editor(const char* label, app::level::PlayerInformation& playerInfo)
 	edited |= Editor("vector4150", playerInfo.vector4150);
 	edited |= Editor("vector4170", playerInfo.vector4170);
 	edited |= Editor("vector4190", playerInfo.vector4190);
-	edited |= Editor("vector41B0", playerInfo.vector41B0);
-	edited |= Editor("vector41D0", playerInfo.vector41D0);
-	edited |= Editor("vector41F0", playerInfo.vector41F0);
+	edited |= Editor("Player up vector", playerInfo.playerUp);
+	edited |= Editor("Player right vector", playerInfo.playerRight);
+	edited |= Editor("Player forward vector", playerInfo.playerForward);
 	edited |= Editor("vector4210", playerInfo.vector4210);
 	edited |= Editor("vector4230", playerInfo.vector4230);
 	edited |= Editor("vector4250", playerInfo.vector4250);

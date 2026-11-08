@@ -47,6 +47,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 		if (ImGui::Selectable("Auto Layout"))
 			nodeEditor.RunAutoLayout();
 
+		nodeEditor.BeginContext();
 		nodeEditor.Begin();
 
 		for (int pageIdx = 0; pageIdx < context.dvPages.size(); pageIdx++)
@@ -112,6 +113,7 @@ namespace ui::operation_modes::modes::dvscene_editor {
 
 		ax::NodeEditor::EndCreate();*/
 		nodeEditor.End();
+		nodeEditor.EndContext();
     }
 
     bool PageEditor::RenderPage(int pageIdx) {

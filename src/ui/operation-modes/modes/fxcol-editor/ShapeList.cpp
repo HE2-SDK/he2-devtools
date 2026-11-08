@@ -2,7 +2,10 @@
 #include "Behaviors.h"
 #include <ui/GlobalSettings.h>
 #include <ucsl-reflection/reflections/resources/fxcol/v1.h>
-#include <rip/binary/containers/binary-file/v2.h>
+#include <ucsl-reflection/providers/simplerfl.h>
+#include <ucsl-reflection/accessors/binary.h>
+#include <rip/models/binary-file/v2.h>
+#include <rip/serialization/binary.h>
 
 namespace ui::operation_modes::modes::fxcol_editor {
 	void ShapeList::RenderPanel() {
@@ -32,9 +35,16 @@ namespace ui::operation_modes::modes::fxcol_editor {
 			if (ImGuiFileDialog::Instance()->IsOk()) {
 				auto* exportData = static_cast<ucsl::resources::fxcol::v1::FxColData*>(ImGuiFileDialog::Instance()->GetUserDatas());
 
+				ucsl::reflection::providers::simplerfl<he2sdk::ucsl::GameInterface>::RootType<ucsl::resources::fxcol::v1::reflections::FxColData> refl{};
+				ucsl::reflection::accessors::binary<he2sdk::ucsl::GameInterface>::ValueConstAccessor<decltype(refl)> acc{ exportData, refl };
+
+				rip::models::BinaryFileV2<decltype(refl), he2sdk::ucsl::GameInterface::AllocatorSystem> model{ rip::binary::serializeBinaryToAllocatorSystemBuffer<he2sdk::ucsl::GameInterface::AllocatorSystem, size_t>(acc) };
+
 				std::ofstream ofs{ ImGuiFileDialog::Instance()->GetFilePathName(), std::ios::trunc | std::ios::binary };
-				rip::binary::containers::binary_file::v2::BinaryFileSerializer<size_t> serializer{ ofs };
-				serializer.serialize<he2sdk::ucsl::GameInterface>(*exportData);
+				rip::binary::fast_ostream fos{ ofs };
+				rip::binary::binary_ostream<rip::binary::fast_ostream, size_t> bos{ fos };
+
+				rip::serialization::binary<decltype(model)>::save(bos, model);
 			}
 			ImGuiFileDialog::Instance()->Close();
 		}

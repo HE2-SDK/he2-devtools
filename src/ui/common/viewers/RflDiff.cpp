@@ -1,102 +1,106 @@
 #include "RflDiff.h"
 #include <ucsl-reflection/opaque.h>
 #include <ucsl-reflection/providers/rflclass.h>
-#include <ucsl-reflection/traversals/traversal.h>
+#include <ucsl-reflection/accessors/binary.h>
 #include <ui/common/viewers/Basic.h>
 #include <sstream>
 #include <regex>
 
-using namespace ucsl::reflection;
-using namespace ucsl::reflection::traversals;
-
 class RenderRflDiffChange {
 public:
-	constexpr static size_t arity = 1;
-	typedef bool result_type;
 	inline static RflDiffChange* change;
 	inline static int64_t pathIdx;
 
-	template<typename T>
-	static bool visit_primitive(T& obj, const PrimitiveInfo<T>& info) {
+	static void process_primitive_data_(const auto& obj) {
 		if (pathIdx >= 0)
 			ImGui::Text("An error occurred.");
 
 		Viewer("Old value", obj);
-		Viewer("New value", *static_cast<const T*>(change->value));
-		return false;
+		Viewer("New value", *static_cast<const std::decay_t<decltype(obj)>*>(change->value));
 	}
 
-	template<typename F, typename A, typename C, typename D>
-	static bool _visit_array(A& arr, const ArrayInfo& info, C c, D d, F f) {
+	static void process_primitive_data(const auto& obj) {
+		process_primitive_data_(*obj.value);
+	}
+
+	static void process_primitive(const auto& obj) {
+		obj.visit([&](const auto& data) { process_primitive_data(data); });
+	}
+
+	static void process_array(const auto& arr) {
+		auto item = arr[change->path[pathIdx].arrayIdx];
+
 		pathIdx--;
-		f(arr[change->path[pathIdx].arrayIdx]);
+		process_type(item);
 		pathIdx++;
-		return false;
 	}
 
-	template<typename F, typename A, typename C, typename D> static bool visit_array(A& arr, const ArrayInfo& info, C c, D d, F f) { return _visit_array(arr, info, c, d, f); }
-	template<typename F, typename A, typename C, typename D> static bool visit_tarray(A& arr, const ArrayInfo& info, C c, D d, F f) { return _visit_array(arr, info, c, d, f); }
-
-	template<typename T, typename O>
-	static bool visit_enum(T& obj, const EnumInfo<O>& info) {
-		visit_primitive(obj, PrimitiveInfo<T>{});
-		return false;
+	static void process_enum(const auto& obj) {
+		obj.refl.visit([&](const auto& r) { process_primitive_data_(*(const typename std::decay_t<decltype(r)>::repr*)obj.value); });
 	}
 
-	template<typename T, typename O>
-	static bool visit_flags(T& obj, const FlagsInfo<O>& info) {
-		visit_primitive(obj, PrimitiveInfo<T>{});
-		return false;
+	static void process_bitfield(const auto& obj) {
+		obj.visit([&](const auto& val) { process_primitive_data(val); });
 	}
 
-	template<typename F, typename A, typename S>
-	static bool visit_pointer(opaque_obj*& obj, const PointerInfo<A, S>& info, F f) {
+	static void process_pointer(const auto& obj) {
 		if (obj != nullptr)
-			f(*obj);
-		return false;
+			process_type(*obj);
 	}
 
-	template<typename F>
-	static bool visit_carray(opaque_obj* obj, const CArrayInfo& info, F f) {
-		pathIdx--;
-		f(*reinterpret_cast<opaque_obj*>(reinterpret_cast<size_t>(obj) + change->path[pathIdx].arrayIdx * info.stride));
-		pathIdx++;
-		return false;
-	}
-
-	template<typename F>
-	static bool visit_type(opaque_obj& obj, const TypeInfo& info, F f) {
-		f(obj);
-		return false;
-	}
-
-	template<typename F>
-	static bool visit_field(opaque_obj& obj, const FieldInfo& info, F f) {
-		if (strcmp(info.name, change->path[pathIdx].propertyName))
-			return false;
+	static void process_carray(const auto& obj) {
+		auto item = obj[change->path[pathIdx].arrayIdx];
 
 		pathIdx--;
-		f(obj);
+		process_type(item);
 		pathIdx++;
-		return false;
 	}
 
-	template<typename F>
-	static bool visit_base_struct(opaque_obj& obj, const StructureInfo& info, F f) {
-		f(obj);
-		return false;
+	static void process_union(const auto& obj) {
+		obj.visit([&](const auto& field) { process_type(field); });
 	}
 
-	template<typename F>
-	static bool visit_struct(opaque_obj& obj, const StructureInfo& info, F f) {
-		f(obj);
-		return false;
+	static void process_field(const auto& obj, const auto& refl) {
+		if (strcmp(refl.get_name(), change->path[pathIdx].propertyName))
+			return;
+
+		pathIdx--;
+		process_type(obj);
+		pathIdx++;
 	}
 
-	template<typename F>
-	static bool visit_root(opaque_obj& obj, const RootInfo& info, F f) {
-		f(obj);
-		return false;
+	static void process_fields(const auto& obj) {
+		auto base = obj.get_base();
+
+		if (base.has_value())
+			process_fields(base.value());
+
+		obj.visit_fields([&](const auto& field, const auto& fieldRefl) {
+			process_field(field, fieldRefl);
+		});
+	}
+
+	static void process_struct(const auto& obj) {
+		process_fields(obj);
+	}
+
+	static void process_type(const auto& obj) {
+		obj.visit([&](const auto& v) {
+			if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::PRIMITIVE) process_primitive(v);
+			else if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::ENUM) process_enum(v);
+			else if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::BITFIELD) process_bitfield(v);
+			else if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::ARRAY) process_array(v);
+			else if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::TARRAY) process_array(v);
+			else if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::CARRAY) process_carray(v);
+			else if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::POINTER) process_pointer(v);
+			else if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::UNION) process_union(v);
+			else if constexpr (decltype(v.refl)::kind == ucsl::reflection::providers::TypeKind::STRUCTURE) process_struct(v);
+			else static_assert(false, "invalid type kind");
+		});
+	}
+
+	static void process_root(const auto& obj) {
+		process_type(obj);
 	}
 };
 
@@ -123,7 +127,9 @@ void Viewer(const char* label, const RflDiffResult& diff, void* obj, const hh::f
 			if (ImGui::TreeNode(pathBuf, "UPDATED: %s", pathBuf)) {
 				RenderRflDiffChange::change = &change;
 				RenderRflDiffChange::pathIdx = change.path.size() - 1;
-				ucsl::reflection::traversals::traversal<RenderRflDiffChange>{}(*(opaque_obj*)obj, ucsl::reflection::providers::rflclass<he2sdk::ucsl::GameInterface>::reflect(rflClass));
+				ucsl::reflection::providers::rflclass<he2sdk::ucsl::GameInterface>::RootType refl{ rflClass };
+				ucsl::reflection::accessors::binary<he2sdk::ucsl::GameInterface>::ValueAccessor<decltype(refl)> acc{ obj, refl };
+				RenderRflDiffChange::process_root(acc);
 				ImGui::TreePop();
 			}
 		}

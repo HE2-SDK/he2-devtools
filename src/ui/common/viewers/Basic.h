@@ -53,12 +53,12 @@ void Viewer(const char* label, const hh::fnd::HFrame& frame);
 
 template<ucsl::colors::ChannelOrder order>
 void Viewer(const char* label, const ucsl::colors::Color8<order>& color) {
-	ImGui::Text("%s: R: %d, G: %d, B: %d, A: %d", color.r, color.g, color.b, color.a);
+	ImGui::Text("%s: R: %d, G: %d, B: %d, A: %d", label, color.r, color.g, color.b, color.a);
 }
 
 template<ucsl::colors::ChannelOrder order>
 void Viewer(const char* label, const ucsl::colors::Colorf<order>& color) {
-	ImGui::Text("%s: R: %f, G: %f, B: %f, A: %f", color.r, color.g, color.b, color.a);
+	ImGui::Text("%s: R: %f, G: %f, B: %f, A: %f", label, color.r, color.g, color.b, color.a);
 }
 
 bool BeginVectorViewerTable(const char* id, bool withWAxis);

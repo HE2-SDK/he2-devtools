@@ -10,7 +10,6 @@
 #include "resources/ResourceBrowser.h"
 #include "game-services/GameServiceInspector.h"
 #include "core-services/MemoryInspector.h"
-#include "tools/RflComparer.h"
 #include <ui/common/viewers/Basic.h>
 
 #ifdef DEVTOOLS_TARGET_SDK_wars
@@ -68,10 +67,8 @@ void ToolBar::Render() {
 		if (ImGui::BeginMenu("Inspectors")) {
 			if (ImGui::MenuItem("GameService"))
 				new (Desktop::instance->GetAllocator()) GameServiceInspector(Desktop::instance->GetAllocator());
-#ifndef DEVTOOLS_TARGET_SDK_miller
 			if (ImGui::MenuItem("Memory"))
 				new (Desktop::instance->GetAllocator()) MemoryInspector(Desktop::instance->GetAllocator());
-#endif
 #ifdef DEVTOOLS_TARGET_SDK_rangers
 			if (ImGui::MenuItem("GameUpdater"))
 				new (Desktop::instance->GetAllocator()) GameUpdaterInspector(Desktop::instance->GetAllocator());
@@ -102,8 +99,6 @@ void ToolBar::Render() {
 #endif
 			if (ImGui::MenuItem("NeedleFxSceneData Tester V2") && ImGui::FindWindowByName("NeedleFxSceneData testing tool V2") == nullptr)
 				new (Desktop::instance->GetAllocator()) NeedleFxSceneDataTesterV2(Desktop::instance->GetAllocator());
-			if (ImGui::MenuItem("RFL Comparer"))
-				new (Desktop::instance->GetAllocator()) RflComparer(Desktop::instance->GetAllocator());
 			if (ImGui::MenuItem("Export HSON template")) {
 				IGFD::FileDialogConfig cfg{};
 				cfg.path = GlobalSettings::defaultFileDialogDirectory;

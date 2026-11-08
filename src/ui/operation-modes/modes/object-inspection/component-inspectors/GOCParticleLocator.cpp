@@ -25,10 +25,11 @@ void RenderComponentInspector(GOCParticleLocator& component) {
 					for (auto& effect : effects->boundItems) {
 						ImGui::PushID(effectIdx);
 						if (ImGui::TreeNodeEx("Effect", ImGuiTreeNodeFlags_DefaultOpen)) {
-							Editor("unk1", effect.unk1);
-							Editor("unk2", effect.unk2);
-							Editor("unk3", effect.unk3);
-							Editor("unk4", effect.unk4);
+							Editor("State Sequence Number", effect.stateSequenceNr);
+							Editor("ID", effect.id);
+							Editor("Looping", effect.looping);
+							if (effect.emitter != nullptr)
+								Viewer("Emitter", effect.emitter->emitterName);
 							Editor("Handle", effect.item);
 							ImGui::TreePop();
 						}
@@ -55,10 +56,11 @@ void RenderComponentInspector(GOCParticleLocator& component) {
 					for (auto& sound : sounds->boundItems) {
 						ImGui::PushID(soundIdx);
 						if (ImGui::TreeNodeEx("Sound", ImGuiTreeNodeFlags_DefaultOpen)) {
-							Editor("unk1", sound.unk1);
-							Editor("unk2", sound.unk2);
-							Editor("unk3", sound.unk3);
-							Editor("unk4", sound.unk4);
+							Editor("State Sequence Number", sound.stateSequenceNr);
+							Editor("ID", sound.id);
+							Editor("Looping", sound.looping);
+							if (sound.emitter != nullptr)
+								Viewer("Emitter", sound.emitter->emitterName);
 
 							if (sound.item.IsPlay())
 								Viewer("Name", sound.item.GetCueName());
